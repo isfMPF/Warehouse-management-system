@@ -8,26 +8,27 @@ import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "order")
+@Table(name = "orders")
 public class OrderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
     @CreatedDate
     private LocalDate date;
-    @ManyToOne
-    @JoinColumn(name = "product",referencedColumnName = "code")
-    private ProductEntity code;
-    private int amount; //кол-во упаковок
-    @ManyToOne
-    @JoinColumn(name = "client",referencedColumnName = "codeClient")
+
+    @ManyToOne(fetch = FetchType.EAGER,cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "client_id")
     private ClientEntity codeClient;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    private List<OrderItemEntity> item;
     private Double total; //сумма заказа
 
 }

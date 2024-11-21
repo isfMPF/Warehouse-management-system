@@ -15,7 +15,7 @@ import lombok.Setter;
 public class ClientEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
     @Column(name = "barcode")
     private Long codeClient; // код холодильника
     @Column(name = "store")
