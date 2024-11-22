@@ -1,6 +1,5 @@
-package com.project.wms.dto;
+package com.project.wms.dto.responsedto;
 
-import jakarta.persistence.Column;
 import lombok.Data;
 
 @Data

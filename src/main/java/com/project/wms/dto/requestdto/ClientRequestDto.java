@@ -1,4 +1,4 @@
-package com.project.wms.dto;
+package com.project.wms.dto.requestdto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
