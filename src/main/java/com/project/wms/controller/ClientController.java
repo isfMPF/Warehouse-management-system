@@ -1,39 +1,46 @@
 package com.project.wms.controller;
 
 import com.project.wms.dto.requestdto.ClientRequestDto;
-import com.project.wms.entity.ClientEntity;
-import com.project.wms.repository.ClientRepository;
+import com.project.wms.service.ClientService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.text.AttributedString;
 
 @Controller
-@RequestMapping("/clients")
 public class ClientController {
 
- @GetMapping
-    public String showClients(Model model){
+
+    public final ClientService clientService;
+
+    public ClientController(ClientService clientService) {
+        this.clientService = clientService;
+    }
+
+    @GetMapping("/clients")
+    public String showAllClients(){
+        return "viewClients";
+    }
+
+
+    @GetMapping("/form-client")
+    public String showFormsAddClient(Model model){
      model.addAttribute("clientRequestDto", new ClientRequestDto());
-     return "client";
+     return "addClient";
  }
 
- @PostMapping
-    public String addProduct(@ModelAttribute("clientRequestDto") @Valid ClientRequestDto clientRequestDto,
+ @PostMapping("/add-client")
+    public String addClient(@ModelAttribute("clientRequestDto") @Valid ClientRequestDto clientRequestDto,
                                BindingResult errors){
       
      if(errors.hasErrors()){
-         return "client";
+         return "addClient";
      }
+    clientService.addClient(clientRequestDto);
 
-     return "redirect:/clients?success";
+     return "redirect:/addClient?success";
  }
 }

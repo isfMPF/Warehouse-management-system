@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header.html :: headerfiles(pageTitle='Все клиенты')}"></head>
+<body>
+<div th:replace="~{fragments/header.html :: header}"></div>
+<div class="container d-flex justify-content-center mt-5">
+  <table class="table table-bordered table-hover w-75">
+    <thead class="thead-dark">
+    <tr>
+      <th scope="col">Код</th>
+      <th scope="col">Клиент</th>
+      <th scope="col">Адрес</th>
+      <th scope="col">ФИО</th>
+      <th scope="col">Телефон</th>
+      <th scope="col">Действия</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>001</td>
+      <td>ООО "Пример"</td>
+      <td>Москва</td>
+      <td>Иванов И.И.</td>
+      <td>+7 999 999 99 99</td>
+      <td>
+        <button class="btn btn-primary btn-sm me-2">Edit</button>
+        <button class="btn btn-danger btn-sm">Delete</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+
+
+</body>
+</html>
