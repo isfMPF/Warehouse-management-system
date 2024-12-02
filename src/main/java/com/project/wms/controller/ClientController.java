@@ -1,27 +1,59 @@
 package com.project.wms.controller;
 
 import com.project.wms.dto.requestdto.ClientRequestDto;
+import com.project.wms.dto.responsedto.ClientResponseDto;
+import com.project.wms.mapper.ClientMapper;
 import com.project.wms.service.ClientService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Controller
 public class ClientController {
 
 
     public final ClientService clientService;
-
-    public ClientController(ClientService clientService) {
+    public final ClientMapper clientMapper;
+    public ClientController(ClientService clientService, ClientMapper clientMapper) {
         this.clientService = clientService;
+        this.clientMapper = clientMapper;
     }
 
     @GetMapping("/clients")
-    public String showAllClients(){
+    public String showAllClients(Model model) {
+
+        List<ClientResponseDto> clientDtos = StreamSupport.stream(clientService.getAllClients().spliterator(), false)
+                .map(clientMapper::toResponseDto)
+                .collect(Collectors.toList());
+
+        model.addAttribute("allClients", clientDtos);
+        return "viewClients";
+    }
+
+    @GetMapping("/search")
+    public String showClientByName(@RequestParam String name,Model model){
+        if (name == null || name.trim().isEmpty()) {
+            model.addAttribute("error", "Введите название для поиска.");
+            return "viewClients";
+        }
+
+
+        List<ClientResponseDto> clients = clientService.getClientsByNameIgnoreCase(name).stream()
+                .map(clientMapper::toResponseDto)
+                .toList();
+
+        if(clients.isEmpty()){
+            model.addAttribute("error", "Клиент с именем '" + name + "' не найден");
+            return "viewClients";
+        }
+
+        model.addAttribute("allClients", clients);
         return "viewClients";
     }
 
@@ -41,6 +73,30 @@ public class ClientController {
      }
     clientService.addClient(clientRequestDto);
 
-     return "redirect:/addClient?success";
+     return "redirect:/clients";
  }
+        @GetMapping("/clientEdit/{id}")
+        public String Edit(@PathVariable(value = "id") long id, Model model) {
+            ClientResponseDto clientDto = StreamSupport.stream(clientService.getAllClients().spliterator(), false)
+                    .map(clientMapper::toResponseDto)
+                    .filter(client -> client.getId() == id)
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("Клиент не найден"));
+
+            model.addAttribute("client", clientDto);
+            return "editClient";
+        }
+
+        @PostMapping("/clientEdit")
+        public String updateClient(@ModelAttribute("client") ClientRequestDto clientDto) {
+            clientService.addClient(clientDto);
+            return "redirect:/clients";
+        }
+
+         @GetMapping("/clientDelete/{id}")
+         public String deleteClient(@PathVariable(value = "id") long id){
+            clientService.deteleClient(id);
+            return "redirect:/clients";
+         }
+
 }

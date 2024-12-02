@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header.html :: headerfiles(pageTitle='Добавить клиента')}"></head>
+<body>
+<div th:replace="~{fragments/header.html :: header}"></div>
+<div class="container mt-2">
+  <form method="post" th:action="@{/add-client}" th:object="${client}">
+
+    <div th:if="${param.success}">
+      <div class="alert alert-success" role="alert">
+        Клиент успешно обновлен
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <input type="hidden" th:field="*{id}">
+
+      <label class="form-label">Код</label>
+      <input  class="form-control"  th:field="*{codeClient}">
+      <span class="validationError" th:if="${#fields.hasErrors('codeClient')}"
+            th:errors="*{codeClient}"
+            style="color: red; font-weight: bold;"> Name error</span>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Название торговой точки</label>
+      <input  class="form-control" th:field="*{name}">
+      <span class="validationError" th:if="${#fields.hasErrors('name')}"
+            th:errors="*{name}"
+            style="color: red; font-weight: bold;">Name error</span>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Адрес</label>
+      <input  class="form-control" th:field="*{address}">
+      <span class="validationError" th:if="${#fields.hasErrors('address')}"
+            th:errors="*{address}"
+            style="color: red; font-weight: bold;">Name error</span>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">ФИО</label>
+      <input  class="form-control" th:field="*{fio}">
+      <span class="validationError" th:if="${#fields.hasErrors('fio')}"
+            th:errors="*{fio}"
+            style="color: red; font-weight: bold;">Name error</span>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Телефон</label>
+      <input  class="form-control" th:field="*{phone}">
+      <span class="validationError" th:if="${#fields.hasErrors('phone')}"
+            th:errors="*{phone}"
+            style="color: red; font-weight: bold;">Name error</span>
+    </div>
+    <input type="submit" value="Обновить" class="btn btn-success">
+    <input type="reset" name="clearFilter" value="Очистить" class="btn btn-danger">
+    <input type="button" value="Назад" class="btn btn-primary" onclick="history.back();">
+  </form>
+</div>
+</body>
+</html>

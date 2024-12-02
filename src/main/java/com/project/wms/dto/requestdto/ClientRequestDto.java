@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 public class ClientRequestDto {
+    private Long id;
     @NotEmpty(message = "Вводите код куллера")
     @Pattern(regexp = "\\d+", message = "Только цифры")
     private String codeClient; // код холодильника

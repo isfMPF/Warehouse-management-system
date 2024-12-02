@@ -4,35 +4,53 @@
 <head th:replace="~{fragments/header.html :: headerfiles(pageTitle='Все клиенты')}"></head>
 <body>
 <div th:replace="~{fragments/header.html :: header}"></div>
-<div class="container d-flex justify-content-center mt-5">
-  <table class="table table-bordered table-hover w-75">
-    <thead class="thead-dark">
-    <tr>
-      <th scope="col">Код</th>
-      <th scope="col">Клиент</th>
-      <th scope="col">Адрес</th>
-      <th scope="col">ФИО</th>
-      <th scope="col">Телефон</th>
-      <th scope="col">Действия</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-      <td>001</td>
-      <td>ООО "Пример"</td>
-      <td>Москва</td>
-      <td>Иванов И.И.</td>
-      <td>+7 999 999 99 99</td>
-      <td>
-        <button class="btn btn-primary btn-sm me-2">Edit</button>
-        <button class="btn btn-danger btn-sm">Delete</button>
-      </td>
-    </tr>
-    </tbody>
-  </table>
+
+<div class="d-flex justify-content-center align-items-center mt-5">
+  <div class="card" style="width: 100%; max-width: 1200px;">
+    <div class="card-header">
+      Все клиенты
+    </div>
+    <div class="card-body">
+      <div class="input-group mb-3">
+        <form method="get" th:action="@{/search}" th:object="${allClients}" class="input-group" >
+          <button class="btn btn-primary" type="submit" id="button-addon1">Искать</button>
+          <input type="text" name="name" class="form-control" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
+          <span th:if="${error}" th:text="${error}" style="color: red; font-weight: bold;"></span>
+        </form>
+    </div>
+
+      <a href="/form-client" class="btn btn-primary mb-3">Добавить</a>
+      <a href="/clients" class="btn btn-info mb-3">Показать всё</a>
+
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+          <thead class="thead-dark">
+          <tr>
+            <th scope="col">Код</th>
+            <th scope="col">Клиент</th>
+            <th scope="col">Адрес</th>
+            <th scope="col">ФИО</th>
+            <th scope="col">Телефон</th>
+            <th scope="col">Действия</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="client : ${allClients}">
+            <td th:text="${client.codeClient}"></td>
+            <td th:text="${client.name}"></td>
+            <td th:text="${client.address}"></td>
+            <td th:text="${client.fio}"></td>
+            <td th:text="${client.phone}"></td>
+            <td>
+              <a th:href="@{/clientEdit/{id}(id=${client.id})}" class="btn btn-primary btn-sm me-2">Edit</a>
+              <a th:href="@{/clientDelete/{id}(id=${client.id})}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
-
-
-
 </body>
 </html>

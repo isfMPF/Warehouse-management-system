@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class ClientResponseDto {
 
+    private Long id;
     private Long codeClient; // код холодильника
     private String name; //название торговой точки
     private String address;
