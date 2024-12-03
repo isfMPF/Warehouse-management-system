@@ -17,9 +17,9 @@ import java.util.stream.StreamSupport;
 @Controller
 public class ClientController {
 
-
     public final ClientService clientService;
     public final ClientMapper clientMapper;
+
     public ClientController(ClientService clientService, ClientMapper clientMapper) {
         this.clientService = clientService;
         this.clientMapper = clientMapper;
@@ -34,69 +34,85 @@ public class ClientController {
 
         model.addAttribute("allClients", clientDtos);
         return "viewClients";
+
     }
 
     @GetMapping("/search")
-    public String showClientByName(@RequestParam String name,Model model){
-        if (name == null || name.trim().isEmpty()) {
+    public String showClientByName(@RequestParam String query,Model model){
+
+        if (query == null || query.trim().isEmpty()) {
             model.addAttribute("error", "Введите название для поиска.");
             return "viewClients";
         }
 
-
-        List<ClientResponseDto> clients = clientService.getClientsByNameIgnoreCase(name).stream()
+        List<ClientResponseDto> clients = clientService.getClientsByNameIgnoreCaseOrByCodeClient(query).stream()
                 .map(clientMapper::toResponseDto)
                 .toList();
 
         if(clients.isEmpty()){
-            model.addAttribute("error", "Клиент с именем '" + name + "' не найден");
+            model.addAttribute("error", "Клиент не найден");
             return "viewClients";
         }
 
         model.addAttribute("allClients", clients);
         return "viewClients";
+
     }
 
 
     @GetMapping("/form-client")
     public String showFormsAddClient(Model model){
-     model.addAttribute("clientRequestDto", new ClientRequestDto());
-     return "addClient";
- }
 
- @PostMapping("/add-client")
+        model.addAttribute("clientRequestDto", new ClientRequestDto());
+        return "addClient";
+
+    }
+
+    @PostMapping("/add-client")
     public String addClient(@ModelAttribute("clientRequestDto") @Valid ClientRequestDto clientRequestDto,
                                BindingResult errors){
-      
-     if(errors.hasErrors()){
-         return "addClient";
-     }
-    clientService.addClient(clientRequestDto);
 
-     return "redirect:/clients";
- }
-        @GetMapping("/clientEdit/{id}")
-        public String Edit(@PathVariable(value = "id") long id, Model model) {
-            ClientResponseDto clientDto = StreamSupport.stream(clientService.getAllClients().spliterator(), false)
-                    .map(clientMapper::toResponseDto)
-                    .filter(client -> client.getId() == id)
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Клиент не найден"));
+        if(errors.hasErrors())
+        {
+            return "addClient";
+        }
+
+        clientService.addClient(clientRequestDto);
+        return "redirect:/clients";
+
+    }
+
+
+    @GetMapping("/clientEdit/{id}")
+    public String Edit(@PathVariable(value = "id") long id, Model model) {
+
+        ClientResponseDto clientDto = StreamSupport.stream(clientService.getAllClients().spliterator(), false)
+                .map(clientMapper::toResponseDto)
+                .filter(client -> client.getId() == id)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Клиент не найден"));
 
             model.addAttribute("client", clientDto);
             return "editClient";
-        }
 
-        @PostMapping("/clientEdit")
-        public String updateClient(@ModelAttribute("client") ClientRequestDto clientDto) {
-            clientService.addClient(clientDto);
-            return "redirect:/clients";
-        }
+    }
 
-         @GetMapping("/clientDelete/{id}")
-         public String deleteClient(@PathVariable(value = "id") long id){
-            clientService.deteleClient(id);
-            return "redirect:/clients";
-         }
+
+    @PostMapping("/clientEdit")
+    public String updateClient(@ModelAttribute("client") ClientRequestDto clientDto) {
+
+        clientService.addClient(clientDto);
+        return "redirect:/clients";
+
+    }
+
+
+    @GetMapping("/clientDelete/{id}")
+    public String deleteClient(@PathVariable(value = "id") long id){
+
+        clientService.deteleClient(id);
+        return "redirect:/clients";
+
+    }
 
 }

@@ -8,5 +8,6 @@ import java.util.List;
 public interface ClientRepository extends JpaRepository<ClientEntity,Long> {
 
     List<ClientEntity> findByNameIgnoreCase(String name);
+    List<ClientEntity> findByCodeClient(Long code);
 
 }

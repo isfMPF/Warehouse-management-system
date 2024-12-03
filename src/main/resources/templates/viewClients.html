@@ -14,7 +14,7 @@
       <div class="input-group mb-3">
         <form method="get" th:action="@{/search}" th:object="${allClients}" class="input-group" >
           <button class="btn btn-primary" type="submit" id="button-addon1">Искать</button>
-          <input type="text" name="name" class="form-control" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
+          <input type="text" name="query" class="form-control" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
           <span th:if="${error}" th:text="${error}" style="color: red; font-weight: bold;"></span>
         </form>
     </div>

@@ -7,16 +7,16 @@ import lombok.Data;
 @Data
 public class ClientRequestDto {
     private Long id;
-    @NotEmpty(message = "Вводите код куллера")
+    @NotEmpty(message = "Введите код")
     @Pattern(regexp = "\\d+", message = "Только цифры")
     private String codeClient; // код холодильника
-    @NotEmpty(message = "Вводите название трговой точки")
+    @NotEmpty(message = "Введите название тоговой точки")
     private String name; //название торговой точки
-    @NotEmpty(message = "Вводите адрес")
+    @NotEmpty(message = "Введите адрес")
     private String address;
-    @NotEmpty(message = "Вводите ФИО")
+    @NotEmpty(message = "Введите ФИО")
     private String fio;
-    @NotEmpty(message = "Вводите номер телефона")
+    @NotEmpty(message = "Введите номер телефона")
     @Pattern(regexp = "\\d+", message = "Только цифры")
     private String phone;
 }

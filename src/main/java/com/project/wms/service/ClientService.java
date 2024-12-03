@@ -32,8 +32,11 @@ public class ClientService  {
         clientRepository.deleteById(id);
     }
 
-    public List<ClientEntity> getClientsByNameIgnoreCase(String name) {
-        return clientRepository.findByNameIgnoreCase(name);
+    public List<ClientEntity> getClientsByNameIgnoreCaseOrByCodeClient(String query) {
+        if (query.matches("\\d+")){
+            return clientRepository.findByCodeClient(Long.parseLong(query));
+        }
+        return clientRepository.findByNameIgnoreCase(query);
     }
 
 
