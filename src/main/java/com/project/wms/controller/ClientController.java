@@ -33,7 +33,7 @@ public class ClientController {
                 .collect(Collectors.toList());
 
         model.addAttribute("allClients", clientDtos);
-        return "viewClients";
+        return "/client/viewClients";
 
     }
 
@@ -42,7 +42,7 @@ public class ClientController {
 
         if (query == null || query.trim().isEmpty()) {
             model.addAttribute("error", "Введите название для поиска.");
-            return "viewClients";
+            return "/client/viewClients";
         }
 
         List<ClientResponseDto> clients = clientService.getClientsByNameIgnoreCaseOrByCodeClient(query).stream()
@@ -51,11 +51,11 @@ public class ClientController {
 
         if(clients.isEmpty()){
             model.addAttribute("error", "Клиент не найден");
-            return "viewClients";
+            return "/client/viewClients";
         }
 
         model.addAttribute("allClients", clients);
-        return "viewClients";
+        return "/client/viewClients";
 
     }
 
@@ -64,7 +64,7 @@ public class ClientController {
     public String showFormsAddClient(Model model){
 
         model.addAttribute("clientRequestDto", new ClientRequestDto());
-        return "addClient";
+        return "/client/addClient";
 
     }
 
@@ -74,7 +74,7 @@ public class ClientController {
 
         if(errors.hasErrors())
         {
-            return "addClient";
+            return "/client/addClient";
         }
 
         clientService.addClient(clientRequestDto);
@@ -93,18 +93,10 @@ public class ClientController {
                 .orElseThrow(() -> new RuntimeException("Клиент не найден"));
 
             model.addAttribute("client", clientDto);
-            return "editClient";
+            return "/client/editClient";
 
     }
 
-
-    @PostMapping("/clientEdit")
-    public String updateClient(@ModelAttribute("client") ClientRequestDto clientDto) {
-
-        clientService.addClient(clientDto);
-        return "redirect:/clients";
-
-    }
 
 
     @GetMapping("/clientDelete/{id}")

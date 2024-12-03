@@ -15,10 +15,10 @@ import lombok.Setter;
 public class ProductEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    private Long code;  //код товара
+    private Long id;
+    private String code;  //код товара
     private String name;
-    private Double volume; //объём
+    private String volume; //объём
     private String unit; //л, кг
     private int quantity; //кол-во в упаковке
     private Double price;
