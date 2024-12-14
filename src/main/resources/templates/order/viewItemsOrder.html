@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header.html :: headerfiles(pageTitle='Заказы')}"></head>
+<body>
+<div th:replace="~{fragments/header.html :: header}"></div>
+
+    <div class="d-flex justify-content-center align-items-center mt-5">
+            <div class="card" style="width: 100%; max-width: 1200px;">
+                <div class="card-header">
+                        Заказы
+                </div>
+                    <div class="card-body">
+                        <form  th:action="@{/order/create}" th:object="${orderRequestDto}" method="post">
+                        <div class="mb-3">
+                            <label th:for="*{codeClient}" class="form-label">Выбрать клиента</label>
+                            <select th:field="*{codeClient}" class="form-control">
+                                <option value="" selected>Выберите клиента</option>
+                                <option th:each="client : ${clients}" th:value="${client.id}" th:text="${client.name}"></option>
+                                <span class="validationError" th:if="${#fields.hasErrors('codeClient')}"
+                                      th:errors="*{codeClient}"
+                                      style="color: red; font-weight: bold;"> Name error</span>
+                            </select>
+                        </div>
+
+                            <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                                Добавить товар
+                            </button>
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">Код</th>
+                                    <th scope="col">Товар</th>
+                                    <th scope="col">Объём</th>
+                                    <th scope="col">Цена</th>
+                                    <th scope="col">Количесво</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="product : ${products}">
+                                    <td th:text="${product.code}"></td>
+                                    <td th:text="${product.name}"></td>
+                                    <td th:text="${product.volume}"></td>
+                                    <td th:text="${product.unit}"></td>
+                                    <td th:text="${product.quantity}"></td>
+                                    <td th:text="${product.price}"></td>
+                                    <td th:text="${product.amount}"></td>
+                                    <td>
+                                        <input class="form-control" type="number" id="amount" name="amountProduct">
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                            <input type="submit" value="Сохранить" class="btn btn-success">
+                        </form>
+                    </div>
+
+            </div>
+    </div>
+
+<div class="modal fade modal-lg" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Товары</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/order/create}" th:object="${orderRequestDto}" method="post">
+                    <table class="table table-bordered table-hover">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Выбрать</th>
+                            <th scope="col">Код</th>
+                            <th scope="col">Товар</th>
+                            <th scope="col">Объём</th>
+                            <th scope="col">Ед.</th>
+                            <th scope="col">Кол-во в уп.</th>
+                            <th scope="col">Цена</th>
+                            <th scope="col">Количесто на складе</th>
+                            <th scope="col">Количество</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="product, iterStat : ${products}">
+                            <td>
+                                <input type="checkbox" th:field="*{item[iterStat.index].selected}" th:value="${product.id}" />
+                            </td>
+                            <td th:text="${product.code}"></td>
+                            <td th:text="${product.name}"></td>
+                            <td th:text="${product.volume}"></td>
+                            <td th:text="${product.unit}"></td>
+                            <td th:text="${product.quantity}"></td>
+                            <td th:text="${product.price}"></td>
+                            <td th:text="${product.amount}"></td>
+                            <td>
+                                <input type="number" th:field="*{item[iterStat.index].amount}" min="1" placeholder="Количество" class="form-control" />
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <button type="submit" class="btn btn-primary">Добавить в заказ</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

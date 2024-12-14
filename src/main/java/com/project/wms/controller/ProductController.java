@@ -65,7 +65,7 @@ public class ProductController {
                 .map(productMapper::toResponseDto)
                 .filter(product -> product.getId() == id)
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Клиент не найден"));
+                .orElseThrow(() -> new RuntimeException("Товар не найден"));
 
         model.addAttribute("product", productResponseDto);
         return "/product/editProduct";
