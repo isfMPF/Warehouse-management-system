@@ -1,6 +1,5 @@
 package com.project.wms.controller;
 
-import com.project.wms.dto.requestdto.ClientRequestDto;
 import com.project.wms.dto.requestdto.ProductRequestDto;
 import com.project.wms.dto.responsedto.ClientResponseDto;
 import com.project.wms.dto.responsedto.ProductResponseDto;
@@ -13,6 +12,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Controller
@@ -90,12 +90,17 @@ public class ProductController {
             model.addAttribute("error", "Введите название для поиска.");
             return "/product/viewProduct";
         }
-
-        List<ProductResponseDto> products = productService.getProductsByNameIgnoreCaseOrByCode(query).stream()
+        List<ProductResponseDto> products = StreamSupport.stream(productService.getAllProducts().spliterator(), false)
+                .filter(product ->
+                        (product.getName() != null && product.getName().toLowerCase().contains(query.toLowerCase())) ||
+                                (product.getCode() != null && product.getCode().contains(query)) ||
+                                (product.getVolume() != null && product.getVolume().toLowerCase().contains(query.toLowerCase()))
+                )
                 .map(productMapper::toResponseDto)
                 .toList();
 
-        if(products.isEmpty()){
+
+        if(products == null){
             model.addAttribute("error", "Товар не найден");
             return "/product/viewProduct";
         }

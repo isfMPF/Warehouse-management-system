@@ -31,7 +31,7 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
-    public List<ProductEntity> getProductsByNameIgnoreCaseOrByCode(String query) {
+    public ProductEntity getProductsByNameIgnoreCaseOrByCode(String query) {
         if (query.matches("\\d+")){
             return productRepository.findByCode(query);
         }

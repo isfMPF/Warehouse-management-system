@@ -12,7 +12,8 @@ public class OrderResponseDto {
 
     private int id;
     private LocalDate date;
+    private String clientName;
     private Long codeClient;
-    private List<OrderItemEntity> item;
     private Double total; //сумма заказа
+    private List<OrderItemResponseDto> items; // Список товаров для этого заказа
 }

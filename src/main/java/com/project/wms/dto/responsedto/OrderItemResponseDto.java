@@ -14,4 +14,5 @@ public class OrderItemResponseDto {
     private Double price; // Цена за единицу товара
     private Double total; // Общая сумма для данного товара (amount * price)
 
+
 }

@@ -24,8 +24,8 @@ public class OrderItemEntity {
     private OrderEntity order; // Связанный заказ
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "product_id", referencedColumnName = "id")
-    private ProductEntity product; // Связанный товар
+    @JoinColumn(name = "product_code", referencedColumnName = "code")
+    private ProductEntity code; // Связанный товар
 
     private int amount; // Количество упаковок
     private Double price; // Цена за единицу товара

@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ClientService  {
@@ -32,12 +31,14 @@ public class ClientService  {
         clientRepository.deleteById(id);
     }
 
-    public List<ClientEntity> getClientsByNameIgnoreCaseOrByCodeClient(String query) {
+    public ClientEntity getClientsByNameIgnoreCaseOrByCodeClient(String query) {
         if (query.matches("\\d+")){
             return clientRepository.findByCodeClient(Long.parseLong(query));
         }
         return clientRepository.findByNameIgnoreCase(query);
     }
+
+
 
 
 }

@@ -45,11 +45,15 @@ public class ClientController {
             return "/client/viewClients";
         }
 
-        List<ClientResponseDto> clients = clientService.getClientsByNameIgnoreCaseOrByCodeClient(query).stream()
+        List<ClientResponseDto> clients = StreamSupport.stream(clientService.getAllClients().spliterator(), false)
+                .filter(client ->
+                        (client.getName() != null && client.getName().toLowerCase().contains(query.toLowerCase())) ||
+                                (client.getCodeClient() != null && String.valueOf(client.getCodeClient()).contains(query)) ||
+                                (client.getAddress() != null && client.getAddress().toLowerCase().contains(query.toLowerCase()))
+                        )
                 .map(clientMapper::toResponseDto)
-                .toList();
-
-        if(clients.isEmpty()){
+                .collect(Collectors.toList());
+        if(clients == null){
             model.addAttribute("error", "Клиент не найден");
             return "/client/viewClients";
         }
