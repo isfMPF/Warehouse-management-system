@@ -10,6 +10,8 @@ public class OrderItemResponseDto {
     private Long id;
     private Long order; // Связанный заказ
     private Long product; // Связанный товар
+    private String name;
+    private String volume; //объём
     private int amount; // Количество упаковок
     private Double price; // Цена за единицу товара
     private Double total; // Общая сумма для данного товара (amount * price)

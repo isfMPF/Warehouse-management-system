@@ -112,17 +112,9 @@ public class OrderController {
     @GetMapping("/orderDetails/{id}")
     public String showDetailsOrder(@PathVariable(value = "id") long id, Model model) {
 
-        List<OrderItemResponseDto> orderItemResponseDtos = orderItemService.getAllItemsByOrderId(id).stream()
-                .map(orderItemMapper::toResponseDto)
-                .collect(Collectors.toList());
-        model.addAttribute("orderDetails", orderItemResponseDtos);
-
         List<OrderResponseDto> order = orderService.getOrderById(id).stream()
                 .map(orderMapper::toResponseDto)
                 .collect(Collectors.toList());
-
-        System.out.println(order);
-
         model.addAttribute("orders", order);
 
 

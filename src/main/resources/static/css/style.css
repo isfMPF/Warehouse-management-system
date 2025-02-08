@@ -1,0 +1,9 @@
+/* Выровнять все заголовки таблицы по центру */
+.table thead th {
+    text-align: center;
+}
+
+/* Выровнять текст в ячейках по центру */
+.table tbody td {
+    text-align: center;
+}

@@ -12,5 +12,7 @@ public interface OrderItemMapper {
     // Преобразование OrderItemEntity в OrderItemResponseDto
     @Mapping(source = "order.id", target = "order") // Преобразуем заказ в его ID
     @Mapping(source = "code.code", target = "product") // Преобразуем товар в его ID
+    @Mapping(source = "code.name", target = "name") // Преобразуем товар в его ID
+    @Mapping(source = "code.volume", target = "volume") // Преобразуем товар в его ID
     OrderItemResponseDto toResponseDto(OrderItemEntity item);
 }

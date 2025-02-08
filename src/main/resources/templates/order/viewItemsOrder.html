@@ -42,7 +42,8 @@
                             <tr th:each="product, iterStat : ${products}">
                                 <td style="width: 50px;">
                                     <!-- Чекбокс для выбора товара -->
-                                    <input type="checkbox" class="form-check-input" th:field="*{items[__${iterStat.index}__].selected}" value="true"/>
+                                    <input type="checkbox" class="form-check-input"
+                                           th:field="*{items[__${iterStat.index}__].selected}" value="true"/>
                                 </td>
                                 <td th:text="${product.code}"></td>
                                 <td th:text="${product.name}"></td>

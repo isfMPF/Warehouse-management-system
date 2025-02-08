@@ -14,23 +14,46 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered table-hover">
+                <table class="table table-bordered">
                     <thead class="thead-dark">
-                    <tr>
+                    <tr th:each="orderData : ${orders}">
                         <th scope="col" style="width: 50px;">ID Заказа</th>
-                        <th scope="col">Товар</th>
-                        <th scope="col">Количество</th>
-                        <th scope="col">Цена</th>
-                        <th scope="col">Итог</th>
+                        <th scope="col">Клиент: <span th:text="${orderData.clientName}"></span></th>
+                        <th scope="col">Дата: <span th:text="${orderData.date}"></span></th>
+                        <th scope="col">Итоговая сумма: <span th:text="${orderData.total}"></span></th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="orderDetail : ${orderDetails}">
-                        <td th:text="${orderDetail.order}"></td> <!-- ID заказа -->
-                        <td th:text="${orderDetail.product}"></td> <!-- ID товара -->
-                        <td th:text="${orderDetail.amount}"></td> <!-- Количество -->
-                        <td th:text="${orderDetail.price}"></td> <!-- Цена -->
-                        <td th:text="${orderDetail.total}"></td> <!-- Итоговая сумма -->
+                    <!-- Перебор всех заказов -->
+                    <tr th:each="orderDetail : ${orders}">
+                        <!-- Отображаем ID заказа -->
+                        <td th:text="${orderDetail.id}"></td>
+
+                        <!-- Вложенная таблица для товаров этого заказа -->
+                        <td colspan="4">
+                            <table class="table table-bordered"  style="width: 100%;">
+                                <thead>
+                                <tr>
+                                    <th scope="col" style="width: 100px;">Код</th>
+                                    <th scope="col">Товар</th>
+                                    <th scope="col" style="width: 60px;">Объём</th>
+                                    <th scope="col" style="width: 80px;">Количество</th>
+                                    <th scope="col">Цена</th>
+                                    <th scope="col">Итог</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="item : ${orderDetail.items}">
+                                    <td th:text="${item.product}"></td> <!-- Товар -->
+                                    <td th:text="${item.name}"></td> <!-- Товар -->
+                                    <td th:text="${item.volume}"></td> <!-- Товар -->
+                                    <td th:text="${item.amount}"></td> <!-- Количество -->
+                                    <td th:text="${item.price}"></td> <!-- Цена -->
+                                    <td th:text="${item.total}"></td> <!-- Итоговая сумма -->
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
