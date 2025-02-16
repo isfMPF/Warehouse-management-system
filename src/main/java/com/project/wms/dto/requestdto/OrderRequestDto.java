@@ -16,7 +16,6 @@ public class OrderRequestDto {
     @NotNull(message = "Клиент должен быть выбран")
     @Min(value = 1, message = "Идентификатор клиента должен быть положительным")
     private Long codeClient;
-    @Valid // Валидация каждого элемента списка
     List<OrderItemRequestDto> items = new ArrayList<>();
 
 }

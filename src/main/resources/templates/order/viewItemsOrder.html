@@ -24,32 +24,26 @@
                               th:errors="*{codeClient}"
                               style="color: red; font-weight: bold;"> Name error</span>
                     </div>
+                    <a href="/orders/create/select" class="btn btn-primary w-100">Добавить товар</a>
                 </div>
+
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover">
                         <thead class="thead-dark">
                         <tr>
-                            <th scope="col" style="width: 50px;">Выбрать</th>
                             <th scope="col">Код</th>
                             <th scope="col">Товар</th>
                             <th scope="col">Объём</th>
                             <th scope="col">Цена</th>
-                            <th scope="col" style="width: 100px;">Кол-во на складе</th>
                             <th scope="col">Количество</th>
                         </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="product, iterStat : ${products}">
-                                <td style="width: 50px;">
-                                    <!-- Чекбокс для выбора товара -->
-                                    <input type="checkbox" class="form-check-input"
-                                           th:field="*{items[__${iterStat.index}__].selected}" value="true"/>
-                                </td>
+                            <tr th:each="product, iterStat : ${cart}">
                                 <td th:text="${product.code}"></td>
                                 <td th:text="${product.name}"></td>
                                 <td th:text="${product.volume}"></td>
                                 <td th:text="${product.price}"></td>
-                                <td th:text="${product.amount}" style="width: 100px;"></td>
                                 <td>
                                     <!-- Поле для ввода количества товара -->
                                     <input class="form-control" type="number" th:field="*{items[__${iterStat.index}__].amount}" />

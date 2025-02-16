@@ -2,11 +2,9 @@ package com.project.wms.controller;
 
 import com.project.wms.dto.requestdto.OrderRequestDto;
 import com.project.wms.dto.responsedto.ClientResponseDto;
-import com.project.wms.dto.responsedto.OrderItemResponseDto;
 import com.project.wms.dto.responsedto.OrderResponseDto;
 import com.project.wms.dto.responsedto.ProductResponseDto;
 import com.project.wms.dto.requestdto.OrderItemRequestDto;
-import com.project.wms.entity.OrderEntity;
 import com.project.wms.mapper.ClientMapper;
 import com.project.wms.mapper.OrderItemMapper;
 import com.project.wms.mapper.OrderMapper;
@@ -15,6 +13,7 @@ import com.project.wms.service.ClientService;
 import com.project.wms.service.OrderItemService;
 import com.project.wms.service.OrderService;
 import com.project.wms.service.ProductService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -24,6 +23,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -103,7 +103,7 @@ public class OrderController {
     }
 
     @GetMapping("/create")
-    public String createOrder(Model model){
+    public String createOrder(Model model, HttpSession session){
 
         List<ClientResponseDto> clientsToSelect = StreamSupport.stream(clientService.getAllClients().spliterator(), false)
                 .map(clientMapper::toResponseDto)
@@ -111,38 +111,66 @@ public class OrderController {
 
         model.addAttribute("clients",clientsToSelect);
 
+        List<ProductResponseDto> cart = (List<ProductResponseDto>) session.getAttribute("cart");
+
+        if (cart == null) {
+            cart = new ArrayList<>();
+        }
+
+        model.addAttribute("cart", cart);
+        model.addAttribute("orderRequestDto",new OrderRequestDto());
+        return "/order/viewItemsOrder";
+    }
+
+    @GetMapping("/create/select")
+    public String selectProduct(Model model){
+
         List<ProductResponseDto> productsToSelect = StreamSupport.stream(productService.getAllProducts().spliterator(), false)
                 .map(productMapper::toResponseDto)
                 .toList();
 
-        model.addAttribute("products",productsToSelect);
+        model.addAttribute("allProducts",productsToSelect);
 
-        model.addAttribute("orderRequestDto",new OrderRequestDto());
-        return "/order/viewItemsOrder";
+        return "/order/viewProductOrder";
+    }
+
+
+    @GetMapping("/create/select/addToCart/{code}")
+    public String addToCart(@PathVariable("code") String code, Model model, HttpSession session) {
+
+        ProductResponseDto product = productMapper.toResponseDto(productService.getProductByCode(code));
+        System.out.println(product);
+        List<ProductResponseDto> cart = (List<ProductResponseDto>) session.getAttribute("cart");
+
+        if (cart == null) {
+            cart = new ArrayList<>();
+        }
+
+        cart.add(product); // Добавляем товар в корзину
+        System.out.println(cart);
+        session.setAttribute("cart", cart); // Сохраняем корзину в сессии
+        model.addAttribute("cart", cart); // Добавляем корзину в модель для отображения
+
+        return "redirect:/orders/create"; // Вернуться на страницу с продуктами
     }
 
 
 
     @PostMapping("/create")
-    public String addToCart(@Valid @ModelAttribute("orderRequestDto") OrderRequestDto orderRequestDto,
-                            BindingResult errors, Model model){
+    public String saveOrder(@Valid @ModelAttribute("orderRequestDto") OrderRequestDto orderRequestDto,
+                            BindingResult errors, Model model, HttpSession session){
 
-        // Проверка, что выбран хотя бы один товар
-        boolean atLeastOneSelected = orderRequestDto.getItems().stream()
-                .anyMatch(OrderItemRequestDto::isSelected);
-
-        if (!atLeastOneSelected) {
-            errors.reject("items", "Выберите хотя бы один товар"); // Добавляем глобальную ошибку
-        }
 
         // Проверка на ошибки валидации
         if(errors.hasErrors()){
-            List<ProductResponseDto> productsToSelect = StreamSupport.stream(productService.getAllProducts().spliterator(), false)
-                    .map(productMapper::toResponseDto)
-                    .toList();
 
-            model.addAttribute("products", productsToSelect);
+            List<ProductResponseDto> cart = (List<ProductResponseDto>) session.getAttribute("cart");
 
+            if (cart == null) {
+                cart = new ArrayList<>();
+            }
+
+            model.addAttribute("cart", cart);
             List<ClientResponseDto> clientsToSelect = StreamSupport.stream(clientService.getAllClients().spliterator(), false)
                     .map(clientMapper::toResponseDto)
                     .toList();

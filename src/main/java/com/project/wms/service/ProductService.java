@@ -38,4 +38,9 @@ public class ProductService {
         return productRepository.findByNameIgnoreCase(query);
     }
 
+    public ProductEntity getProductByCode(String code){
+        return productRepository.findByCode(code);
+    }
+
+
 }
