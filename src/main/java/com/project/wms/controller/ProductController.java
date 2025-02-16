@@ -68,10 +68,24 @@ public class ProductController {
                 .orElseThrow(() -> new RuntimeException("Товар не найден"));
 
         model.addAttribute("product", productResponseDto);
+        model.addAttribute("productRequestDto", new ProductRequestDto());
         return "/product/editProduct";
 
     }
 
+    @PostMapping("/edit-product")
+    public String editClient(@ModelAttribute("product") @Valid ProductRequestDto productRequestDto,
+                            BindingResult errors){
+
+        if(errors.hasErrors())
+        {
+            return "/product/editProduct";
+        }
+
+        productService.addProduct(productRequestDto);
+        return "redirect:/products";
+
+    }
 
 
 

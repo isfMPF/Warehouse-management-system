@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header.html :: headerfiles(pageTitle='Заказы')}"></head>
+<body>
+<div th:replace="~{fragments/header.html :: header}"></div>
+
+<div class="d-flex justify-content-center align-items-center mt-5">
+    <div class="card" style="width: 100%; max-width: 1200px;">
+        <div class="card-header">
+            Заказы
+        </div>
+        <div class="card-body">
+            <form  th:action="@{/orders/edit-order}" th:object="${orderRequestDto}" method="post">
+                <div class="container mb-3">
+                    <div class="mb-3">
+
+                        <label class="form-label">Выбрать клиента</label>
+                        <select th:field="*{codeClient}" class="form-control">
+                            <option th:each="client : ${order}" th:value="${client.codeClient}" th:text="${client.clientName}"></option>
+                        </select>
+                        <span class="validationError" th:if="${#fields.hasErrors('codeClient')}"
+                              th:errors="*{codeClient}"
+                              style="color: red; font-weight: bold;"> Name error</span>
+                        <input type="hidden" th:name="orderId" th:each="ord : ${order}" th:value="${ord.id}"/>
+
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col" style="width: 50px;">Выбрать</th>
+                            <th scope="col">Код</th>
+                            <th scope="col">Товар</th>
+                            <th scope="col">Объём</th>
+                            <th scope="col">Цена</th>
+                            <th scope="col" style="width: 100px;">Кол-во на складе</th>
+                            <th scope="col">Количество</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="product, iterStat : ${products}">
+                            <td style="width: 50px;">
+                                <!-- Чекбокс для выбора товара -->
+                                <input type="checkbox" class="form-check-input"
+                                       th:field="*{items[__${iterStat.index}__].selected}"
+                                       th:checked="${order.items.product}" />
+
+                            </td>
+                            <td th:text="${product.code}"></td>
+                            <td th:text="${product.name}"></td>
+                            <td th:text="${product.volume}"></td>
+                            <td th:text="${product.price}"></td>
+                            <td th:text="${product.amount}" style="width: 100px;"></td>
+                            <td>
+                                <!-- Поле для ввода количества товара -->
+                                <input class="form-control" type="number"
+                                       th:field="*{items[__${iterStat.index}__].amount}"
+                                       th:value="${order.items.?[product == product.code].!isEmpty() ? order.items.?[product == product.code][0].amount : ''}"/>
+
+                                <span class="validationError" th:if="${#fields.hasErrors('items[__${iterStat.index}__].amount')}"
+                                      th:errors="*{items[__${iterStat.index}__].amount}"
+                                      style="color: red; font-weight: bold;"> Name error</span>
+                            </td>
+                            <!-- Скрытое поле для передачи productId -->
+                            <input type="hidden" th:attr="name='items['+ ${iterStat.index} + '].code'" th:value="${product.code}" name="code"/>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div th:if="${#fields.hasGlobalErrors()}" style="color: red; font-weight: bold;">
+                    <span th:each="err : ${#fields.globalErrors()}" th:text="${err}"/>
+                </div>
+                <input type="submit" value="Обновить" class="btn btn-success">
+                <input type="button" value="Назад" class="btn btn-primary" onclick="history.back();">
+            </form>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

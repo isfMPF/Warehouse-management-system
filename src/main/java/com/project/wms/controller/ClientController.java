@@ -97,11 +97,25 @@ public class ClientController {
                 .orElseThrow(() -> new RuntimeException("Клиент не найден"));
 
             model.addAttribute("client", clientDto);
+            model.addAttribute("clientRequestDto", new ClientRequestDto());
             return "/client/editClient";
 
     }
 
 
+    @PostMapping("/edit-client")
+    public String editClient(@ModelAttribute("client") @Valid ClientRequestDto clientRequestDto,
+                            BindingResult errors){
+
+        if(errors.hasErrors())
+        {
+            return "/client/editClient";
+        }
+
+        clientService.addClient(clientRequestDto);
+        return "redirect:/clients";
+
+    }
 
     @GetMapping("/clientDelete/{id}")
     public String deleteClient(@PathVariable(value = "id") long id){

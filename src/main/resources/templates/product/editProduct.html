@@ -5,7 +5,7 @@
 <body>
 <div th:replace="~{fragments/header.html :: header}"></div>
 <div class="container mt-2">
-  <form method="post" th:action="@{/add-product}" th:object="${product}">
+  <form method="post" th:action="@{/edit-product}" th:object="${product}">
 
     <div th:if="${param.success}">
       <div class="alert alert-success" role="alert">
@@ -17,7 +17,7 @@
       <input type="hidden" th:field="*{id}">
 
       <label class="form-label">Код</label>
-      <input  class="form-control"  th:field="*{code}" placeholder="160103650">
+      <input  class="form-control"  th:field="*{code}" placeholder="160103650" readonly>
       <span class="validationError" th:if="${#fields.hasErrors('code')}"
             th:errors="*{code}"
             style="color: red; font-weight: bold;"> Name error</span>

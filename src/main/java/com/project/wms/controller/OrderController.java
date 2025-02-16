@@ -6,6 +6,7 @@ import com.project.wms.dto.responsedto.OrderItemResponseDto;
 import com.project.wms.dto.responsedto.OrderResponseDto;
 import com.project.wms.dto.responsedto.ProductResponseDto;
 import com.project.wms.dto.requestdto.OrderItemRequestDto;
+import com.project.wms.entity.OrderEntity;
 import com.project.wms.mapper.ClientMapper;
 import com.project.wms.mapper.OrderItemMapper;
 import com.project.wms.mapper.OrderMapper;
@@ -90,6 +91,17 @@ public class OrderController {
         return "/order/viewOrders";
     }
 
+    @GetMapping("/orderDetails/{id}")
+    public String showDetailsOrder(@PathVariable(value = "id") long id, Model model) {
+
+        OrderResponseDto order = orderMapper.toResponseDto(orderService.getOrderById(id));
+        System.out.println(order);
+        model.addAttribute("orders", order);
+
+
+        return "/order/detailsOrder";
+    }
+
     @GetMapping("/create")
     public String createOrder(Model model){
 
@@ -109,17 +121,7 @@ public class OrderController {
         return "/order/viewItemsOrder";
     }
 
-    @GetMapping("/orderDetails/{id}")
-    public String showDetailsOrder(@PathVariable(value = "id") long id, Model model) {
 
-        List<OrderResponseDto> order = orderService.getOrderById(id).stream()
-                .map(orderMapper::toResponseDto)
-                .collect(Collectors.toList());
-        model.addAttribute("orders", order);
-
-
-        return "/order/detailsOrder";
-    }
 
     @PostMapping("/create")
     public String addToCart(@Valid @ModelAttribute("orderRequestDto") OrderRequestDto orderRequestDto,
@@ -151,6 +153,69 @@ public class OrderController {
         }
 
          orderService.createOrder(orderRequestDto);
+
+        return "redirect:/orders";
+    }
+
+    @GetMapping("/edit-order/{id}")
+    public String editOrder(@PathVariable(value = "id") Long id, Model model){
+
+        OrderResponseDto order = orderMapper.toResponseDto(orderService.getOrderById(id));
+        order.getItems().forEach(item -> {
+            if (item.getAmount() > 0) {
+                item.setSelected(true);
+            } else {
+                item.setSelected(false);
+            }
+        });
+        List<ProductResponseDto> productsToSelect = StreamSupport.stream(productService.getAllProducts().spliterator(), false)
+                .map(productMapper::toResponseDto)
+                .toList();
+
+
+        System.out.println("Заказ" + " " + order);
+        System.out.println("Продукты" + " " + productsToSelect);
+        model.addAttribute("products",productsToSelect);
+        model.addAttribute("order", order);
+        model.addAttribute("orderRequestDto", new OrderRequestDto());
+
+        return "/order/editOrder";
+    }
+
+    @PostMapping("/edit-order")
+    public String orderEdit(@ModelAttribute("order") @Valid OrderRequestDto orderRequestDto, BindingResult errors,
+                            Model model, @RequestParam("orderId") Long orderId){
+        // Проверка, что выбран хотя бы один товар
+        boolean atLeastOneSelected = orderRequestDto.getItems().stream()
+                .anyMatch(OrderItemRequestDto::isSelected);
+
+        if (!atLeastOneSelected) {
+            errors.reject("items", "Выберите хотя бы один товар"); // Добавляем глобальную ошибку
+        }
+
+        // Проверка на ошибки валидации
+        if(errors.hasErrors()){
+            System.out.println("Ошибка" + " " + errors);
+            OrderResponseDto order = orderMapper.toResponseDto(orderService.getOrderById(orderId));
+            order.getItems().forEach(item -> {
+                if (item.getAmount() > 0) {
+                    item.setSelected(true);
+                } else {
+                    item.setSelected(false);
+                }
+            });
+            List<ProductResponseDto> productsToSelect = StreamSupport.stream(productService.getAllProducts().spliterator(), false)
+                    .map(productMapper::toResponseDto)
+                    .toList();
+
+
+            model.addAttribute("products",productsToSelect);
+            model.addAttribute("order", order);
+
+            return "/order/editOrder";
+        }
+
+        orderService.updateOrder(orderId, orderRequestDto);
 
         return "redirect:/orders";
     }

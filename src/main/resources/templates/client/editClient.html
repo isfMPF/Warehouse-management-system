@@ -5,7 +5,7 @@
 <body>
 <div th:replace="~{fragments/header.html :: header}"></div>
 <div class="container mt-2">
-  <form method="post" th:action="@{/add-client}" th:object="${client}">
+  <form method="post" th:action="@{/edit-client}" th:object="${client}">
 
     <div th:if="${param.success}">
       <div class="alert alert-success" role="alert">
@@ -17,7 +17,7 @@
       <input type="hidden" th:field="*{id}">
 
       <label class="form-label">Код</label>
-      <input  class="form-control"  th:field="*{codeClient}">
+      <input  class="form-control"  th:field="*{codeClient}" readonly>
       <span class="validationError" th:if="${#fields.hasErrors('codeClient')}"
             th:errors="*{codeClient}"
             style="color: red; font-weight: bold;"> Name error</span>

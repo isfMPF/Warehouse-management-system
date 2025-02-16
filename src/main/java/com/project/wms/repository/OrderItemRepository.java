@@ -9,5 +9,4 @@ public interface OrderItemRepository extends JpaRepository<OrderItemEntity,Long>
 
     // Найти все элементы по ID заказа
     List<OrderItemEntity> findAllByOrderId(Long orderId);
-
 }
