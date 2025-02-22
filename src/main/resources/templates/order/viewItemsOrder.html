@@ -36,6 +36,7 @@
                             <th scope="col">Объём</th>
                             <th scope="col">Цена</th>
                             <th scope="col">Количество</th>
+                            <th scope="col">Действие</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -51,14 +52,14 @@
                                           th:errors="*{items[__${iterStat.index}__].amount}"
                                           style="color: red; font-weight: bold;"> Name error</span>
                                 </td>
+                                <td>
+                                    <a th:href="@{/orders/create/del/{code}(code=${product.code})}" class="btn btn-danger btn-sm me-2">Del</a>
+                                </td>
                                 <!-- Скрытое поле для передачи productId -->
                                 <input type="hidden" th:attr="name='items['+ ${iterStat.index} + '].code'" th:value="${product.code}" name="code"/>
                             </tr>
                         </tbody>
                     </table>
-                </div>
-                <div th:if="${#fields.hasGlobalErrors()}" style="color: red; font-weight: bold;">
-                    <span th:each="err : ${#fields.globalErrors()}" th:text="${err}"/>
                 </div>
                 <input type="submit" value="Сохранить" class="btn btn-success">
                 <input type="button" value="Назад" class="btn btn-primary" onclick="history.back();">

@@ -4,7 +4,6 @@ import com.project.wms.dto.requestdto.OrderRequestDto;
 import com.project.wms.dto.responsedto.ClientResponseDto;
 import com.project.wms.dto.responsedto.OrderResponseDto;
 import com.project.wms.dto.responsedto.ProductResponseDto;
-import com.project.wms.dto.requestdto.OrderItemRequestDto;
 import com.project.wms.mapper.ClientMapper;
 import com.project.wms.mapper.OrderItemMapper;
 import com.project.wms.mapper.OrderMapper;
@@ -52,14 +51,14 @@ public class OrderController {
 
     @GetMapping
     public String showAllOrders(Model model) {
+
         List<OrderResponseDto> orders = orderService.getAllOrders().stream()
                 .filter(orderEntity -> Objects.equals(orderEntity.getDate(), LocalDate.now()))
                 .map(orderMapper::toResponseDto)  // Используем OrderMapper для преобразования заказа в DTO
                 .collect(Collectors.toList());
         model.addAttribute("orders", orders);
 
-        // Передаем список заказов, включая элементы заказа
-        return "/order/viewOrders";  // Шаблон, где отображаются заказы
+        return "/order/viewOrders";
     }
 
 
@@ -153,6 +152,18 @@ public class OrderController {
     }
 
 
+    @GetMapping("/create/del/{code}")
+    public String delFromCart(@PathVariable("code") String code, HttpSession session) {
+
+        List<ProductResponseDto> cart = (List<ProductResponseDto>) session.getAttribute("cart");
+
+        if (cart != null) {
+            cart.removeIf(product -> code.equals(product.getCode()));
+            session.setAttribute("cart", cart);
+        }
+
+        return "redirect:/orders/create";
+    }
 
     @PostMapping("/create")
     public String saveOrder(@Valid @ModelAttribute("orderRequestDto") OrderRequestDto orderRequestDto,
@@ -189,18 +200,20 @@ public class OrderController {
     public String editOrder(@PathVariable(value = "id") Long id, Model model){
 
         OrderResponseDto order = orderMapper.toResponseDto(orderService.getOrderById(id));
-
-        List<ProductResponseDto> productsToSelect = StreamSupport.stream(productService.getAllProducts().spliterator(), false)
-                .map(productMapper::toResponseDto)
-                .toList();
-
-
-        System.out.println("Заказ" + " " + order);
         model.addAttribute("order", order);
         model.addAttribute("orderRequestDto", new OrderRequestDto());
 
         return "/order/editOrder";
     }
+
+    @GetMapping("/edit-order/{id}/del/{code}")
+    public String delFromOrder(@PathVariable(value = "id") Long id, @PathVariable(value = "code") String code, Model model){
+
+        orderItemService.removeItemFromOrder(id, code);
+
+        return "redirect:/orders/edit-order/" + id;
+    }
+
 
     @PostMapping("/edit-order")
     public String orderEdit(@ModelAttribute("order") @Valid OrderRequestDto orderRequestDto, BindingResult errors,

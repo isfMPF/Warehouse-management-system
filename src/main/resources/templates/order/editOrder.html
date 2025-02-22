@@ -25,6 +25,7 @@
                         <input type="hidden" th:name="orderId" th:each="ord : ${order}" th:value="${ord.id}"/>
 
                     </div>
+                    <a href="/orders/create/select" class="btn btn-primary w-100">Добавить товар</a>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover">
@@ -35,6 +36,7 @@
                             <th scope="col">Объём</th>
                             <th scope="col">Цена</th>
                             <th scope="col">Количество</th>
+                            <th scope="col">Действие</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -45,21 +47,20 @@
                             <td th:text="${item.price}"></td>
                             <td>
                                 <!-- Поле для ввода количества товара -->
-                                <input class="form-control" type="number" th:field="*{items[__${iterStat.index}__].amount}" />
-
+                                <input class="form-control" type="number" th:attr="name='items['+ ${iterStat.index} + '].amount'" th:value="${item.amount}" name="amount"/>
 
                                 <span class="validationError" th:if="${#fields.hasErrors('items[__${iterStat.index}__].amount')}"
                                       th:errors="*{items[__${iterStat.index}__].amount}"
                                       style="color: red; font-weight: bold;"> Name error</span>
+                            </td>
+                            <td>
+                                <a th:href="@{/orders/edit-order/{id}/del/{code}(id=${order.id}, code=${item.product})}" class="btn btn-danger btn-sm me-2">Del</a>
                             </td>
                             <!-- Скрытое поле для передачи productId -->
                             <input type="hidden" th:attr="name='items['+ ${iterStat.index} + '].product'" th:value="${item.product}" name="code"/>
                         </tr>
                         </tbody>
                     </table>
-                </div>
-                <div th:if="${#fields.hasGlobalErrors()}" style="color: red; font-weight: bold;">
-                    <span th:each="err : ${#fields.globalErrors()}" th:text="${err}"/>
                 </div>
                 <input type="submit" value="Обновить" class="btn btn-success">
                 <input type="button" value="Назад" class="btn btn-primary" onclick="history.back();">
