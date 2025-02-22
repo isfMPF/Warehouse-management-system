@@ -139,7 +139,6 @@ public class OrderController {
     public String addToCart(@PathVariable("code") String code, Model model, HttpSession session) {
 
         ProductResponseDto product = productMapper.toResponseDto(productService.getProductByCode(code));
-        System.out.println(product);
         List<ProductResponseDto> cart = (List<ProductResponseDto>) session.getAttribute("cart");
 
         if (cart == null) {
@@ -147,9 +146,8 @@ public class OrderController {
         }
 
         cart.add(product); // Добавляем товар в корзину
-        System.out.println(cart);
         session.setAttribute("cart", cart); // Сохраняем корзину в сессии
-        model.addAttribute("cart", cart); // Добавляем корзину в модель для отображения
+        //model.addAttribute("cart", cart); // Добавляем корзину в модель для отображения
 
         return "redirect:/orders/create"; // Вернуться на страницу с продуктами
     }
@@ -159,7 +157,6 @@ public class OrderController {
     @PostMapping("/create")
     public String saveOrder(@Valid @ModelAttribute("orderRequestDto") OrderRequestDto orderRequestDto,
                             BindingResult errors, Model model, HttpSession session){
-
 
         // Проверка на ошибки валидации
         if(errors.hasErrors()){
@@ -180,7 +177,10 @@ public class OrderController {
             return "/order/viewItemsOrder";
         }
 
-         orderService.createOrder(orderRequestDto);
+
+        orderService.createOrder(orderRequestDto);
+
+        session.removeAttribute("cart");
 
         return "redirect:/orders";
     }
@@ -189,21 +189,13 @@ public class OrderController {
     public String editOrder(@PathVariable(value = "id") Long id, Model model){
 
         OrderResponseDto order = orderMapper.toResponseDto(orderService.getOrderById(id));
-        order.getItems().forEach(item -> {
-            if (item.getAmount() > 0) {
-                item.setSelected(true);
-            } else {
-                item.setSelected(false);
-            }
-        });
+
         List<ProductResponseDto> productsToSelect = StreamSupport.stream(productService.getAllProducts().spliterator(), false)
                 .map(productMapper::toResponseDto)
                 .toList();
 
 
         System.out.println("Заказ" + " " + order);
-        System.out.println("Продукты" + " " + productsToSelect);
-        model.addAttribute("products",productsToSelect);
         model.addAttribute("order", order);
         model.addAttribute("orderRequestDto", new OrderRequestDto());
 
@@ -213,25 +205,12 @@ public class OrderController {
     @PostMapping("/edit-order")
     public String orderEdit(@ModelAttribute("order") @Valid OrderRequestDto orderRequestDto, BindingResult errors,
                             Model model, @RequestParam("orderId") Long orderId){
-        // Проверка, что выбран хотя бы один товар
-        boolean atLeastOneSelected = orderRequestDto.getItems().stream()
-                .anyMatch(OrderItemRequestDto::isSelected);
-
-        if (!atLeastOneSelected) {
-            errors.reject("items", "Выберите хотя бы один товар"); // Добавляем глобальную ошибку
-        }
 
         // Проверка на ошибки валидации
         if(errors.hasErrors()){
             System.out.println("Ошибка" + " " + errors);
             OrderResponseDto order = orderMapper.toResponseDto(orderService.getOrderById(orderId));
-            order.getItems().forEach(item -> {
-                if (item.getAmount() > 0) {
-                    item.setSelected(true);
-                } else {
-                    item.setSelected(false);
-                }
-            });
+
             List<ProductResponseDto> productsToSelect = StreamSupport.stream(productService.getAllProducts().spliterator(), false)
                     .map(productMapper::toResponseDto)
                     .toList();

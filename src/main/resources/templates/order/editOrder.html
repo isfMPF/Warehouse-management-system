@@ -30,41 +30,30 @@
                     <table class="table table-bordered table-hover">
                         <thead class="thead-dark">
                         <tr>
-                            <th scope="col" style="width: 50px;">Выбрать</th>
                             <th scope="col">Код</th>
                             <th scope="col">Товар</th>
                             <th scope="col">Объём</th>
                             <th scope="col">Цена</th>
-                            <th scope="col" style="width: 100px;">Кол-во на складе</th>
                             <th scope="col">Количество</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="product, iterStat : ${products}">
-                            <td style="width: 50px;">
-                                <!-- Чекбокс для выбора товара -->
-                                <input type="checkbox" class="form-check-input"
-                                       th:field="*{items[__${iterStat.index}__].selected}"
-                                       th:checked="${order.items.product}" />
-
-                            </td>
-                            <td th:text="${product.code}"></td>
-                            <td th:text="${product.name}"></td>
-                            <td th:text="${product.volume}"></td>
-                            <td th:text="${product.price}"></td>
-                            <td th:text="${product.amount}" style="width: 100px;"></td>
+                        <tr th:each="item, iterStat : ${order.items}">
+                            <td th:text="${item.product}"></td>
+                            <td th:text="${item.name}"></td>
+                            <td th:text="${item.volume}"></td>
+                            <td th:text="${item.price}"></td>
                             <td>
                                 <!-- Поле для ввода количества товара -->
-                                <input class="form-control" type="number"
-                                       th:field="*{items[__${iterStat.index}__].amount}"
-                                       th:value="${order.items.?[product == product.code].!isEmpty() ? order.items.?[product == product.code][0].amount : ''}"/>
+                                <input class="form-control" type="number" th:field="*{items[__${iterStat.index}__].amount}" />
+
 
                                 <span class="validationError" th:if="${#fields.hasErrors('items[__${iterStat.index}__].amount')}"
                                       th:errors="*{items[__${iterStat.index}__].amount}"
                                       style="color: red; font-weight: bold;"> Name error</span>
                             </td>
                             <!-- Скрытое поле для передачи productId -->
-                            <input type="hidden" th:attr="name='items['+ ${iterStat.index} + '].code'" th:value="${product.code}" name="code"/>
+                            <input type="hidden" th:attr="name='items['+ ${iterStat.index} + '].product'" th:value="${item.product}" name="code"/>
                         </tr>
                         </tbody>
                     </table>

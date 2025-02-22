@@ -59,9 +59,6 @@ public class OrderService {
 
         // Обрабатываем каждый товар из заказа
         for (OrderItemRequestDto orderItemRequestDto : orderRequestDto.getItems()) {
-
-            // Проверяем, был ли выбран товар (если selected == true)
-            if (orderItemRequestDto.isSelected()) {
                 // Получаем продукт по ID
                 ProductEntity product = (ProductEntity) productRepository.findByCode(String.valueOf(orderItemRequestDto.getCode()));
 
@@ -83,7 +80,7 @@ public class OrderService {
 
                 // Добавляем сумму товара в общую сумму заказа
                 totalOrderAmount += totalItemAmount;
-            }
+
         }
 
         // Устанавливаем в заказ все элементы и общую сумму
@@ -117,8 +114,7 @@ public class OrderService {
 
         // Обрабатываем каждый товар из обновленного заказа
         for (OrderItemRequestDto orderItemRequestDto : orderRequestDto.getItems()) {
-            // Если товар был выбран (selected == true), обновляем его
-            if (orderItemRequestDto.isSelected()) {
+
                 // Получаем продукт по коду
                 ProductEntity product = productRepository.findByCode(String.valueOf(orderItemRequestDto.getCode()));
 
@@ -160,7 +156,7 @@ public class OrderService {
 
                 // Добавляем сумму товара в общую сумму заказа
                 totalOrderAmount += totalItemAmount;
-            }
+
         }
 
         // Устанавливаем в заказ обновленные элементы и общую сумму
