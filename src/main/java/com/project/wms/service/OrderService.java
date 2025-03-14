@@ -105,7 +105,7 @@ public class OrderService {
 
         // Обновляем заказ
         existingOrder.setCodeClient(client);  // Обновляем клиента
-        existingOrder.setDate(LocalDate.now());  // Можно обновить дату, если нужно
+        existingOrder.setDate(LocalDate.now());
         existingOrder.setTotal(0.0);  // Сбрасываем общую сумму для перерасчета
 
         // Список для элементов заказа (товары в заказе)
@@ -117,7 +117,7 @@ public class OrderService {
 
                 // Получаем продукт по коду
                 ProductEntity product = productRepository.findByCode(String.valueOf(orderItemRequestDto.getCode()));
-
+            System.out.println("orderItemRequestDto = " + orderItemRequestDto);
                 // Обновляем количество товара на складе
                 int remainingAmount = product.getAmount() - orderItemRequestDto.getAmount();
                 if (remainingAmount < 0) {

@@ -197,11 +197,19 @@ public class OrderController {
     }
 
     @GetMapping("/edit-order/{id}")
-    public String editOrder(@PathVariable(value = "id") Long id, Model model){
+    public String editOrder(@PathVariable(value = "id") Long id, Model model, HttpSession session){
+
+        List<ClientResponseDto> clientsToSelect = StreamSupport.stream(clientService.getAllClients().spliterator(), false)
+                .map(clientMapper::toResponseDto)
+                .toList();
+
+        model.addAttribute("clients",clientsToSelect);
 
         OrderResponseDto order = orderMapper.toResponseDto(orderService.getOrderById(id));
-        model.addAttribute("order", order);
+        model.addAttribute("cart", order);
         model.addAttribute("orderRequestDto", new OrderRequestDto());
+        session.setAttribute("cart", order);
+        System.out.println("Order: " + order);
 
         return "/order/editOrder";
     }
@@ -216,7 +224,7 @@ public class OrderController {
 
 
     @PostMapping("/edit-order")
-    public String orderEdit(@ModelAttribute("order") @Valid OrderRequestDto orderRequestDto, BindingResult errors,
+    public String orderEdit(@Valid @ModelAttribute("orderRequestDto") OrderRequestDto orderRequestDto, BindingResult errors,
                             Model model, @RequestParam("orderId") Long orderId){
 
         // Проверка на ошибки валидации
@@ -228,12 +236,14 @@ public class OrderController {
                     .map(productMapper::toResponseDto)
                     .toList();
 
+            System.out.println(order);
 
             model.addAttribute("products",productsToSelect);
             model.addAttribute("order", order);
 
             return "/order/editOrder";
         }
+
 
         orderService.updateOrder(orderId, orderRequestDto);
 

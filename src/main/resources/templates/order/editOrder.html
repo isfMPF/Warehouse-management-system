@@ -15,18 +15,18 @@
                 <div class="container mb-3">
                     <div class="mb-3">
 
-                        <label class="form-label">Выбрать клиента</label>
+                        <label th:for="*{codeClient}" class="form-label">Выбрать клиента</label>
                         <select th:field="*{codeClient}" class="form-control">
-                            <option th:each="client : ${order}" th:value="${client.codeClient}" th:text="${client.clientName}"></option>
+                            <option value="" selected>Выберите клиента</option>
+                            <option th:each="client : ${clients}" th:value="${client.codeClient}" th:text="${client.name}"></option>
                         </select>
                         <span class="validationError" th:if="${#fields.hasErrors('codeClient')}"
                               th:errors="*{codeClient}"
                               style="color: red; font-weight: bold;"> Name error</span>
-                        <input type="hidden" th:name="orderId" th:each="ord : ${order}" th:value="${ord.id}"/>
-
                     </div>
                     <a href="/orders/create/select" class="btn btn-primary w-100">Добавить товар</a>
                 </div>
+
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover">
                         <thead class="thead-dark">
@@ -40,29 +40,28 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="item, iterStat : ${order.items}">
-                            <td th:text="${item.product}"></td>
-                            <td th:text="${item.name}"></td>
-                            <td th:text="${item.volume}"></td>
-                            <td th:text="${item.price}"></td>
+                        <tr th:each="product, iterStat : ${cart.items}">
+                            <td th:text="${product.code}"></td>
+                            <td th:text="${product.name}"></td>
+                            <td th:text="${product.volume}"></td>
+                            <td th:text="${product.price}"></td>
                             <td>
                                 <!-- Поле для ввода количества товара -->
-                                <input class="form-control" type="number" th:attr="name='items['+ ${iterStat.index} + '].amount'" th:value="${item.amount}" name="amount"/>
-
+                                <input class="form-control" type="number" th:field="*{items[__${iterStat.index}__].amount}"/>
                                 <span class="validationError" th:if="${#fields.hasErrors('items[__${iterStat.index}__].amount')}"
                                       th:errors="*{items[__${iterStat.index}__].amount}"
                                       style="color: red; font-weight: bold;"> Name error</span>
                             </td>
                             <td>
-                                <a th:href="@{/orders/edit-order/{id}/del/{code}(id=${order.id}, code=${item.product})}" class="btn btn-danger btn-sm me-2">Del</a>
+                                <a th:href="@{/orders/create/del/{code}(code=${product.code})}" class="btn btn-danger btn-sm me-2">Del</a>
                             </td>
                             <!-- Скрытое поле для передачи productId -->
-                            <input type="hidden" th:attr="name='items['+ ${iterStat.index} + '].product'" th:value="${item.product}" name="code"/>
+                            <input type="hidden" th:attr="name='items['+ ${iterStat.index} + '].code'" th:value="${product.code}" name="code"/>
                         </tr>
                         </tbody>
                     </table>
                 </div>
-                <input type="submit" value="Обновить" class="btn btn-success">
+                <input type="submit" value="Сохранить" class="btn btn-success">
                 <input type="button" value="Назад" class="btn btn-primary" onclick="history.back();">
             </form>
         </div>
