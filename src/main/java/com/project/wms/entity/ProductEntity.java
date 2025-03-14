@@ -1,10 +1,7 @@
 package com.project.wms.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
@@ -26,5 +23,6 @@ public class ProductEntity {
     private int quantity; //кол-во в упаковке
     private Double price;
     private int amount; //кол-во на складе
+
 
 }

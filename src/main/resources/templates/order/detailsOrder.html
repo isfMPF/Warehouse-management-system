@@ -43,13 +43,13 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr th:each="item : ${orderDetail.items}">
-                                    <td th:text="${item.product}"></td> <!-- Товар -->
-                                    <td th:text="${item.name}"></td> <!-- Товар -->
-                                    <td th:text="${item.volume}"></td> <!-- Товар -->
-                                    <td th:text="${item.amount}"></td> <!-- Количество -->
-                                    <td th:text="${item.price}"></td> <!-- Цена -->
-                                    <td th:text="${item.total}"></td> <!-- Итоговая сумма -->
+                                <tr th:each="items : ${orders.item}">
+                                    <td th:text="${items.code}"></td> <!-- Товар -->
+                                    <td th:text="${items.name}"></td> <!-- Товар -->
+                                    <td th:text="${items.volume}"></td> <!-- Товар -->
+                                    <td th:text="${items.amount}"></td> <!-- Количество -->
+                                    <td th:text="${items.price}"></td> <!-- Цена -->
+                                    <td th:text="${items.total}"></td> <!-- Итоговая сумма -->
                                 </tr>
                                 </tbody>
                             </table>

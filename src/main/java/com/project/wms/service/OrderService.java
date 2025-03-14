@@ -179,4 +179,33 @@ public class OrderService {
         return orderRepository.findOrderById(id);
     }
 
+
+    @Transactional
+    public void deleteOrderWithItems(Long orderId) {
+        // Находим заказ по id
+        OrderEntity order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
+
+        // Получаем список товаров из заказа
+        List<OrderItemEntity> orderItems = order.getItem();
+
+        // Увеличиваем количество товаров на складе
+        for (OrderItemEntity item : orderItems) {
+            // Находим товар по коду
+
+            ProductEntity product = productRepository.findByCode(String.valueOf(item.getCode().getCode()));
+
+            // Увеличиваем количество товара на складе
+            product.setAmount(product.getAmount() + item.getAmount());
+            productRepository.save(product); // Сохраняем обновленное количество
+        }
+
+        // Удаляем все связанные элементы
+        orderItemRepository.deleteAll(orderItems);
+
+        // Удаляем сам заказ
+        orderRepository.delete(order);
+    }
+
+
 }

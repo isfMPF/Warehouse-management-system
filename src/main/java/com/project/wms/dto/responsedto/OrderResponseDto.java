@@ -15,5 +15,5 @@ public class OrderResponseDto {
     private String clientName;
     private Long codeClient;
     private Double total; //сумма заказа
-    private List<OrderItemResponseDto> items; // Список товаров для этого заказа
+    private List<OrderItemResponseDto> item; // Список товаров для этого заказа
 }

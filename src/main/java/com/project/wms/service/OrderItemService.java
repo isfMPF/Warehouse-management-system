@@ -25,26 +25,5 @@ public class OrderItemService {
         return orderItemRepository.findAllByOrderId(orderId);
     }
 
-    @Transactional
-    public void removeItemFromOrder(Long orderId, String productCode) {
-        // Находим товар в заказе
-        OrderItemEntity orderItem = orderItemRepository.findByOrderIdAndProductCode(orderId, productCode)
-                .orElseThrow(() -> new RuntimeException("Товар не найден в заказе"));
-
-        // Находим товар на складе
-        ProductEntity product = productRepository.findByCode(productCode);
-
-        // Увеличиваем количество товара на складе
-        product.setAmount(product.getAmount() + orderItem.getAmount());
-
-        // Сохраняем обновленное количество товара на складе
-        productRepository.save(product);
-
-        // Удаляем товар из заказа
-        orderItemRepository.deleteByOrderIdAndProductCode(orderId, productCode);
-    }
-
-
-
 
 }

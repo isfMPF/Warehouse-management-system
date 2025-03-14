@@ -13,7 +13,7 @@ public interface OrderMapper {
     @Mapping(source = "codeClient", target = "codeClient")  // Сохраняем код клиента
     @Mapping(source = "codeClient.name", target = "clientName") // Маппируем имя клиента
     @Mapping(source = "total", target = "total")
-    @Mapping(source = "item", target = "items")  // Заменяем 'items' на 'item', чтобы соответствовать полю в OrderEntity
+    @Mapping(source = "item", target = "item")  // Заменяем 'items' на 'item', чтобы соответствовать полю в OrderEntity
     OrderResponseDto toResponseDto(OrderEntity order);
 
     // Метод для маппинга ClientEntity в Long (код клиента)

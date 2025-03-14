@@ -146,7 +146,6 @@ public class OrderController {
 
         cart.add(product); // Добавляем товар в корзину
         session.setAttribute("cart", cart); // Сохраняем корзину в сессии
-        //model.addAttribute("cart", cart); // Добавляем корзину в модель для отображения
 
         return "redirect:/orders/create"; // Вернуться на страницу с продуктами
     }
@@ -185,7 +184,7 @@ public class OrderController {
 
             model.addAttribute("clients",clientsToSelect);
 
-            return "/order/viewItemsOrder";
+            return "order/edit-order";
         }
 
 
@@ -199,34 +198,109 @@ public class OrderController {
     @GetMapping("/edit-order/{id}")
     public String editOrder(@PathVariable(value = "id") Long id, Model model, HttpSession session){
 
-        List<ClientResponseDto> clientsToSelect = StreamSupport.stream(clientService.getAllClients().spliterator(), false)
-                .map(clientMapper::toResponseDto)
-                .toList();
-
-        model.addAttribute("clients",clientsToSelect);
+        List<ProductResponseDto> cart = (List<ProductResponseDto>) session.getAttribute("cart");
 
         OrderResponseDto order = orderMapper.toResponseDto(orderService.getOrderById(id));
-        model.addAttribute("cart", order);
-        model.addAttribute("orderRequestDto", new OrderRequestDto());
-        session.setAttribute("cart", order);
-        System.out.println("Order: " + order);
 
-        return "/order/editOrder";
+        if (cart == null) {
+
+            List <ProductResponseDto> productResponseDto = productMapper.toProductResponseDto(order.getItem());
+
+            session.setAttribute("cart", productResponseDto);
+
+            model.addAttribute("client", order);
+
+            model.addAttribute("cart", productResponseDto);
+        }else {
+            model.addAttribute("client", order);
+            model.addAttribute("cart", cart);
+        }
+
+        model.addAttribute("orderRequestDto", new OrderRequestDto());
+
+        return "order/editOrder";
     }
 
     @GetMapping("/edit-order/{id}/del/{code}")
-    public String delFromOrder(@PathVariable(value = "id") Long id, @PathVariable(value = "code") String code, Model model){
+    public String delFromOrder(@PathVariable(value = "id") Long id, @PathVariable(value = "code") String code, Model model, HttpSession session) {
 
-        orderItemService.removeItemFromOrder(id, code);
+        List<ProductResponseDto> cart = (List<ProductResponseDto>) session.getAttribute("cart");
 
+        if (cart != null) {
+            cart.removeIf(product -> code.equals(product.getCode()));
+            session.setAttribute("cart", cart);
+        }
+
+
+
+        return "redirect:/orders/edit-order/" + id;
+
+    }
+
+    @GetMapping("/edit-order/{id}/select")
+    public String selectProducts(@PathVariable(value = "id") Long id, Model model){
+
+        List<ProductResponseDto> productsToSelect = StreamSupport.stream(productService.getAllProducts().spliterator(), false)
+                .map(productMapper::toResponseDto)
+                .toList();
+
+        OrderResponseDto order = orderMapper.toResponseDto(orderService.getOrderById(id));
+
+        model.addAttribute("allProducts",productsToSelect);
+
+        model.addAttribute("order", order);
+        return "order/viewProductOrderWhenEditing";
+    }
+
+
+    @GetMapping("/order-edit/{id}/select/addToCart/{code}")
+    public String addToCartWhenEditing(@PathVariable(value = "id") Long id,
+                                       @PathVariable("code") String code,
+                                       Model model,
+                                       HttpSession session) {
+
+        // Получаем товар по коду
+        ProductResponseDto product = productMapper.toResponseDto(productService.getProductByCode(code));
+
+        // Получаем корзину из сессии
+        List<ProductResponseDto> cart = (List<ProductResponseDto>) session.getAttribute("cart");
+
+        // Если корзина не существует, создаем новую
+        if (cart == null) {
+            cart = new ArrayList<>();
+        }
+
+        // Проверяем, существует ли товар в корзине
+        boolean productExists = false;
+        for (ProductResponseDto item : cart) {
+            if (item.getCode().equals(product.getCode())) {
+                // Если товар уже есть в корзине, увеличиваем его количество на 1
+                item.setAmount(item.getAmount() + 1);
+                productExists = true;
+                break;
+            }
+        }
+
+        // Если товара нет в корзине, добавляем его с количеством 1
+        if (!productExists) {
+            product.setAmount(1); // Устанавливаем начальное количество
+            cart.add(product);
+        }
+
+        // Сохраняем обновленную корзину в сессии
+        session.setAttribute("cart", cart);
+
+        // Перенаправляем на страницу редактирования заказа
         return "redirect:/orders/edit-order/" + id;
     }
 
 
+
     @PostMapping("/edit-order")
     public String orderEdit(@Valid @ModelAttribute("orderRequestDto") OrderRequestDto orderRequestDto, BindingResult errors,
-                            Model model, @RequestParam("orderId") Long orderId){
+                            Model model, @RequestParam("orderId") Long orderId, HttpSession session){
 
+        orderService.deleteOrderWithItems(orderId);
         // Проверка на ошибки валидации
         if(errors.hasErrors()){
             System.out.println("Ошибка" + " " + errors);
@@ -245,11 +319,27 @@ public class OrderController {
         }
 
 
-        orderService.updateOrder(orderId, orderRequestDto);
+        orderService.createOrder(orderRequestDto);
 
-        return "redirect:/orders";
+        session.removeAttribute("cart");
+
+       return "redirect:/orders";
     }
 
+
+
+    @GetMapping("/edit-order/{id}/cancel")
+    public String cancel(@PathVariable(value = "id") Long id, HttpSession session){
+
+        List<ProductResponseDto> cart = (List<ProductResponseDto>) session.getAttribute("cart");
+
+        if (cart != null) {
+            session.removeAttribute("cart");
+        }
+
+        return "redirect:/orders";
+
+    }
 
 
 }

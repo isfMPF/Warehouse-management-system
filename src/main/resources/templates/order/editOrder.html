@@ -12,19 +12,21 @@
         </div>
         <div class="card-body">
             <form  th:action="@{/orders/edit-order}" th:object="${orderRequestDto}" method="post">
+
                 <div class="container mb-3">
                     <div class="mb-3">
 
                         <label th:for="*{codeClient}" class="form-label">Выбрать клиента</label>
                         <select th:field="*{codeClient}" class="form-control">
-                            <option value="" selected>Выберите клиента</option>
-                            <option th:each="client : ${clients}" th:value="${client.codeClient}" th:text="${client.name}"></option>
+                            <option th:each="clients : ${client}" th:value="${clients.codeClient}" th:text="${clients.clientName}"></option>
+
                         </select>
                         <span class="validationError" th:if="${#fields.hasErrors('codeClient')}"
                               th:errors="*{codeClient}"
                               style="color: red; font-weight: bold;"> Name error</span>
                     </div>
-                    <a href="/orders/create/select" class="btn btn-primary w-100">Добавить товар</a>
+                    <a th:href="@{/orders/edit-order/{id}/select(id=${client.id})}" class="btn btn-primary w-100">Добавить товар</a>
+                    <input type="hidden" name="orderId" th:value="${client.id}" />
                 </div>
 
                 <div class="table-responsive">
@@ -40,29 +42,32 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="product, iterStat : ${cart.items}">
+                        <tr th:each="product,iterStat : ${cart}">
                             <td th:text="${product.code}"></td>
                             <td th:text="${product.name}"></td>
                             <td th:text="${product.volume}"></td>
                             <td th:text="${product.price}"></td>
                             <td>
                                 <!-- Поле для ввода количества товара -->
-                                <input class="form-control" type="number" th:field="*{items[__${iterStat.index}__].amount}"/>
+                                <input class="form-control" type="number" th:attr="name='items['+ ${iterStat.index} + '].amount'" th:value="${product.amount}" name="amount"/>
                                 <span class="validationError" th:if="${#fields.hasErrors('items[__${iterStat.index}__].amount')}"
                                       th:errors="*{items[__${iterStat.index}__].amount}"
                                       style="color: red; font-weight: bold;"> Name error</span>
                             </td>
                             <td>
-                                <a th:href="@{/orders/create/del/{code}(code=${product.code})}" class="btn btn-danger btn-sm me-2">Del</a>
+                                <a th:href="@{/orders/edit-order/{id}/del/{code}(id=${product.quantity}, code=${product.code})}"
+                                                                            class="btn btn-danger btn-sm me-2">Del</a>
                             </td>
                             <!-- Скрытое поле для передачи productId -->
                             <input type="hidden" th:attr="name='items['+ ${iterStat.index} + '].code'" th:value="${product.code}" name="code"/>
+
                         </tr>
                         </tbody>
                     </table>
                 </div>
-                <input type="submit" value="Сохранить" class="btn btn-success">
-                <input type="button" value="Назад" class="btn btn-primary" onclick="history.back();">
+
+                <input type="submit" value="Обновить" class="btn btn-success">
+                <a th:href="@{/orders/edit-order/{id}/cancel(id=${client.id})}" class="btn btn-primary">Отмена</a>
             </form>
         </div>
 

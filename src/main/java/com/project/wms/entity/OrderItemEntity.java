@@ -3,10 +3,7 @@ package com.project.wms.entity;
 import jakarta.persistence.*;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
@@ -30,4 +27,6 @@ public class OrderItemEntity {
     private int amount; // Количество упаковок
     private Double price; // Цена за единицу товара
     private Double total; // Общая сумма для данного товара (amount * price)
+
+
 }
