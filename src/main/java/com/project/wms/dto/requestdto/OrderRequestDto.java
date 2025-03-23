@@ -1,6 +1,7 @@
 package com.project.wms.dto.requestdto;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -16,5 +17,11 @@ public class OrderRequestDto {
     private Long codeClient;
     @Valid
     List<OrderItemRequestDto> items = new ArrayList<>();
+
+    // Кастомная валидация для проверки, что список items не пуст
+    @AssertTrue(message = "Должен быть выбран хотя бы один товар")
+    public boolean isItemsNotEmpty() {
+        return items != null && !items.isEmpty();
+    }
 
 }

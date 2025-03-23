@@ -61,6 +61,11 @@
                         </tbody>
                     </table>
                 </div>
+                <!-- Отображение ошибки, если список товаров пуст -->
+                <div th:if="${#fields.hasErrors('itemsNotEmpty')}" class="alert alert-danger">
+                    <span th:errors="*{itemsNotEmpty}">Ошибка списка товаров</span>
+                </div>
+
                 <input type="submit" value="Сохранить" class="btn btn-success">
                 <input type="button" value="Назад" class="btn btn-primary" onclick="history.back();">
             </form>

@@ -7,3 +7,7 @@
 .table tbody td {
     text-align: center;
 }
+
+.balance-text {
+    font-size: 1.5rem;
+}

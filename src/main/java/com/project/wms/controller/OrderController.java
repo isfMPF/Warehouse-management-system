@@ -168,9 +168,10 @@ public class OrderController {
     public String saveOrder(@Valid @ModelAttribute("orderRequestDto") OrderRequestDto orderRequestDto,
                             BindingResult errors, Model model, HttpSession session){
 
+
         // Проверка на ошибки валидации
         if(errors.hasErrors()){
-
+            System.out.println(errors);
             List<ProductResponseDto> cart = (List<ProductResponseDto>) session.getAttribute("cart");
 
             if (cart == null) {
@@ -184,7 +185,7 @@ public class OrderController {
 
             model.addAttribute("clients",clientsToSelect);
 
-            return "order/edit-order";
+            return "order/viewItemsOrder";
         }
 
 
