@@ -52,8 +52,7 @@ public class OrderController {
     @GetMapping
     public String showAllOrders(Model model) {
 
-        List<OrderResponseDto> orders = orderService.getAllOrders().stream()
-                .filter(orderEntity -> Objects.equals(orderEntity.getDate(), LocalDate.now()))
+        List<OrderResponseDto> orders = orderService.getOrdersBetweenDates(LocalDate.now(),LocalDate.now()).stream()
                 .map(orderMapper::toResponseDto)  // Используем OrderMapper для преобразования заказа в DTO
                 .collect(Collectors.toList());
         model.addAttribute("orders", orders);
@@ -70,7 +69,7 @@ public class OrderController {
             LocalDate end, Model model)
     {
 
-        List<OrderResponseDto> orders = orderService.getAllOrders().stream()
+        List<OrderResponseDto> orders = orderService.getOrdersBetweenDates(start, end).stream()
                 .filter(orderEntity -> {
                     if (start != null && end != null) {
                         return !orderEntity.getDate().isBefore(start) && !orderEntity.getDate().isAfter(end);

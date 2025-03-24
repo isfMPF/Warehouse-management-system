@@ -1,10 +1,7 @@
 package com.project.wms.controller;
 
 import com.project.wms.dto.responsedto.OrderResponseDto;
-import com.project.wms.mapper.OrderItemMapper;
 import com.project.wms.mapper.OrderMapper;
-import com.project.wms.repository.OrderItemRepository;
-import com.project.wms.repository.OrderRepository;
 import com.project.wms.service.OrderService;
 import com.project.wms.util.OrderMetrics;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Controller
 public class MainPageController {
@@ -31,8 +27,7 @@ public class MainPageController {
     @GetMapping("/main")
     public String showInfo(Model model){
 
-        List<OrderResponseDto> orders = orderService.getAllOrders().stream()
-                .filter(orderEntity -> Objects.equals(orderEntity.getDate(), LocalDate.now()))
+        List<OrderResponseDto> orders = orderService.getOrdersBetweenDates(LocalDate.now(),LocalDate.now()).stream()
                 .map(orderMapper::toResponseDto)
                 .toList();
 
@@ -53,7 +48,7 @@ public class MainPageController {
             LocalDate start, @RequestParam(name = "end", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate end, Model model)
     {
-        List<OrderResponseDto> orders = orderService.getAllOrders().stream()
+        List<OrderResponseDto> orders = orderService.getOrdersBetweenDates(start,end).stream()
                 .filter(orderEntity -> {
                     if (start != null && end != null) {
                         return !orderEntity.getDate().isBefore(start) && !orderEntity.getDate().isAfter(end);

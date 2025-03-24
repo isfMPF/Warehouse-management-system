@@ -179,6 +179,10 @@ public class OrderService {
         return orderRepository.findOrderById(id);
     }
 
+    public List<OrderEntity> getOrdersBetweenDates(LocalDate startDate, LocalDate endDate) {
+        return orderRepository.findByDateBetween(startDate, endDate);
+    }
+
 
     @Transactional
     public void deleteOrderWithItems(Long orderId) {
@@ -206,6 +210,8 @@ public class OrderService {
         // Удаляем сам заказ
         orderRepository.delete(order);
     }
+
+
 
 
 }
