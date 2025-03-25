@@ -11,3 +11,56 @@
 .balance-text {
     font-size: 1.5rem;
 }
+
+
+.order-header {
+            background-color: #f0f8ff;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #4682b4;
+        }
+        .order-title {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #2c3e50;
+        }
+        .order-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 8px;
+        }
+        .order-detail {
+            background-color: #e6f2ff;
+            padding: 5px 10px;
+            border-radius: 3px;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        .items-table th {
+            background-color: #4682b4;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+        .items-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .items-table tr:nth-child(even) {
+            background-color: #f2f9ff;
+        }
+        .order-separator {
+            height: 2px;
+            background: linear-gradient(to right, transparent, #4682b4, transparent);
+            margin: 20px 0;
+        }
+
+@media (max-width: 768px) {
+    .order-details { flex-direction: column; gap: 5px; }
+    .items-table { font-size: 14px; }
+}

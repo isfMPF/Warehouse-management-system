@@ -49,17 +49,6 @@ public class MainPageController {
             LocalDate end, Model model)
     {
         List<OrderResponseDto> orders = orderService.getOrdersBetweenDates(start,end).stream()
-                .filter(orderEntity -> {
-                    if (start != null && end != null) {
-                        return !orderEntity.getDate().isBefore(start) && !orderEntity.getDate().isAfter(end);
-                    } else if (start != null) {
-                        return !orderEntity.getDate().isBefore(start);
-                    } else if (end != null) {
-                        return !orderEntity.getDate().isAfter(end);
-                    } else {
-                        return false; // Если даты не указаны, возвращаем все заказы
-                    }
-                })
                 .map(orderMapper::toResponseDto)
                 .toList();
 

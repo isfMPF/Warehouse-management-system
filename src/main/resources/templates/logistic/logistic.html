@@ -11,11 +11,11 @@
     </div>
     <div class="card-body">
       <!-- Форма поиска -->
-      <form th:action="@{/main/search}" method="get" class="mb-3">
+      <form th:action="@{/logistics/search}" method="get" class="mb-3">
         <div class="row g-3 align-items-center">
           <!-- Кнопка "Сегодня" -->
           <div class="col-12 col-md-auto">
-            <a href="/main" class="btn btn-info w-100">Показать</a>
+            <a href="/logistics" class="btn btn-info w-100">Показать</a>
           </div>
 
           <!-- Поле "От:" -->
@@ -40,31 +40,38 @@
           </div>
         </div>
       </form>
-
-      <div class="table-responsive">
-        <table class="table table-bordered table-hover">
-          <thead class="thead-dark">
-          <tr>
-            <th scope="col" style="width: 16px; height: 16px;">Действия</th>
-            <th scope="col">ID Заказ</th>
-            <th scope="col">Клиент</th>
-            <th scope="col">Итог</th>
-            <th scope="col">Дата</th>
-          </tr>
-          </thead>
-          <tbody>
-            <tr th:each="order : ${orders}">
-              <td>
-                <input class="form-control" type="checkbox" th:value="${order.id}" name="selectedOrders" />
-              </td>
-              <td th:text="${order.id}"></td>
-              <td th:text="${order.clientName}"></td>
-              <td th:text="${order.total}"></td>
-              <td th:text="${order.date}"></td>
+      <form th:action="@{/logistics/process-selected}" method="post">
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover">
+            <thead class="thead-dark">
+            <tr>
+              <th scope="col" style="width: 16px; height: 16px;">Действия</th>
+              <th scope="col">ID Заказ</th>
+              <th scope="col">Клиент</th>
+              <th scope="col">Итог</th>
+              <th scope="col">Дата</th>
             </tr>
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              <tr th:each="order : ${orders}">
+                <td>
+                  <input class="form-check-input" type="checkbox" th:value="${order.id}" th:checked="true"
+                         name="selectedOrderIds" />
+                </td>
+                <td th:text="${order.id}"></td>
+                <td th:text="${order.clientName}"></td>
+                <td th:text="${order.total}"></td>
+                <td th:text="${order.date}"></td>
+              </tr>
+            </tbody>
+          </table>
+          <div th:if="${errorMessage}" class="alert alert-danger">
+            <span th:text="${errorMessage}"></span>
+          </div>
+        </div>
+        <button class="btn btn-success" type="submit">Показать заказы</button>
+        <input type="button" value="Назад" class="btn btn-primary" onclick="history.back();">
+      </form>
     </div>
     </div>
   </div>
