@@ -66,27 +66,43 @@ public class LogisticController {
     }
 
     @PostMapping("/logistics/process-selected")
-    public String processSelectedOrders(@RequestParam(name = "selectedOrderIds", required = false) List<Long> selectedOrderIds,
-                                         Model model){
-
-        List<OrderResponseDto> orders = new ArrayList<>();
+    public String processSelectedOrders(
+            @RequestParam(name = "selectedOrderIds", required = false) List<Long> selectedOrderIds,
+            Model model) {
 
         if (selectedOrderIds == null || selectedOrderIds.isEmpty()) {
             model.addAttribute("errorMessage", "Пожалуйста, выберите хотя бы один заказ");
             return "logistic/logistic";
         }
 
-        if (selectedOrderIds != null) {
-            System.out.println("Выбранные ID: " + selectedOrderIds);
-
-            for (Long selectedOrderId : selectedOrderIds) {
-                OrderResponseDto orderResponseDto = orderMapper.toResponseDto(orderService.getOrderById(selectedOrderId));
-                orders.add(orderResponseDto);
-            }
-            model.addAttribute("orders",orders);
+        List<OrderResponseDto> orders = new ArrayList<>();
+        for (Long selectedOrderId : selectedOrderIds) {
+            OrderResponseDto order = orderMapper.toResponseDto(orderService.getOrderById(selectedOrderId));
+            orders.add(order);
         }
 
+        // Сортируем товары внутри каждого заказа по объему (от большего к меньшему)
+        for (OrderResponseDto order : orders) {
+            if (order.getItem() != null) {
+                order.getItem().sort((item1, item2) -> {
+                    double volume1 = parseVolume(item1.getVolume());
+                    double volume2 = parseVolume(item2.getVolume());
+                    return Double.compare(volume2, volume1); // Сортировка по убыванию
+                });
+            }
+        }
+
+        model.addAttribute("orders", orders);
         return "logistic/information";
+    }
+
+    // Вспомогательный метод для парсинга объема (удаляет " л" и преобразует в число)
+    private double parseVolume(String volume) {
+        try {
+            return Double.parseDouble(volume.replace(" л", "").replace(",", ".").trim());
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
     }
 
 
@@ -102,19 +118,31 @@ public class LogisticController {
         List<OrderResponseDto> orders = new ArrayList<>();
         String exportDate = "";
 
+        // Получаем и обрабатываем заказы
         for (Long selectedOrderId : selectedOrderIds) {
             OrderResponseDto order = orderMapper.toResponseDto(orderService.getOrderById(selectedOrderId));
+
+            // Сортируем товары в заказе по объему (от большего к меньшему)
+            if (order.getItem() != null) {
+                order.getItem().sort((item1, item2) -> {
+                    double volume1 = parseVolumeExport(item1.getVolume());
+                    double volume2 = parseVolumeExport(item2.getVolume());
+                    return Double.compare(volume2, volume1); // Сортировка по убыванию
+                });
+            }
+
             orders.add(order);
 
-
+            // Получаем дату для имени файла (из первого заказа с датой)
             if (exportDate.isEmpty() && order.getDate() != null) {
                 exportDate = order.getDate().toString().replace("-", "");
             }
         }
 
         // Формируем имя файла
-        String filename = "заказы(от)_" + (exportDate.isEmpty() ? "" : exportDate) + ".xlsx";
+        String filename = "orders_" + (exportDate.isEmpty() ? "" : exportDate) + ".xlsx";
 
+        // Экспортируем в Excel (уже с отсортированными товарами)
         byte[] excelBytes = ExcelExporter.exportOrdersToExcel(orders);
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=" + filename);
@@ -122,6 +150,16 @@ public class LogisticController {
         response.flushBuffer();
 
         return null;
+    }
+
+    // Вспомогательный метод для парсинга объема
+    private double parseVolumeExport(String volume) {
+        if (volume == null) return 0.0;
+        try {
+            return Double.parseDouble(volume.replace(" л", "").replace(",", ".").trim());
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
     }
 
 
