@@ -33,6 +33,7 @@
             <th scope="col">Кол-во в уп.</th>
             <th scope="col">Цена</th>
             <th scope="col">Количесто на складе</th>
+            <th scope="col">Вес</th>
             <th scope="col">Действия</th>
           </tr>
           </thead>
@@ -45,6 +46,7 @@
             <td th:text="${product.quantity}"></td>
             <td th:text="${product.price}"></td>
             <td th:text="${product.amount}"></td>
+            <td th:text="${product.weight}"></td>
             <td>
               <a th:href="@{/productEdit/{id}(id=${product.id})}" class="btn btn-primary btn-sm me-2">Edit</a>
               <a th:href="@{/productDelete/{id}(id=${product.id})}" class="btn btn-danger btn-sm">Delete</a>

@@ -12,4 +12,5 @@ public class ProductResponseDto {
     private int quantity; //кол-во в упаковке
     private Double price;
     private int amount; //кол-во на складе
+    private Double weight;
 }

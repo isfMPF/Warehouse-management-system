@@ -17,5 +17,6 @@ public interface OrderItemMapper {
     @Mapping(source = "amount", target = "amount")
     @Mapping(source = "price", target = "price")
     @Mapping(source = "total", target = "total")
+    @Mapping(source = "weight", target = "weight")
     OrderItemResponseDto toResponseDto(OrderItemEntity item);
 }

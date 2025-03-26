@@ -40,30 +40,42 @@
           </div>
         </div>
       </form>
-      <form th:action="@{/logistics/process-selected}" method="post">
+      <form th:action="@{/logistics/process-selected}" method="post" id="ordersForm">
         <div class="table-responsive">
           <table class="table table-bordered table-hover">
             <thead class="thead-dark">
             <tr>
-              <th scope="col" style="width: 16px; height: 16px;">Действия</th>
+              <th scope="col" style="width: 16px; height: 16px;">
+                <input type="checkbox" id="selectAll" class="form-check-input">
+              </th>
               <th scope="col">ID Заказ</th>
               <th scope="col">Клиент</th>
               <th scope="col">Итог</th>
               <th scope="col">Дата</th>
+              <th scope="col">Вес (кг)</th>
             </tr>
             </thead>
             <tbody>
-              <tr th:each="order : ${orders}">
-                <td>
-                  <input class="form-check-input" type="checkbox" th:value="${order.id}" th:checked="true"
-                         name="selectedOrderIds" />
-                </td>
-                <td th:text="${order.id}"></td>
-                <td th:text="${order.clientName}"></td>
-                <td th:text="${order.total}"></td>
-                <td th:text="${order.date}"></td>
-              </tr>
+            <tr th:each="order : ${orders}">
+              <td>
+                <input class="form-check-input order-checkbox" type="checkbox"
+                       th:value="${order.id}" th:checked="true"
+                       name="selectedOrderIds"
+                       th:data-weight="${#aggregates.sum(order.item.?[weight != null].![amount * weight])}" />
+              </td>
+              <td th:text="${order.id}"></td>
+              <td th:text="${order.clientName}"></td>
+              <td th:text="${order.total} + ' ₽'"></td>
+              <td th:text="${#temporals.format(order.date, 'dd.MM.yyyy')}"></td>
+              <td th:text="${#aggregates.sum(order.item.?[weight != null].![amount * weight])}"></td>
+            </tr>
             </tbody>
+            <tfoot>
+            <tr class="table-info">
+              <td colspan="5" class="text-end"><strong>Общий вес выбранных заказов:</strong></td>
+              <td id="totalWeight">0 кг</td>
+            </tr>
+            </tfoot>
           </table>
           <div th:if="${errorMessage}" class="alert alert-danger">
             <span th:text="${errorMessage}"></span>
@@ -75,5 +87,40 @@
     </div>
     </div>
   </div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const checkboxes = document.querySelectorAll('.order-checkbox');
+      const selectAll = document.getElementById('selectAll');
+      const totalWeightElement = document.getElementById('totalWeight');
+
+      // Функция расчета общего веса
+      function calculateTotalWeight() {
+          let totalWeight = 0;
+          checkboxes.forEach(checkbox => {
+              if (checkbox.checked) {
+                  totalWeight += parseFloat(checkbox.dataset.weight) || 0;
+              }
+          });
+          totalWeightElement.textContent = totalWeight.toFixed(2) + ' кг';
+      }
+
+      // Обработчик для отдельных чекбоксов
+      checkboxes.forEach(checkbox => {
+          checkbox.addEventListener('change', calculateTotalWeight);
+      });
+
+      // Обработчик для "Выбрать все"
+      selectAll.addEventListener('change', function() {
+          checkboxes.forEach(checkbox => {
+              checkbox.checked = this.checked;
+          });
+          calculateTotalWeight();
+      });
+
+      // Первоначальный расчет
+      calculateTotalWeight();
+  });
+</script>
+
 </body>
 </html>

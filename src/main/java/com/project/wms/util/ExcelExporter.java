@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ExcelExporter {
 
@@ -38,6 +39,7 @@ public class ExcelExporter {
         CellStyle orderHeaderStyle = createOrderHeaderStyle(workbook);
         CellStyle itemStyle = createItemStyle(workbook);
         CellStyle totalStyle = createTotalStyle(workbook);
+        CellStyle weightStyle = createWeightStyle(workbook);
         int rowNum = 0;
 
         for (OrderResponseDto order : orders) {
@@ -51,6 +53,7 @@ public class ExcelExporter {
 
             double orderTotal = 0;
             int totalItems = 0;
+            double orderWeight = 0;
 
             // Строки с товарами
             if (order.getItem() != null && !order.getItem().isEmpty()) {
@@ -59,11 +62,18 @@ public class ExcelExporter {
                     createItemRow(itemRow, item, itemStyle);
                     orderTotal += item.getTotal();
                     totalItems += item.getAmount();
+                    orderWeight += item.getWeight() * item.getAmount();
                 }
+
 
                 // Добавляем строку с итогами по заказу
                 Row totalRow = sheet.createRow(rowNum++);
                 createTotalRow(totalRow, totalItems, orderTotal, totalStyle, sheet);
+
+                // Добавляем строку с весом заказа
+                Row weightRow = sheet.createRow(rowNum++);
+                createWeightRow(weightRow, orderWeight, weightStyle, sheet);
+
             } else {
                 Row emptyRow = sheet.createRow(rowNum++);
                 Cell cell = emptyRow.createCell(0);
@@ -90,6 +100,8 @@ public class ExcelExporter {
     private static void createProductSummarySheet(Sheet sheet, List<OrderResponseDto> orders, Workbook workbook) {
         // Собираем статистику по товарам
         Map<String, ProductSummary> productSummary = new HashMap<>();
+        double totalWeightAll = 0;
+        int totalQuantityAll = 0;
 
         for (OrderResponseDto order : orders) {
             if (order.getItem() != null) {
@@ -103,8 +115,9 @@ public class ExcelExporter {
                                 return existing;
                             }
                     );
-                    // Здесь можно добавить расчет веса, когда он будет в базе
-                    // totalWeight += item.getWeight();
+                    // Суммируем общий вес и количество
+                    totalWeightAll += item.getAmount() * item.getWeight();
+                    totalQuantityAll += item.getAmount();
                 }
             }
         }
@@ -123,9 +136,15 @@ public class ExcelExporter {
             cell.setCellStyle(headerStyle);
         }
 
+        // Сортируем записи перед выводом
+        List<Map.Entry<String, ProductSummary>> sortedEntries = productSummary.entrySet().stream()
+                .sorted((e1, e2) -> Double.compare(e2.getValue().getNumericVolume(),
+                        e1.getValue().getNumericVolume()))
+                .toList();
+
         // Заполняем данные
         int rowNum = 1;
-        for (Map.Entry<String, ProductSummary> entry : productSummary.entrySet()) {
+        for (Map.Entry<String, ProductSummary> entry : sortedEntries) {
             Row row = sheet.createRow(rowNum++);
 
             // Явно создаем все ячейки перед установкой стиля
@@ -146,17 +165,38 @@ public class ExcelExporter {
             amountCell.setCellStyle(dataStyle);
         }
 
-        // Добавляем строку с общим весом
-        Row weightRow = sheet.createRow(rowNum);
-        Cell weightLabelCell = weightRow.createCell(0);
-        weightLabelCell.setCellValue("Общий вес:");
-        weightLabelCell.setCellStyle(totalStyle);
+        // Добавляем строку с общим количеством товаров
+        Row totalQuantityRow = sheet.createRow(rowNum++);
+        Cell totalQuantityLabelCell = totalQuantityRow.createCell(0);
+        totalQuantityLabelCell.setCellValue("Общее количество товаров:");
+        totalQuantityLabelCell.setCellStyle(totalStyle);
+        sheet.addMergedRegion(new CellRangeAddress(rowNum-1, rowNum-1, 0, 2));
 
+        Cell totalQuantityValueCell = totalQuantityRow.createCell(3);
+        totalQuantityValueCell.setCellValue(totalQuantityAll);
+        totalQuantityValueCell.setCellStyle(totalStyle);
+
+        // Добавляем нижнюю границу для строки с количеством
+        CellStyle borderStyle = workbook.createCellStyle();
+        borderStyle.cloneStyleFrom(totalStyle);
+        borderStyle.setBorderBottom(BorderStyle.THIN);
+        totalQuantityLabelCell.setCellStyle(borderStyle);
+        totalQuantityValueCell.setCellStyle(borderStyle);
+
+        // Добавляем строку с общим весом всех товаров
+        Row totalWeightRow = sheet.createRow(rowNum);
+        Cell totalWeightLabelCell = totalWeightRow.createCell(0);
+        totalWeightLabelCell.setCellValue("Общий вес товаров:");
+        totalWeightLabelCell.setCellStyle(totalStyle);
         sheet.addMergedRegion(new CellRangeAddress(rowNum, rowNum, 0, 2));
 
-        Cell weightValueCell = weightRow.createCell(3);
-        weightValueCell.setCellValue("0 кг"); // Заменить на реальное значение, когда оно будет доступно
-        weightValueCell.setCellStyle(totalStyle);
+        Cell totalWeightValueCell = totalWeightRow.createCell(3);
+        totalWeightValueCell.setCellValue(String.format("%.1f кг", totalWeightAll));
+        totalWeightValueCell.setCellStyle(totalStyle);
+
+        // Добавляем нижнюю границу для строки с весом
+        totalWeightLabelCell.setCellStyle(borderStyle);
+        totalWeightValueCell.setCellStyle(borderStyle);
 
         // Авто-размер колонок
         for (int i = 0; i < 4; i++) {
@@ -164,19 +204,18 @@ public class ExcelExporter {
         }
     }
 
-
-
     // Вспомогательный класс для сводки по товарам
     @Getter
-    @Setter
     private static class ProductSummary {
         private final String name;
         private final String volume;
+        private final double numericVolume; // Добавляем поле для числового значения объема
         private int totalAmount;
 
         public ProductSummary(String name, String volume, int amount) {
             this.name = name;
             this.volume = volume;
+            this.numericVolume = parseVolume(volume); // Парсим объем при создании
             this.totalAmount = amount;
         }
 
@@ -184,6 +223,24 @@ public class ExcelExporter {
             this.totalAmount += amount;
         }
 
+        private double parseVolume(String volume) {
+            if (volume == null) return 0.0;
+            try {
+                return Double.parseDouble(volume.replace(" л", "").replace(",", ".").trim());
+            } catch (NumberFormatException e) {
+                return 0.0;
+            }
+        }
+    }
+
+    // Вспомогательные методы для создания строк
+    private static void createWeightRow(Row row, double weight, CellStyle style, Sheet sheet) {
+        Cell cell = row.createCell(0);
+        cell.setCellValue("Вес: " + String.format("%.1f кг", weight));
+        cell.setCellStyle(style);
+        sheet.addMergedRegion(new CellRangeAddress(
+                row.getRowNum(), row.getRowNum(), 0, 5
+        ));
     }
 
 
@@ -236,6 +293,7 @@ public class ExcelExporter {
         Cell cell5 = row.createCell(5);
         cell5.setCellValue(item.getTotal() + " ₽");
         cell5.setCellStyle(style);
+
     }
 
     private static void createTotalRow(Row row, int totalItems, double orderTotal, CellStyle style, Sheet sheet) {
@@ -265,6 +323,17 @@ public class ExcelExporter {
         sheet.addMergedRegion(new CellRangeAddress(
                 row.getRowNum(), row.getRowNum(), 0, 2
         ));
+    }
+
+    // Стиль для строки с весом
+    private static CellStyle createWeightStyle(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);
+        style.setFont(font);
+        style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        return style;
     }
 
 

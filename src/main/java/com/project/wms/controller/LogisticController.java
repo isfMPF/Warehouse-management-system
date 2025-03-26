@@ -79,6 +79,7 @@ public class LogisticController {
         for (Long selectedOrderId : selectedOrderIds) {
             OrderResponseDto order = orderMapper.toResponseDto(orderService.getOrderById(selectedOrderId));
             orders.add(order);
+
         }
 
         // Сортируем товары внутри каждого заказа по объему (от большего к меньшему)
@@ -122,20 +123,23 @@ public class LogisticController {
         for (Long selectedOrderId : selectedOrderIds) {
             OrderResponseDto order = orderMapper.toResponseDto(orderService.getOrderById(selectedOrderId));
 
-            // Сортируем товары в заказе по объему (от большего к меньшему)
+            orders.add(order);
+
+
+            // Получаем дату для имени файла (из первого заказа с датой)
+            if (exportDate.isEmpty() && order.getDate() != null) {
+                exportDate = order.getDate().toString().replace("-", "");
+            }
+        }
+
+        // Сортируем товары внутри каждого заказа по объему (от большего к меньшему)
+        for (OrderResponseDto order : orders) {
             if (order.getItem() != null) {
                 order.getItem().sort((item1, item2) -> {
                     double volume1 = parseVolumeExport(item1.getVolume());
                     double volume2 = parseVolumeExport(item2.getVolume());
                     return Double.compare(volume2, volume1); // Сортировка по убыванию
                 });
-            }
-
-            orders.add(order);
-
-            // Получаем дату для имени файла (из первого заказа с датой)
-            if (exportDate.isEmpty() && order.getDate() != null) {
-                exportDate = order.getDate().toString().replace("-", "");
             }
         }
 
@@ -152,11 +156,15 @@ public class LogisticController {
         return null;
     }
 
-    // Вспомогательный метод для парсинга объема
-    private double parseVolumeExport(String volume) {
-        if (volume == null) return 0.0;
+    // Улучшенный метод парсинга объема
+
+   private double parseVolumeExport(String volume) {
+        if (volume == null || volume.isEmpty()) return 0.0;
         try {
-            return Double.parseDouble(volume.replace(" л", "").replace(",", ".").trim());
+            // Заменяем запятые на точки и удаляем все нецифровые символы кроме точки
+            String normalized = volume.replace(",", ".")
+                    .replaceAll("[^0-9.]", "");
+            return Double.parseDouble(normalized);
         } catch (NumberFormatException e) {
             return 0.0;
         }

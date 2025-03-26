@@ -27,6 +27,7 @@ public class OrderItemEntity {
     private int amount; // Количество упаковок
     private Double price; // Цена за единицу товара
     private Double total; // Общая сумма для данного товара (amount * price)
+    private Double weight;
 
 
 }

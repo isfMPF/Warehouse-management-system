@@ -53,6 +53,13 @@
             style="color: red; font-weight: bold;">Name error</span>
     </div>
     <div class="mb-3">
+      <label class="form-label">Вес одной упаковки (кг)</label>
+      <input  class="form-control" th:field="*{weight}" placeholder="0">
+      <span class="validationError" th:if="${#fields.hasErrors('weight')}"
+            th:errors="*{weight}"
+            style="color: red; font-weight: bold;">Name error</span>
+    </div>
+    <div class="mb-3">
       <label class="form-label">Цена</label>
       <input  class="form-control" th:field="*{price}" placeholder="55">
       <span class="validationError" th:if="${#fields.hasErrors('price')}"

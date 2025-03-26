@@ -23,4 +23,7 @@ public class ProductRequestDto {
     @NotNull(message = "Введите общую количество товара")
     @Min(value = 1, message = "Значение должно быть больше 0")
     private int amount; //кол-во на складе
+    @NotNull(message = "Введите вес упаковки")
+    @DecimalMin(value = "0.0", message = "Значение должно быть больше или равно 0.0")
+    private Double weight;
 }

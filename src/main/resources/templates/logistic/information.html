@@ -18,10 +18,13 @@
                         <input class="form-check-input" type="hidden" th:value="${order.id}" th:checked="true"
                                name="selectedOrderIds" />
                         <div class="order-details">
-                            <span class="order-detail">Дата: <span th:text="${#temporals.format(order.date, 'dd.MM.yyyy')}"></span>
+                            <span class="order-detail">Дата: <span th:text="${#temporals.format(order.date, 'dd.MM.yyyy')}"></span></span>
                             <span class="order-detail">Клиент: <span th:text="${order.clientName}"></span></span>
                             <span class="order-detail">Код клиента: <span th:text="${order.codeClient}"></span></span>
                             <span class="order-detail">Общая сумма: <span th:text="${order.total} + ' ₽'"></span></span>
+                            <span class="order-detail">Общий вес:
+            <span th:text="${#aggregates.sum(order.item.?[weight != null].![amount * weight])} + ' кг'"></span>
+        </span>
                         </div>
                     </div>
 

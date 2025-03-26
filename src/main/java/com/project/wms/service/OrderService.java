@@ -74,7 +74,7 @@ public class OrderService {
                 orderItem.setAmount(orderItemRequestDto.getAmount());  // Устанавливаем количество
                 orderItem.setPrice(product.getPrice());  // Устанавливаем цену
                 orderItem.setTotal(totalItemAmount);  // Устанавливаем общую сумму для этого товара
-
+                orderItem.setWeight(product.getWeight());
                 // Добавляем элемент в список
                 itemEntities.add(orderItem);
 
