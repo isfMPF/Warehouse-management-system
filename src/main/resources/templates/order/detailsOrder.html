@@ -3,62 +3,62 @@
       xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/header.html :: headerfiles(pageTitle='Заказы')}"></head>
 <body>
-
 <div th:replace="~{fragments/header.html :: header}"></div>
-
 
 <div class="d-flex justify-content-center align-items-center mt-5">
     <div class="card" style="width: 100%; max-width: 1200px;">
         <div class="card-header">
-            Подробности о заказе
         </div>
         <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead class="thead-dark">
-                    <tr th:each="orderData : ${orders}">
-                        <th scope="col" style="width: 50px;">ID Заказа</th>
-                        <th scope="col">Клиент: <span th:text="${orderData.clientName}"></span></th>
-                        <th scope="col">Дата: <span th:text="${orderData.date}"></span></th>
-                        <th scope="col">Итоговая сумма: <span th:text="${orderData.total}"></span></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <!-- Перебор всех заказов -->
-                    <tr th:each="orderDetail : ${orders}">
-                        <!-- Отображаем ID заказа -->
-                        <td th:text="${orderDetail.id}"></td>
+                <div th:each="order : ${orders}">
+                    <!-- Шапка заказа -->
+                    <div class="order-header">
+                        <div class="order-title">Заказ #<span th:text="${order.id}"></span></div>
+                        <input class="form-check-input" type="hidden" th:value="${order.id}" th:checked="true"
+                               name="selectedOrderIds" />
+                        <div class="order-details">
+                            <span class="order-detail">Дата: <span th:text="${#temporals.format(order.date, 'dd.MM.yyyy')}"></span>
+                            <span class="order-detail">Клиент: <span th:text="${order.clientName}"></span></span>
+                            <span class="order-detail">Код клиента: <span th:text="${order.codeClient}"></span></span>
+                            <span class="order-detail">Общая сумма: <span th:text="${order.total} + ' ₽'"></span></span>
+                        </div>
+                    </div>
 
-                        <!-- Вложенная таблица для товаров этого заказа -->
-                        <td colspan="4">
-                            <table class="table table-bordered"  style="width: 100%;">
-                                <thead>
-                                <tr>
-                                    <th scope="col" style="width: 100px;">Код</th>
-                                    <th scope="col">Товар</th>
-                                    <th scope="col" style="width: 60px;">Объём</th>
-                                    <th scope="col" style="width: 80px;">Количество</th>
-                                    <th scope="col">Цена</th>
-                                    <th scope="col">Итог</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr th:each="items : ${orders.item}">
-                                    <td th:text="${items.code}"></td> <!-- Товар -->
-                                    <td th:text="${items.name}"></td> <!-- Товар -->
-                                    <td th:text="${items.volume}"></td> <!-- Товар -->
-                                    <td th:text="${items.amount}"></td> <!-- Количество -->
-                                    <td th:text="${items.price}"></td> <!-- Цена -->
-                                    <td th:text="${items.total}"></td> <!-- Итоговая сумма -->
-                                </tr>
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-            <input type="button" value="Назад" class="btn btn-primary" onclick="history.back();">
+                    <div class="table-responsive"> <!-- Таблица товаров -->
+                        <table class="items-table">
+                            <thead>
+                            <tr>
+                                <th>ID товара</th>
+                                <th>Код</th>
+                                <th>Наименование</th>
+                                <th>Объем</th>
+                                <th>Кол-во</th>
+                                <th>Цена</th>
+                                <th>Сумма</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="item : ${order.item}">
+                                <td th:text="${item.id}"></td>
+                                <td th:text="${item.code}"></td>
+                                <td th:text="${item.name}"></td>
+                                <td th:text="${item.volume}"></td>
+                                <td th:text="${item.amount}"></td>
+                                <td th:text="${item.price} + ' ₽'"></td>
+                                <td th:text="${item.total} + ' ₽'"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Разделитель между заказами -->
+                    <div class="order-separator"></div>
+                </div>
+                <input type="button" value="Назад" class="btn btn-primary" onclick="history.back();">
         </div>
+
     </div>
+
 </div>
+</body>
+</html>

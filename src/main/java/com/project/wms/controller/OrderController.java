@@ -57,7 +57,7 @@ public class OrderController {
                 .collect(Collectors.toList());
         model.addAttribute("orders", orders);
 
-        return "/order/viewOrders";
+        return "order/viewOrders";
     }
 
 
@@ -75,7 +75,7 @@ public class OrderController {
 
         model.addAttribute("orders", orders);
 
-        return "/order/viewOrders";
+        return "order/viewOrders";
     }
 
     @GetMapping("/orderDetails/{id}")
@@ -86,7 +86,7 @@ public class OrderController {
         model.addAttribute("orders", order);
 
 
-        return "/order/detailsOrder";
+        return "order/detailsOrder";
     }
 
     @GetMapping("/create")
@@ -106,7 +106,7 @@ public class OrderController {
 
         model.addAttribute("cart", cart);
         model.addAttribute("orderRequestDto",new OrderRequestDto());
-        return "/order/viewItemsOrder";
+        return "order/viewItemsOrder";
     }
 
     @GetMapping("/create/select")
@@ -118,7 +118,7 @@ public class OrderController {
 
         model.addAttribute("allProducts",productsToSelect);
 
-        return "/order/viewProductOrder";
+        return "order/viewProductOrder";
     }
 
 
@@ -304,7 +304,7 @@ public class OrderController {
             model.addAttribute("products",productsToSelect);
             model.addAttribute("order", order);
 
-            return "/order/editOrder";
+            return "order/editOrder";
         }
 
 
