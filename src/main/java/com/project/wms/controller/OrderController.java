@@ -132,7 +132,20 @@ public class OrderController {
             cart = new ArrayList<>();
         }
 
-        cart.add(product); // Добавляем товар в корзину
+        // Проверяем, существует ли товар в корзине
+        boolean productExists = false;
+        for (ProductResponseDto item : cart) {
+            if (item.getCode().equals(product.getCode())) {
+                productExists = true;
+                break;
+            }
+        }
+
+        // Если товара нет в корзине, добавляем его
+        if (!productExists) {
+            cart.add(product);
+        }
+
         session.setAttribute("cart", cart); // Сохраняем корзину в сессии
 
         return "redirect:/orders/create"; // Вернуться на страницу с продуктами
@@ -319,6 +332,19 @@ public class OrderController {
 
     @GetMapping("/edit-order/{id}/cancel")
     public String cancel(@PathVariable(value = "id") Long id, HttpSession session){
+
+        List<ProductResponseDto> cart = (List<ProductResponseDto>) session.getAttribute("cart");
+
+        if (cart != null) {
+            session.removeAttribute("cart");
+        }
+
+        return "redirect:/orders";
+
+    }
+
+    @GetMapping("/cancel")
+    public String cancelOrder(HttpSession session){
 
         List<ProductResponseDto> cart = (List<ProductResponseDto>) session.getAttribute("cart");
 

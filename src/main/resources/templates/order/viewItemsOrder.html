@@ -47,7 +47,7 @@
                                 <td th:text="${product.price}"></td>
                                 <td>
                                     <!-- Поле для ввода количества товара -->
-                                    <input class="form-control" type="number" th:field="*{items[__${iterStat.index}__].amount}" />
+                                    <input class="form-control" type="number" th:field="*{items[__${iterStat.index}__].amount}"/>
                                     <span class="validationError" th:if="${#fields.hasErrors('items[__${iterStat.index}__].amount')}"
                                           th:errors="*{items[__${iterStat.index}__].amount}"
                                           style="color: red; font-weight: bold;"> Name error</span>
@@ -67,7 +67,7 @@
                 </div>
 
                 <input type="submit" value="Сохранить" class="btn btn-success">
-                <input type="button" value="Назад" class="btn btn-primary" onclick="history.back();">
+                <a th:href="@{/orders/cancel}" class="btn btn-primary">Отмена</a>
             </form>
         </div>
 
