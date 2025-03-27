@@ -56,7 +56,7 @@ public class PromoController {
             return "promo/addPromo";
         }
 
-        //promotionService.createPromo(promotionDTO);
+        promotionService.createPromo(promotionDTO);
         return "redirect:/promotions";
     }
 
