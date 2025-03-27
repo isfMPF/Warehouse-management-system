@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header.html :: headerfiles(pageTitle='Промо')}"></head>
+<body>
+<div th:replace="~{fragments/header.html :: header}"></div>
+
+<div class="container-fluid mt-4">
+  <div class="card">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Промоакции</h5>
+      <a th:href="@{/promotions/create}" class="btn btn-success btn-sm">
+        <i class="fas fa-plus"></i> Создать промоакцию
+      </a>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+          <thead class="thead-dark">
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Название</th>
+            <th scope="col">Период действия</th>
+            <th scope="col">Статус</th>
+            <th scope="col">Условие</th>
+            <th scope="col">Награда</th>
+            <th scope="col">Товары</th>
+            <th scope="col">Действия</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="promo : ${promotions}">
+            <td th:text="${promo.id}"></td>
+            <td th:text="${promo.name}"></td>
+            <td>
+              <div th:text="${#temporals.format(promo.startDate, 'dd.MM.yyyy')}"></div>
+              <div class="text-muted small" th:text="${#temporals.format(promo.endDate, 'dd.MM.yyyy')}"></div>
+            </td>
+            <td>
+              <span th:if="${promo.isActive}" class="badge bg-success">Активна</span>
+              <span th:if="${!promo.isActive}" class="badge bg-secondary">Неактивна</span>
+            </td>
+            <td>
+              Купить <span th:text="${promo.requiredQuantity}"></span> шт.
+              <div th:if="${promo.requiredProductName}" class="text-muted small">
+                + <span th:text="${promo.requiredProductName + ' ' + promo.requiredProductVolume + ' ' + 'л'}"></span>
+              </div>
+            </td>
+            <td>
+              Получить <span th:text="${promo.freeQuantity}"></span> шт.
+              <div class="text-muted small" th:text="${promo.freeProductName + ' ' + promo.freeProductVolume + ' ' + 'л'}"></div>
+            </td>
+            <td>
+              <div th:each="product : ${promo.includedProductNames}" class="mb-1">
+                <span class="badge bg-info" th:text="${product}"></span>
+              </div>
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <a th:href="@{/promotions/delete/{id}(id=${promo.id})}" class="btn btn-danger btn-sm">Delete</a>
+              </div>
+            </td>
+          </tr>
+          <tr th:if="${promotions.isEmpty()}">
+            <td colspan="8" class="text-center text-muted">Нет доступных промоакций</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</body>
+</html>

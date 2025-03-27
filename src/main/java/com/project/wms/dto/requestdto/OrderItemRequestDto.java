@@ -1,7 +1,6 @@
 package com.project.wms.dto.requestdto;
 
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 

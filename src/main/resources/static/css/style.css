@@ -64,3 +64,32 @@
     .order-details { flex-direction: column; gap: 5px; }
     .items-table { font-size: 14px; }
 }
+
+
+
+.sidebar {
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            width: 250px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 20px 0;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .sidebar .nav-link {
+            color: #495057;
+            padding: 10px 20px;
+            border-radius: 0;
+        }
+        .sidebar .nav-link:hover {
+            background-color: #e9ecef;
+            color: #0d6efd;
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+        }
