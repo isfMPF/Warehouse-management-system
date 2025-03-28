@@ -31,7 +31,6 @@
                         <table class="items-table">
                             <thead>
                             <tr>
-                                <th>ID товара</th>
                                 <th>Код</th>
                                 <th>Наименование</th>
                                 <th>Объем</th>
@@ -42,7 +41,6 @@
                             </thead>
                             <tbody>
                             <tr th:each="item : ${order.item}">
-                                <td th:text="${item.id}"></td>
                                 <td th:text="${item.code}"></td>
                                 <td th:text="${item.name}"></td>
                                 <td th:text="${item.volume}"></td>

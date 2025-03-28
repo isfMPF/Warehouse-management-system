@@ -232,8 +232,6 @@ public class OrderController {
             session.setAttribute("cart", cart);
         }
 
-
-
         return "redirect:/orders/edit-order/" + id;
 
     }

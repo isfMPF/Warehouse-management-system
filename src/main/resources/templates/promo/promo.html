@@ -18,7 +18,6 @@
         <table class="table table-bordered table-hover">
           <thead class="thead-dark">
           <tr>
-            <th scope="col">ID</th>
             <th scope="col">Название</th>
             <th scope="col">Период действия</th>
             <th scope="col">Статус</th>
@@ -30,7 +29,6 @@
           </thead>
           <tbody>
           <tr th:each="promo : ${promotions}">
-            <td th:text="${promo.id}"></td>
             <td th:text="${promo.name}"></td>
             <td>
               <div th:text="${#temporals.format(promo.startDate, 'dd.MM.yyyy')}"></div>

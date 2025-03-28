@@ -23,7 +23,6 @@ public interface ProductMapper {
     @Mapping(source = "price", target = "price")
     @Mapping(source = "amount", target = "amount")
     @Mapping(target = "unit", ignore = true) // Поле unit не заполняется
-    @Mapping(source = "order", target = "quantity")
     @Mapping(source = "weight", target = "weight")
     ProductResponseDto toProductResponseDto(OrderItemResponseDto orderItem);
 

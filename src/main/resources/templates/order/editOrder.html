@@ -19,7 +19,7 @@
                         <label th:for="*{codeClient}" class="form-label">Выбрать клиента</label>
                         <select th:field="*{codeClient}" class="form-control">
                             <option th:each="clients : ${client}" th:value="${clients.codeClient}" th:text="${clients.clientName}"></option>
-
+                            <!-- client-contains info about order -->
                         </select>
                         <span class="validationError" th:if="${#fields.hasErrors('codeClient')}"
                               th:errors="*{codeClient}"
@@ -55,7 +55,8 @@
                                       style="color: red; font-weight: bold;"> Name error</span>
                             </td>
                             <td>
-                                <a th:href="@{/orders/edit-order/{id}/del/{code}(id=${product.quantity}, code=${product.code})}"
+                                <!-- client.id - contains order id -->
+                                <a th:href="@{/orders/edit-order/{id}/del/{code}(id=${client.id}, code=${product.code})}"
                                                                             class="btn btn-danger btn-sm me-2">Del</a>
                             </td>
                             <!-- Скрытое поле для передачи productId -->
@@ -70,7 +71,6 @@
                 <a th:href="@{/orders/edit-order/{id}/cancel(id=${client.id})}" class="btn btn-primary">Отмена</a>
             </form>
         </div>
-
     </div>
 </div>
 </body>

@@ -1,7 +1,9 @@
 package com.project.wms.controller;
 
 import com.project.wms.dto.requestdto.PromotionRequestDTO;
+import com.project.wms.dto.responsedto.ProductResponseDto;
 import com.project.wms.dto.responsedto.PromotionResponseDTO;
+import com.project.wms.mapper.PromotionMapper;
 import com.project.wms.service.ProductService;
 import com.project.wms.service.PromotionService;
 import jakarta.validation.Valid;
@@ -12,6 +14,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class PromoController {
@@ -20,6 +23,8 @@ public class PromoController {
     private ProductService productService;
     @Autowired
     private PromotionService promotionService;
+    @Autowired
+    private PromotionMapper promotionMapper;
 
     @GetMapping("/promotions")
     public String show(Model model){
@@ -59,6 +64,7 @@ public class PromoController {
         promotionService.createPromo(promotionDTO);
         return "redirect:/promotions";
     }
+
 
     @GetMapping("/promotions/delete/{id}")
     public String deletePromotion(@PathVariable("id") Long id) {
