@@ -149,55 +149,56 @@ public class OrderService {
         List<OrderItemResponseDto> orderItems = order.getItem();
 
         List<PromotionResponseDTO> activePromo = promotionService.getActivePromo();
-
         List<OrderItemEntity> freeItemsToAdd = new ArrayList<>();
 
-        for (PromotionResponseDTO promo : activePromo) {
+        if(!activePromo.isEmpty()) {
+            for (PromotionResponseDTO promo : activePromo) {
 
-            // Приводим коды акции к Long для сравнения
-            Set<Long> promoIncludedCodes = promo.getIncludedProductCodes().stream()
-                    .map(Long::valueOf)
-                    .collect(Collectors.toSet());
+                // Приводим коды акции к Long для сравнения
+                Set<Long> promoIncludedCodes = promo.getIncludedProductCodes().stream()
+                        .map(Long::valueOf)
+                        .collect(Collectors.toSet());
 
-            // 1. Проверяем наличие обязательного товара
-            boolean hasRequiredProduct = orderItems.stream()
-                    .anyMatch(item -> item.getCode().toString().equals(promo.getRequiredProductCode()));
-
-
-            if (!hasRequiredProduct) {
-                continue;
-            }
-
-            // 2. Считаем общее количество товаров акции в заказе
-            int totalIncludedProducts = orderItems.stream()
-                    .filter(item -> promoIncludedCodes.contains(item.getCode()))
-                    .mapToInt(OrderItemResponseDto::getAmount)
-                    .sum();
+                // 1. Проверяем наличие обязательного товара
+                boolean hasRequiredProduct = orderItems.stream()
+                        .anyMatch(item -> item.getCode().toString().equals(promo.getRequiredProductCode()));
 
 
-            // 3. Проверяем условие акции и рассчитываем количество бесплатных товаров
-            if (totalIncludedProducts >= promo.getRequiredQuantity() - 1) {
-                // Вычисляем сколько раз выполнено условие акции (целочисленное деление)
-                int freeItemsCount = (totalIncludedProducts / (promo.getRequiredQuantity() - 1)) * promo.getFreeQuantity();
-                System.out.println("Подарок:" + freeItemsCount);
-                // 4. Добавляем бесплатный товар
-                ProductEntity freeProduct = productRepository.findByCode(promo.getFreeProductCode());
-                System.out.println("freeProduct: " + freeProduct.toString());
-                // Проверяем, не добавлен ли уже этот товар как бесплатный
-                boolean alreadyAdded = orderItems.stream()
-                        .anyMatch(item -> item.getCode().toString().equals(promo.getFreeProductCode())
-                                && item.getPrice().compareTo(BigDecimal.ZERO.doubleValue()) == 0);
+                if (!hasRequiredProduct) {
+                    continue;
+                }
 
-                if (!alreadyAdded && freeItemsCount > 0) {
-                    OrderItemEntity freeItem = new OrderItemEntity();
-                    freeItem.setOrder(orderRepository.findById(orderId).orElseThrow());
-                    freeItem.setCode(freeProduct);
-                    freeItem.setAmount(freeItemsCount);
-                    freeItem.setPrice(0.0);
-                    freeItem.setTotal(0.0);
-                    freeItem.setWeight(freeProduct.getWeight());
+                // 2. Считаем общее количество товаров акции в заказе
+                int totalIncludedProducts = orderItems.stream()
+                        .filter(item -> promoIncludedCodes.contains(item.getCode()))
+                        .mapToInt(OrderItemResponseDto::getAmount)
+                        .sum();
 
-                    freeItemsToAdd.add(freeItem);
+
+                // 3. Проверяем условие акции и рассчитываем количество бесплатных товаров
+                if (totalIncludedProducts >= promo.getRequiredQuantity() - 1) {
+                    // Вычисляем сколько раз выполнено условие акции (целочисленное деление)
+                    int freeItemsCount = (totalIncludedProducts / (promo.getRequiredQuantity() - 1)) * promo.getFreeQuantity();
+                    System.out.println("Подарок:" + freeItemsCount);
+                    // 4. Добавляем бесплатный товар
+                    ProductEntity freeProduct = productRepository.findByCode(promo.getFreeProductCode());
+                    System.out.println("freeProduct: " + freeProduct.toString());
+                    // Проверяем, не добавлен ли уже этот товар как бесплатный
+                    boolean alreadyAdded = orderItems.stream()
+                            .anyMatch(item -> item.getCode().toString().equals(promo.getFreeProductCode())
+                                    && item.getPrice().compareTo(BigDecimal.ZERO.doubleValue()) == 0);
+
+                    if (!alreadyAdded && freeItemsCount > 0) {
+                        OrderItemEntity freeItem = new OrderItemEntity();
+                        freeItem.setOrder(orderRepository.findById(orderId).orElseThrow());
+                        freeItem.setCode(freeProduct);
+                        freeItem.setAmount(freeItemsCount);
+                        freeItem.setPrice(0.0);
+                        freeItem.setTotal(0.0);
+                        freeItem.setWeight(freeProduct.getWeight());
+
+                        freeItemsToAdd.add(freeItem);
+                    }
                 }
             }
         }
