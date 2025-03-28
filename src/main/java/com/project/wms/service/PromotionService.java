@@ -89,4 +89,12 @@ public class PromotionService {
     public void deletePromotion(Long id) {
         promotionRepository.deleteById(id);
     }
+
+    public List<PromotionResponseDTO> getActivePromo(){
+       List<PromotionResponseDTO> list = promotionRepository.findActivePromo().stream()
+               .map(promotionMapper::toResponseDTO)
+               .toList();
+
+       return list;
+    }
 }

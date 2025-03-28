@@ -82,7 +82,6 @@ public class OrderController {
     public String showDetailsOrder(@PathVariable(value = "id") long id, Model model) {
 
         OrderResponseDto order = orderMapper.toResponseDto(orderService.getOrderById(id));
-        System.out.println(order);
         model.addAttribute("orders", order);
 
 
@@ -354,6 +353,15 @@ public class OrderController {
 
         return "redirect:/orders";
 
+    }
+
+    @GetMapping("/promo/{id}")
+    public String promo(@PathVariable(value = "id") Long id, Model model){
+
+        orderService.calculatePromo(id);
+        OrderResponseDto order = orderMapper.toResponseDto(orderService.getOrderById(id));
+        model.addAttribute("orders", order);
+        return "order/detailsOrder";
     }
 
 

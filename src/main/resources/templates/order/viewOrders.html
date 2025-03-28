@@ -66,6 +66,7 @@
                         <td th:text="${order.date}"></td>
                         <td>
                             <a th:href="@{/orders/orderDetails/{id}(id=${order.id})}" class="btn btn-primary btn-sm me-2">More</a>
+                            <a th:href="@{/orders/promo/{id}(id=${order.id})}" class="btn btn-info btn-sm me-2">Promo</a>
                             <a th:href="@{/orders/edit-order/{id}(id=${order.id})}" class="btn btn-danger btn-sm me-2">Edit</a>
                         </td>
                     </tr>

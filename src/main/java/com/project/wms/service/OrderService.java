@@ -2,6 +2,9 @@ package com.project.wms.service;
 
 import com.project.wms.dto.requestdto.OrderItemRequestDto;
 import com.project.wms.dto.requestdto.OrderRequestDto;
+import com.project.wms.dto.responsedto.OrderItemResponseDto;
+import com.project.wms.dto.responsedto.OrderResponseDto;
+import com.project.wms.dto.responsedto.PromotionResponseDTO;
 import com.project.wms.entity.ClientEntity;
 import com.project.wms.entity.OrderEntity;
 import com.project.wms.entity.OrderItemEntity;
@@ -13,14 +16,19 @@ import com.project.wms.repository.ClientRepository;
 import com.project.wms.repository.OrderItemRepository;
 import com.project.wms.repository.OrderRepository;
 import com.project.wms.repository.ProductRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -28,19 +36,15 @@ public class OrderService {
     @Autowired
     public OrderRepository orderRepository;
     @Autowired
-    public OrderMapper orderMapper;
-    @Autowired
     public ClientRepository clientRepository;
     @Autowired
     public ProductRepository productRepository;
     @Autowired
     private OrderItemRepository orderItemRepository;
     @Autowired
-    private ProductService productService;
+    private PromotionService promotionService;
     @Autowired
-    private ProductMapper productMapper;
-    @Autowired
-    private ClientMapper clientMapper;
+    private OrderMapper orderMapper;
 
     @Transactional
     public void createOrder(OrderRequestDto orderRequestDto) {
@@ -137,7 +141,70 @@ public class OrderService {
         orderRepository.delete(order);
     }
 
+    public void calculatePromo(Long orderId){
+
+        OrderResponseDto order = orderMapper.toResponseDto(orderRepository.findOrderById(orderId));
+
+        // Получаем список товаров из заказа
+        List<OrderItemResponseDto> orderItems = order.getItem();
+
+        List<PromotionResponseDTO> activePromo = promotionService.getActivePromo();
+
+        List<OrderItemEntity> freeItemsToAdd = new ArrayList<>();
+
+        for (PromotionResponseDTO promo : activePromo) {
+
+            // Приводим коды акции к Long для сравнения
+            Set<Long> promoIncludedCodes = promo.getIncludedProductCodes().stream()
+                    .map(Long::valueOf)
+                    .collect(Collectors.toSet());
+
+            // 1. Проверяем наличие обязательного товара
+            boolean hasRequiredProduct = orderItems.stream()
+                    .anyMatch(item -> item.getCode().toString().equals(promo.getRequiredProductCode()));
 
 
+            if (!hasRequiredProduct) {
+                continue;
+            }
 
+            // 2. Считаем общее количество товаров акции в заказе
+            int totalIncludedProducts = orderItems.stream()
+                    .filter(item -> promoIncludedCodes.contains(item.getCode()))
+                    .mapToInt(OrderItemResponseDto::getAmount)
+                    .sum();
+
+
+            // 3. Проверяем условие акции и рассчитываем количество бесплатных товаров
+            if (totalIncludedProducts >= promo.getRequiredQuantity() - 1) {
+                // Вычисляем сколько раз выполнено условие акции (целочисленное деление)
+                int freeItemsCount = (totalIncludedProducts / (promo.getRequiredQuantity() - 1)) * promo.getFreeQuantity();
+                System.out.println("Подарок:" + freeItemsCount);
+                // 4. Добавляем бесплатный товар
+                ProductEntity freeProduct = productRepository.findByCode(promo.getFreeProductCode());
+                System.out.println("freeProduct: " + freeProduct.toString());
+                // Проверяем, не добавлен ли уже этот товар как бесплатный
+                boolean alreadyAdded = orderItems.stream()
+                        .anyMatch(item -> item.getCode().toString().equals(promo.getFreeProductCode())
+                                && item.getPrice().compareTo(BigDecimal.ZERO.doubleValue()) == 0);
+
+                if (!alreadyAdded && freeItemsCount > 0) {
+                    OrderItemEntity freeItem = new OrderItemEntity();
+                    freeItem.setOrder(orderRepository.findById(orderId).orElseThrow());
+                    freeItem.setCode(freeProduct);
+                    freeItem.setAmount(freeItemsCount);
+                    freeItem.setPrice(0.0);
+                    freeItem.setTotal(0.0);
+                    freeItem.setWeight(freeProduct.getWeight());
+
+                    freeItemsToAdd.add(freeItem);
+                }
+            }
+        }
+
+        // 5. Сохраняем все бесплатные товары
+        if (!freeItemsToAdd.isEmpty()) {
+            orderItemRepository.saveAll(freeItemsToAdd);
+        }
+    }
 }

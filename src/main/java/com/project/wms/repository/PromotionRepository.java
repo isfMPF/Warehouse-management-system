@@ -11,4 +11,11 @@ public interface PromotionRepository extends JpaRepository<PromotionEntity, Long
     // Добавляем новый метод для получения всех акций
     @Query("SELECT p FROM PromotionEntity p LEFT JOIN FETCH p.freeProduct LEFT JOIN FETCH p.requiredProduct LEFT JOIN FETCH p.includedProducts ORDER BY p.startDate DESC")
     List<PromotionEntity> findAllWithProducts();
+
+    @Query("SELECT DISTINCT p FROM PromotionEntity p " +
+            "LEFT JOIN FETCH p.freeProduct " +
+            "LEFT JOIN FETCH p.requiredProduct " +
+            "LEFT JOIN FETCH p.includedProducts " +
+            "WHERE CURRENT_DATE BETWEEN p.startDate AND p.endDate")
+    List<PromotionEntity> findActivePromo();
 }

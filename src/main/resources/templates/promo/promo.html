@@ -41,7 +41,7 @@
               <span th:if="${!promo.isActive}" class="badge bg-secondary">Неактивна</span>
             </td>
             <td>
-              Купить <span th:text="${promo.requiredQuantity}"></span> шт.
+              Купить <span th:text="${promo.requiredQuantity - 1}"></span> шт.
               <div th:if="${promo.requiredProductName}" class="text-muted small">
                 + <span th:text="${promo.requiredProductName + ' ' + promo.requiredProductVolume + ' ' + 'л'}"></span>
               </div>

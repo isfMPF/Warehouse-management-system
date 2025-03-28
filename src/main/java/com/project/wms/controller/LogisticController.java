@@ -39,7 +39,7 @@ public class LogisticController {
     @GetMapping("/logistics")
     public String showOrders(Model model){
 
-        List<OrderResponseDto> orders = orderService.getOrdersBetweenDates(LocalDate.now().minusDays(1), LocalDate.now().minusDays(1))
+        List<OrderResponseDto> orders = orderService.getOrdersBetweenDates(LocalDate.now(), LocalDate.now())
                 .stream()
                 .map(orderMapper::toResponseDto)
                 .toList();
@@ -94,6 +94,7 @@ public class LogisticController {
         }
 
         model.addAttribute("orders", orders);
+        System.out.println(orders);
         return "logistic/information";
     }
 

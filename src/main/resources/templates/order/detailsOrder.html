@@ -21,9 +21,9 @@
                             <span class="order-detail">Клиент: <span th:text="${order.clientName}"></span></span>
                             <span class="order-detail">Код клиента: <span th:text="${order.codeClient}"></span></span>
                             <span class="order-detail">Общая сумма: <span th:text="${order.total} + ' ₽'"></span></span>
-                                  <span class="order-detail">Общий вес:
+                                <span class="order-detail">Общий вес:
                             <span th:text="${#aggregates.sum(order.item.?[weight != null].![amount * weight])} + ' кг'">
-                            </span>
+                            </span></span><span class="order-detail">Общее количество товара:<span th:text="${#aggregates.sum(order.item.?[amount != null].![amount])} + ' шт'"></span></span>
                         </div>
                     </div>
 
