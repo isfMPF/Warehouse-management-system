@@ -5,6 +5,7 @@ import com.project.wms.dto.responsedto.ClientResponseDto;
 import com.project.wms.mapper.ClientMapper;
 import com.project.wms.service.ClientService;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -117,7 +118,8 @@ public class ClientController {
 
     }
 
-    @GetMapping("/clientDelete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/clientDelete/{id}")
     public String deleteClient(@PathVariable(value = "id") long id){
 
         clientService.deteleClient(id);

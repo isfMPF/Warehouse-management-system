@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Ошибка</title>
+</head>
+<body>
+<h1>Ошибка</h1>
+<div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+<a href="#" class="btn btn-primary" onclick="history.back()">Вернуться назад</a>
+</body>
+</html>

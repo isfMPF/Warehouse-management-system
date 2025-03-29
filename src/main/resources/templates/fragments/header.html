@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">>
 <head th:fragment="headerfiles">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,7 +33,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/products">Товары</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item"  sec:authorize="hasRole('ADMIN')">
                         <a class="nav-link" href="/logistics">Логистика</a>
                     </li>
                     <li class="nav-item">
@@ -41,7 +42,10 @@
                 </ul>
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/">Выход</a>
+                        <form th:action="@{/logout}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <button type="submit" class="nav-link btn btn-link">Выход</button>
+                        </form>
                     </li>
                 </ul>
             </div>

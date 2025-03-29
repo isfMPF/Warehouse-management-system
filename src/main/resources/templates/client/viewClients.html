@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head th:replace="~{fragments/header.html :: headerfiles(pageTitle='Все клиенты')}"></head>
 <body>
 <div th:replace="~{fragments/header.html :: header}"></div>
@@ -43,7 +43,10 @@
             <td th:text="${client.phone}"></td>
             <td>
               <a th:href="@{/clientEdit/{id}(id=${client.id})}" class="btn btn-primary btn-sm me-2">Edit</a>
-              <a th:href="@{/clientDelete/{id}(id=${client.id})}" class="btn btn-danger btn-sm">Delete</a>
+              <form th:action="@{/clientDelete/{id}(id=${client.id})}" method="post" sec:authorize="hasRole('ADMIN')">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+              </form>
             </td>
           </tr>
           </tbody>

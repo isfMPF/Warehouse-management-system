@@ -6,6 +6,7 @@ import com.project.wms.dto.responsedto.ProductResponseDto;
 import com.project.wms.mapper.ProductMapper;
 import com.project.wms.service.ProductService;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -87,9 +88,8 @@ public class ProductController {
 
     }
 
-
-
-    @GetMapping("/productDelete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/productDelete/{id}")
     public String deleteClient(@PathVariable(value = "id") long id){
 
         productService.deteleProduct(id);

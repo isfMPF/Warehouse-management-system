@@ -8,6 +8,7 @@ import com.project.wms.service.ProductService;
 import com.project.wms.service.PromotionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -66,6 +67,8 @@ public class PromoController {
     }
 
 
+
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/promotions/delete/{id}")
     public String deletePromotion(@PathVariable("id") Long id) {
         promotionService.deletePromotion(id);

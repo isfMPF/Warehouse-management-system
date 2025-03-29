@@ -1,8 +1,6 @@
 package com.project.wms.controller;
 
-import com.project.wms.dto.responsedto.OrderItemResponseDto;
 import com.project.wms.dto.responsedto.OrderResponseDto;
-import com.project.wms.entity.OrderItemEntity;
 import com.project.wms.mapper.OrderItemMapper;
 import com.project.wms.mapper.OrderMapper;
 import com.project.wms.service.OrderItemService;
@@ -11,6 +9,7 @@ import com.project.wms.util.ExcelExporter;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,9 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 public class LogisticController {
@@ -36,6 +33,7 @@ public class LogisticController {
     @Autowired
     private OrderItemService orderItemService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/logistics")
     public String showOrders(Model model){
 
