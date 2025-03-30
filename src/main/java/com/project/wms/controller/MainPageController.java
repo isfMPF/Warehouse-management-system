@@ -4,6 +4,8 @@ import com.project.wms.dto.responsedto.OrderResponseDto;
 import com.project.wms.mapper.OrderMapper;
 import com.project.wms.service.OrderService;
 import com.project.wms.util.OrderMetrics;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -23,23 +25,31 @@ public class MainPageController {
     private OrderService orderService;
     @Autowired
     private OrderMapper orderMapper;
+    private static final Logger logger = LoggerFactory.getLogger(MainPageController.class);
 
     @GetMapping("/main")
     public String showInfo(Model model){
 
-        List<OrderResponseDto> orders = orderService.getOrdersBetweenDates(LocalDate.now(),LocalDate.now()).stream()
-                .map(orderMapper::toResponseDto)
-                .toList();
+        try {
+            List<OrderResponseDto> orders = orderService.getOrdersBetweenDates(LocalDate.now(),LocalDate.now()).stream()
+                    .map(orderMapper::toResponseDto)
+                    .toList();
 
-        OrderMetrics metrics = calculateMetrics(orders);
+            OrderMetrics metrics = calculateMetrics(orders);
 
-        model.addAttribute("balance", metrics.getTotalSum());
-        model.addAttribute("customers", metrics.getUniqueClientCount());
-        model.addAttribute("newOrders", metrics.getOrderCount());
-        model.addAttribute("averageCheck", metrics.getAverageCheck());
+            model.addAttribute("balance", metrics.getTotalSum());
+            model.addAttribute("customers", metrics.getUniqueClientCount());
+            model.addAttribute("newOrders", metrics.getOrderCount());
+            model.addAttribute("averageCheck", metrics.getAverageCheck());
 
 
-        return "main/mainPage";
+            return "main/mainPage";
+        } catch (Exception e) {
+            logger.error("Ошибка при формировании статистики", e);
+            model.addAttribute("errorMessage", "Ошибка при формировании статистики");
+            return "error/error";
+        }
+
     }
 
     @GetMapping("main/search")
@@ -48,19 +58,27 @@ public class MainPageController {
             LocalDate start, @RequestParam(name = "end", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate end, Model model)
     {
-        List<OrderResponseDto> orders = orderService.getOrdersBetweenDates(start,end).stream()
-                .map(orderMapper::toResponseDto)
-                .toList();
 
-        // Рассчитываем метрики
-        OrderMetrics metrics = calculateMetrics(orders);
+        try {
+            List<OrderResponseDto> orders = orderService.getOrdersBetweenDates(start,end).stream()
+                    .map(orderMapper::toResponseDto)
+                    .toList();
 
-        model.addAttribute("balance", metrics.getTotalSum());
-        model.addAttribute("customers", metrics.getUniqueClientCount());
-        model.addAttribute("newOrders", metrics.getOrderCount());
-        model.addAttribute("averageCheck", metrics.getAverageCheck());
+            // Рассчитываем метрики
+            OrderMetrics metrics = calculateMetrics(orders);
 
-        return "main/mainPage";
+            model.addAttribute("balance", metrics.getTotalSum());
+            model.addAttribute("customers", metrics.getUniqueClientCount());
+            model.addAttribute("newOrders", metrics.getOrderCount());
+            model.addAttribute("averageCheck", metrics.getAverageCheck());
+
+            return "main/mainPage";
+        } catch (Exception e) {
+            logger.error("Ошибка при поиске", e);
+            model.addAttribute("errorMessage", "Ошибка при поиске");
+            return "error/error";
+        }
+
     }
 
     private OrderMetrics calculateMetrics(List<OrderResponseDto> orders) {
