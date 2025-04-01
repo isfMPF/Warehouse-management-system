@@ -19,7 +19,7 @@ public class GlobalExceptionHandler {
 
         // Добавляем в модель простое сообщение для пользователя
         model.addAttribute("errorMessage", "Произошла ошибка. Пожалуйста, попробуйте позже.");
-        return "error/error"; // имя вашего Thymeleaf шаблона для ошибок
+        return "error/error";
     }
 
     @ExceptionHandler(RuntimeException.class)
