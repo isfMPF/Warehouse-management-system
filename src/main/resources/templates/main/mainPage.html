@@ -1,88 +1,129 @@
-<!doctype html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/header.html :: headerfiles(pageTitle='Заказы')}"></head>
+<!DOCTYPE html>
+<html lang="ru" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header.html :: headerfiles(pageTitle='Дашборд заказов')}">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/css/dashbord.css}">
+</head>
 <body>
 <div th:replace="~{fragments/header.html :: header}"></div>
 
-<div class="d-flex justify-content-center align-items-center mt-5">
-    <div class="card" style="width: 100%; max-width: 1200px;">
-        <div class="card-header">
+<main class="container py-4">
+    <div class="dashboard-card rounded-4 shadow-lg overflow-hidden">
+        <!-- Заголовок с акцентным градиентом -->
+        <div class="dashboard-header bg-gradient-primary py-3 px-4">
+            <h2 class="h5 mb-0 text-white">
+                <i class="bi bi-speedometer2 me-2"></i>Аналитика продаж
+            </h2>
         </div>
-        <div class="card-body">
-            <!-- Форма поиска -->
-            <form th:action="@{/main/search}" method="get" class="mb-3">
-                <div class="row g-3 align-items-center">
-                    <!-- Кнопка "Сегодня" -->
+
+        <div class="dashboard-body p-4">
+            <!-- Форма фильтрации с иконками -->
+            <form th:action="@{/main/search}" method="get" class="mb-4">
+                <div class="row g-2 align-items-end">
                     <div class="col-12 col-md-auto">
-                        <a href="/main" class="btn btn-info w-100">Сегодня</a>
+                        <a href="/main" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-calendar-day me-2"></i>Сегодня
+                        </a>
                     </div>
 
-                    <!-- Поле "От:" -->
-                    <div class="col-12 col-md-auto">
-                        <label for="start" class="form-label">От:</label>
-                    </div>
                     <div class="col-12 col-md">
-                        <input type="date" name="start" id="start" class="form-control">
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent">
+                                <i class="bi bi-calendar-range"></i>
+                            </span>
+                            <input type="date" name="start" id="start" class="form-control" placeholder="От">
+                        </div>
                     </div>
 
-                    <!-- Поле "До:" -->
-                    <div class="col-12 col-md-auto">
-                        <label for="end" class="form-label">До:</label>
-                    </div>
                     <div class="col-12 col-md">
-                        <input type="date" name="end" id="end" class="form-control">
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent">
+                                <i class="bi bi-calendar-range"></i>
+                            </span>
+                            <input type="date" name="end" id="end" class="form-control" placeholder="До">
+                        </div>
                     </div>
 
-                    <!-- Кнопка "Поиск" -->
                     <div class="col-12 col-md-auto">
-                        <button type="submit" class="btn btn-success w-100">Поиск</button>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search me-2"></i>Применить
+                        </button>
                     </div>
                 </div>
             </form>
 
-            <!-- Дашборд -->
-            <div class="row row-cols-1 row-cols-md-2 g-4">
-                <!-- Первая строка -->
-                <div class="col">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">Сальдо</h5>
-                            <p class="card-text balance-text" th:text="${balance} + ' руб.'">0 руб.</p>
+            <!-- Карточки метрик -->
+            <div class="row g-3">
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="metric-card bg-primary bg-opacity-10 rounded-3 p-3 h-100">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="metric-title text-muted mb-2">Сальдо</h6>
+                                <h3 class="metric-value text-primary mb-0" th:text="${balance} + ' ₽'">0 ₽</h3>
+                            </div>
+                            <i class="bi bi-cash-stack metric-icon text-primary"></i>
+                        </div>
+                        <div class="metric-progress mt-2">
+                            <div class="progress" style="height: 4px;">
+                                <div class="progress-bar bg-primary" style="width: 75%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">Клиенты</h5>
-                            <p class="card-text balance-text" th:text="${customers}">0 чел.</p>
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="metric-card bg-success bg-opacity-10 rounded-3 p-3 h-100">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="metric-title text-muted mb-2">Клиенты</h6>
+                                <h3 class="metric-value text-success mb-0" th:text="${customers} + ' чел.'">0 чел.</h3>
+                            </div>
+                            <i class="bi bi-people-fill metric-icon text-success"></i>
+                        </div>
+                        <div class="metric-progress mt-2">
+                            <div class="progress" style="height: 4px;">
+                                <div class="progress-bar bg-success" style="width: 60%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Вторая строка -->
-                <div class="col">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">Средний чек</h5>
-                            <p class="card-text balance-text" th:text="${averageCheck} + ' руб.'">0 руб.</p>
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="metric-card bg-warning bg-opacity-10 rounded-3 p-3 h-100">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="metric-title text-muted mb-2">Средний чек</h6>
+                                <h3 class="metric-value text-warning mb-0" th:text="${averageCheck} + ' ₽'">0 ₽</h3>
+                            </div>
+                            <i class="bi bi-receipt metric-icon text-warning"></i>
+                        </div>
+                        <div class="metric-progress mt-2">
+                            <div class="progress" style="height: 4px;">
+                                <div class="progress-bar bg-warning" style="width: 45%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">Заказы</h5>
-                            <p class="card-text balance-text" th:text="${newOrders} + ' шт.'">0 шт.</p>
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="metric-card bg-info bg-opacity-10 rounded-3 p-3 h-100">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="metric-title text-muted mb-2">Новые заказы</h6>
+                                <h3 class="metric-value text-info mb-0" th:text="${newOrders} + ' шт.'">0 шт.</h3>
+                            </div>
+                            <i class="bi bi-cart-check metric-icon text-info"></i>
+                        </div>
+                        <div class="metric-progress mt-2">
+                            <div class="progress" style="height: 4px;">
+                                <div class="progress-bar bg-info" style="width: 85%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</main>
 </body>
 </html>

@@ -1,0 +1,110 @@
+/* Основные стили */
+.client-management-card {
+    background: white;
+    border: none;
+    overflow: hidden;
+}
+
+.client-header {
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+}
+
+.client-body {
+    background-color: #f8f9fc;
+}
+
+/* Форма поиска */
+.search-form {
+    position: relative;
+}
+
+.search-input {
+    border-radius: 0.375rem 0 0 0.375rem;
+    border-right: none;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    box-shadow: none;
+    border-color: #4e73df;
+}
+
+.search-btn {
+    border-radius: 0 0.375rem 0.375rem 0;
+    padding: 0.5rem 1.2rem;
+}
+
+/* Таблица */
+.client-table {
+    background-color: white;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.client-table thead {
+    background-color: #4e73df;
+    color: white;
+}
+
+.client-table th {
+    font-weight: 600;
+    padding: 1rem;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+.client-table td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+.client-row:hover {
+    background-color: rgba(78, 115, 223, 0.05);
+}
+
+/* Кнопки действий */
+.btn-outline-primary {
+    color: #4e73df;
+    border-color: #4e73df;
+}
+
+.btn-outline-primary:hover {
+    background-color: #4e73df;
+    color: white;
+}
+
+.btn-outline-danger {
+    color: #e74a3b;
+    border-color: #e74a3b;
+}
+
+.btn-outline-danger:hover {
+    background-color: #e74a3b;
+    color: white;
+}
+
+/* Сообщения об ошибках */
+.error-message {
+    color: #e74a3b;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .client-actions .col-md-6 {
+        margin-bottom: 1rem;
+    }
+
+    .client-table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .client-table th,
+    .client-table td {
+        white-space: nowrap;
+    }
+}

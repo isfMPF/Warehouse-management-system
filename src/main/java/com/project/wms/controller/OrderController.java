@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -142,6 +143,7 @@ public class OrderController {
 
         try {
             List<ProductResponseDto> productsToSelect = StreamSupport.stream(productService.getAllProducts().spliterator(), false)
+                    .filter(product -> product.getAmount() > 5)
                     .map(productMapper::toResponseDto)
                     .toList();
 
@@ -244,7 +246,11 @@ public class OrderController {
             session.removeAttribute("cart");
 
             return "redirect:/orders";
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
+            logger.error(e.getMessage(), e);
+            model.addAttribute("errorMessage", e.getMessage());
+            return "error/error";
+        }catch (Exception e) {
             logger.error("Ошибка при создании заказа", e);
             model.addAttribute("errorMessage", "Ошибка при создании заказа");
             return "error/error";
@@ -312,6 +318,7 @@ public class OrderController {
 
         try {
             List<ProductResponseDto> productsToSelect = StreamSupport.stream(productService.getAllProducts().spliterator(), false)
+                    .filter(product -> product.getAmount() > 5)
                     .map(productMapper::toResponseDto)
                     .toList();
 
@@ -457,26 +464,27 @@ public class OrderController {
     }
 
     @GetMapping("/promo/{id}")
-    public String promo(@PathVariable(value = "id") Long id, Model model){
-
+    public String promo(@PathVariable(value = "id") Long id, Model model) {
         try {
-            orderService.calculatePromo(id);
+            Map<String, Object> promoResult = orderService.calculatePromo(id);
             OrderResponseDto order = orderMapper.toResponseDto(orderService.getOrderById(id));
+
             model.addAttribute("orders", order);
-            return "order/detailsOrder";
-        }catch (Exception e) {
+            model.addAttribute("promoMessages", promoResult.get("messages"));
+            model.addAttribute("promoApplied", promoResult.get("promoApplied"));
+
+            return "order/viewOrders";
+        } catch (Exception e) {
             logger.error("Ошибка при формировании промо", e);
-            model.addAttribute("errorMessage", "Ошибка при формировании промо");
+            model.addAttribute("errorMessage", "Ошибка при формировании промо: " + e.getMessage());
             return "error/error";
         }
-
     }
 
     @GetMapping("/return/{id}")
     public String returnOrder(@PathVariable(value = "id") Long id, Model model){
 
         try {
-
             orderService.returnOrder(id);
             return "redirect:/orders";
 

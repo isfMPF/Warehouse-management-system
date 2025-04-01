@@ -1,60 +1,101 @@
-<!doctype html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
-<head th:replace="~{fragments/header.html :: headerfiles(pageTitle='Товары')}"></head>
+<!DOCTYPE html>
+<html lang="ru" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <th:block th:replace="~{fragments/header.html :: headerfiles(pageTitle='Управление товарами')}"/>
+  <link rel="stylesheet" th:href="@{/css/product.css}">
+</head>
 <body>
 <div th:replace="~{fragments/header.html :: header}"></div>
 
-<div class="d-flex justify-content-center align-items-center mt-5">
-  <div class="card" style="width: 100%; max-width: 1200px;">
-    <div class="card-header">
-      Товары
+<main class="products-container">
+  <div class="products-card shadow-lg rounded-4">
+    <div class="products-header bg-gradient-primary rounded-top-4">
+      <h1 class="h4 mb-0 text-white">
+        <i class="bi bi-box-seam me-2"></i>Каталог товаров
+      </h1>
     </div>
-    <div class="card-body">
-      <div class="input-group mb-3">
-        <form method="get" th:action="@{/search-product}" th:object="${allProducts}" class="input-group" >
-          <button class="btn btn-primary" type="submit" id="button-addon1">Поиск</button>
-          <input type="text" name="query" class="form-control"  aria-label="Example text with button addon" aria-describedby="button-addon1">
-          <span th:if="${error}" th:text="${error}" style="color: red; font-weight: bold;"></span>
-        </form>
+
+    <div class="products-body p-4">
+      <!-- Поиск и действия -->
+      <div class="products-actions mb-4">
+        <div class="row g-3 align-items-center">
+          <div class="col-md-6">
+            <form method="get" th:action="@{/search-product}" class="search-form">
+              <div class="input-group">
+                <input type="text" name="query" class="form-control search-input"
+                       placeholder="Поиск по названию или коду..."
+                       aria-label="Поиск товаров"
+                       th:value="${query}">
+                <button class="btn btn-primary search-btn" type="submit">
+                  <i class="bi bi-search me-1"></i> Найти
+                </button>
+              </div>
+              <div th:if="${error}" class="error-message mt-2" th:text="${error}"></div>
+            </form>
+          </div>
+
+          <div class="col-md-6 text-md-end">
+            <a href="/form-product" class="btn btn-success me-2">
+              <i class="bi bi-plus-circle me-1"></i>Добавить
+            </a>
+            <a href="/products" class="btn btn-outline-secondary">
+              <i class="bi bi-arrow-counterclockwise me-1"></i>Сбросить
+            </a>
+          </div>
+        </div>
       </div>
 
-      <a href="/form-product" class="btn btn-primary mb-3">Добавить</a>
-      <a href="/products" class="btn btn-info mb-3">Показать всё</a>
-
+      <!-- Таблица товаров -->
       <div class="table-responsive">
-        <table class="table table-bordered table-hover">
-          <thead class="thead-dark">
+        <table class="products-table table table-hover align-middle">
+          <thead>
           <tr>
-            <th scope="col">Код</th>
-            <th scope="col">Товар</th>
-            <th scope="col">Объём</th>
-            <th scope="col">Ед.</th>
-            <th scope="col">Кол-во в уп.</th>
-            <th scope="col">Цена</th>
-            <th scope="col">Количесто на складе</th>
-            <th scope="col">Вес</th>
-            <th scope="col">Действия</th>
+            <th width="8%">Код</th>
+            <th width="18%">Товар</th>
+            <th width="8%">Объём</th>
+            <th width="8%">Ед.</th>
+            <th width="10%">Кол-во в уп.</th>
+            <th width="10%">Цена</th>
+            <th width="12%">На складе</th>
+            <th width="8%">Вес</th>
+            <th width="18%">Действия</th>
           </tr>
           </thead>
           <tbody>
-          <tr th:each="product : ${allProducts}">
-            <td th:text="${product.code}"></td>
+          <tr th:each="product : ${allProducts}" class="product-row">
+            <td th:text="${product.code}" class="fw-bold text-primary"></td>
             <td th:text="${product.name}"></td>
             <td th:text="${product.volume}"></td>
             <td th:text="${product.unit}"></td>
             <td th:text="${product.quantity}"></td>
-            <td th:text="${product.price}"></td>
-            <td th:text="${product.amount}"></td>
-            <td th:text="${product.weight}"></td>
+            <td th:text="${product.price} + ' ₽'"></td>
             <td>
-              <a th:href="@{/productEdit/{id}(id=${product.id})}" class="btn btn-primary btn-sm me-2">Edit</a>
-              <form th:action="@{/productDelete/{id}(id=${product.id})}"
-                    method="post"
-                    sec:authorize="hasRole('ADMIN')">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-              </form>
+                                <span th:class="${product.amount > 0} ? 'badge bg-success' : 'badge bg-danger'"
+                                      th:text="${product.amount} + ' шт.'"></span>
+            </td>
+            <td th:text="${product.weight} + ' кг'"></td>
+            <td>
+              <div class="d-flex flex-wrap gap-2">
+                <a th:href="@{/productEdit/{id}(id=${product.id})}"
+                   class="btn btn-sm btn-outline-primary"
+                   title="Редактировать"
+                   sec:authorize="hasRole('ADMIN')">
+                  <i class="bi bi-pencil"></i>
+                </a>
+
+                <form th:action="@{/productDelete/{id}(id=${product.id})}"
+                      method="post"
+                      sec:authorize="hasRole('ADMIN')"
+                      class="delete-form">
+                  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                  <button type="submit" class="btn btn-sm btn-outline-danger"
+                          title="Удалить" onclick="return confirm('Удалить товар?')">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </div>
             </td>
           </tr>
           </tbody>
@@ -62,6 +103,18 @@
       </div>
     </div>
   </div>
-</div>
+</main>
+
+<!-- Подтверждение удаления -->
+<script>
+  document.querySelectorAll('.delete-form').forEach(form => {
+      form.addEventListener('submit', function(e) {
+          if (!confirm('Вы уверены, что хотите удалить этот товар?')) {
+              e.preventDefault();
+          }
+      });
+  });
+</script>
+
 </body>
 </html>

@@ -1,84 +1,126 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head th:replace="~{fragments/header.html :: headerfiles(pageTitle='Заказы')}"></head>
 <body>
 <div th:replace="~{fragments/header.html :: header}"></div>
 
-<div class="d-flex justify-content-center align-items-center mt-5">
-    <div class="card" style="width: 100%; max-width: 1200px;">
-        <div class="card-header">
-            Заказы
+<main class="container my-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h2 class="h5 mb-0">Управление заказами</h2>
         </div>
+
         <div class="card-body">
-            <div class="input-group mb-3">
-                <div class="row row-cols-1 row-cols-md-4 g-2">
-                    <form th:action="@{/orders/search}" method="get" class="row g-3 align-items-center w-100">
-                        <!-- Кнопка "Новый заказ" -->
-                        <div class="col-12 col-md">
-                            <a href="/orders/create" class="btn btn-primary w-100">Новый заказ</a>
-                        </div>
+            <!-- Поиск и фильтрация -->
+            <section class="mb-4">
+                <form th:action="@{/orders/search}" method="get" class="row g-3 align-items-center">
+                    <!-- Кнопка создания нового заказа -->
+                    <div class="col-md-2 col-12">
+                        <a href="/orders/create" class="btn btn-primary w-100">
+                            <i class="bi bi-plus-circle me-2"></i>Новый заказ
+                        </a>
+                    </div>
 
-                        <!-- Кнопка "Показать всё" -->
-                        <div class="col-12 col-md">
-                            <a href="/orders" class="btn btn-info w-100">Показать всё</a>
-                        </div>
+                    <!-- Кнопка сброса фильтров -->
+                    <div class="col-md-2 col-12">
+                        <a href="/orders" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-arrow-counterclockwise me-2"></i>Показать всё
+                        </a>
+                    </div>
 
-                        <!-- Поле "От:" -->
-                        <div class="col-12 col-md">
-                            <label for="start" class="form-label">От:</label>
+                    <!-- Фильтр по дате -->
+                    <!-- Фильтр по дате - исправленная версия -->
+                    <div class="col-md-6 col-12">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-4 col-12">
+                                <label for="start" class="form-label">От:</label>
+                                <input type="date" name="start" id="start" class="form-control">
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label for="end" class="form-label">До:</label>
+                                <input type="date" name="end" id="end" class="form-control">
+                            </div>
+                            <div class="col-md-4 col-12 d-grid">
+                                <button type="submit" class="btn btn-success mt-md-4">
+                                    <i class="bi bi-search me-2"></i>Поиск
+                                </button>
+                            </div>
                         </div>
-                        <div class="col-12 col-md">
-                            <input type="date" name="start" id="start" class="form-control w-100">
-                        </div>
+                    </div>
 
-                        <!-- Поле "До:" -->
-                        <div class="col-12 col-md">
-                            <label for="end" class="form-label">До:</label>
-                        </div>
-                        <div class="col-12 col-md">
-                            <input type="date" name="end" id="end" class="form-control w-100">
-                        </div>
+                    <!-- Дополнительное пространство для выравнивания -->
+                    <div class="col-md-4"></div>
+                </form>
+            </section>
 
-                        <!-- Кнопка "Поиск" -->
-                        <div class="col-12 col-md">
-                            <button type="submit" class="btn btn-success w-100">Поиск</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover">
-                    <thead class="thead-dark">
+            <!-- Таблица заказов -->
+            <section class="table-responsive">
+                <table class="table table-hover table-striped align-middle">
+                    <thead class="table-dark">
                     <tr>
-                        <th scope="col">ID Заказ</th>
-                        <th scope="col">Клиент</th>
-                        <th scope="col">Итог</th>
-                        <th scope="col">Дата</th>
-                        <th scope="col">Действия</th>
+                        <th scope="col" width="10%">ID</th>
+                        <th scope="col" width="25%">Клиент</th>
+                        <th scope="col" width="15%">Итог</th>
+                        <th scope="col" width="20%">Дата</th>
+                        <th scope="col" width="30%">Действия</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr th:each="order : ${orders}">
-                        <td th:text="${order.id}"></td>
+                        <td th:text="${order.id}" class="fw-bold"></td>
                         <td th:text="${order.clientName}"></td>
-                        <td th:text="${order.total}"></td>
-                        <td th:text="${order.date}"></td>
-                        <td style="white-space: nowrap;">
-                            <a th:href="@{/orders/orderDetails/{id}(id=${order.id})}" class="btn btn-success btn-sm me-2">More</a>
-                            <a th:href="@{/orders/promo/{id}(id=${order.id})}" class="btn btn-info btn-sm me-2">Promo</a>
-                            <a th:href="@{/orders/edit-order/{id}(id=${order.id})}" class="btn btn-danger btn-sm me-2">Edit</a>
-                            <div sec:authorize="hasRole('ADMIN')" style="display: inline-block;">
-                                <a th:href="@{/orders/return/{id}(id=${order.id})}" class="btn btn-primary btn-sm me-2">Возврат</a>
+                        <td th:text="${'₽' + #numbers.formatDecimal(order.total, 1, 2, 'COMMA')}"></td>
+                        <td th:text="${#temporals.format(order.date, 'dd.MM.yyyy')}"></td>
+                        <td>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a th:href="@{/orders/orderDetails/{id}(id=${order.id})}"
+                                   class="btn btn-sm btn-outline-success" title="Подробнее">
+                                    <i class="bi bi-eye-fill"></i>
+                                </a>
+
+                                <a th:href="@{/orders/promo/{id}(id=${order.id})}"
+                                   class="btn btn-sm btn-outline-info" title="Промо-код">
+                                    <i class="bi bi-percent"></i>
+                                </a>
+
+                                <a th:href="@{/orders/edit-order/{id}(id=${order.id})}"
+                                   class="btn btn-sm btn-outline-warning" title="Редактировать">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </a>
+
+                                <div sec:authorize="hasRole('ADMIN')">
+                                    <a th:href="@{/orders/return/{id}(id=${order.id})}"
+                                       class="btn btn-sm btn-outline-primary" title="Возврат">
+                                        <i class="bi bi-arrow-return-left"></i>
+                                    </a>
+                                </div>
                             </div>
                         </td>
                     </tr>
                     </tbody>
                 </table>
-            </div>
+            </section>
+
+            <!-- Сообщения о промо-акциях -->
+            <section th:if="${promoMessages != null and !promoMessages.isEmpty()}" class="mt-4">
+                <div th:each="message : ${promoMessages}"
+                     th:classappend="${promoApplied} ? 'alert-success' : 'alert-info'"
+                     class="alert alert-dismissible fade show" role="alert">
+                    <span th:text="${message}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </section>
+        </div>
+
+        <div class="card-footer bg-light">
+            <small class="text-muted">Всего заказов: <span th:text="${orders.size()}"></span></small>
         </div>
     </div>
-</div>
+</main>
+
+<!-- Подключение Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
 </body>
 </html>

@@ -1,82 +1,191 @@
-<!doctype html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+<!DOCTYPE html>
+<html lang="ru" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/header.html :: headerfiles(pageTitle='Добавить товар')}"></head>
+<head>
+  <th:block th:replace="~{fragments/header.html :: headerfiles(pageTitle='Добавление товара')}"/>
+  <link rel="stylesheet" th:href="@{/css/add-product.css}">
+</head>
 <body>
 <div th:replace="~{fragments/header.html :: header}"></div>
-<div class="container mt-2">
-  <form method="post" th:action="@{/add-product}" th:object="${productRequestDto}">
 
-    <div th:if="${param.success}">
-      <div class="alert alert-success" role="alert">
-        Товар успешно добавлен
+<main class="product-form-container">
+  <div class="product-form-card shadow-lg rounded-4">
+    <div class="form-header bg-gradient-primary rounded-top-4">
+      <h1 class="h4 mb-0 text-white">
+        <i class="bi bi-plus-circle me-2"></i>Добавление нового товара
+      </h1>
+    </div>
+
+    <form method="post" th:action="@{/add-product}" th:object="${productRequestDto}" class="needs-validation" novalidate>
+      <!-- Уведомление об успехе -->
+      <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>Товар успешно добавлен
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
-    </div>
 
-    <div class="mb-3">
+      <div class="form-body">
+        <!-- Поле "Код товара" -->
+        <div class="form-group">
+          <label for="code" class="form-label">
+            <i class="bi bi-upc-scan me-2"></i>Код товара
+          </label>
+          <input type="text" class="form-control" id="code" th:field="*{code}"
+                 placeholder="160103650" required>
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('code')}" th:errors="*{code}">
+            Пожалуйста, введите корректный код
+          </div>
+        </div>
 
-      <label class="form-label">Код</label>
-      <input  class="form-control"  th:field="*{code}" placeholder="160103650">
-      <span class="validationError" th:if="${#fields.hasErrors('code')}"
-            th:errors="*{code}"
-            style="color: red; font-weight: bold;"> Name error</span>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Название товара</label>
-      <input  class="form-control" th:field="*{name}" placeholder="Добрый Кола">
-      <span class="validationError" th:if="${#fields.hasErrors('name')}"
-            th:errors="*{name}"
-            style="color: red; font-weight: bold;">Name error</span>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Объём</label>
-      <input  class="form-control" th:field="*{volume}" placeholder="1,5">
-      <span class="validationError" th:if="${#fields.hasErrors('volume')}"
-            th:errors="*{volume}"
-            style="color: red; font-weight: bold;">Name error</span>
-    </div>
-    <div class="mb-3">
-      <label class="form-label me-3">Единица</label>
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" th:field="*{unit}" id="inlineRadio1" value="л" checked>
-        <label class="form-check-label" for="inlineRadio1">л</label>
+        <!-- Поле "Название товара" -->
+        <div class="form-group">
+          <label for="name" class="form-label">
+            <i class="bi bi-tag me-2"></i>Название товара
+          </label>
+          <input type="text" class="form-control" id="name" th:field="*{name}"
+                 placeholder="Добрый Кола" required>
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">
+            Пожалуйста, введите название товара
+          </div>
+        </div>
+
+        <!-- Поле "Объём" -->
+        <div class="form-group">
+          <label for="volume" class="form-label">
+            <i class="bi bi-droplet me-2"></i>Объём
+          </label>
+          <input type="text" class="form-control" id="volume" th:field="*{volume}"
+                 placeholder="1,5" required>
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('volume')}" th:errors="*{volume}">
+            Пожалуйста, введите объём
+          </div>
+        </div>
+
+        <!-- Поле "Единица измерения" -->
+        <div class="form-group">
+          <label class="form-label">
+            <i class="bi bi-rulers me-2"></i>Единица измерения
+          </label>
+          <div class="unit-radio-group">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" th:field="*{unit}"
+                     id="unit-liter" value="л" checked>
+              <label class="form-check-label" for="unit-liter">Литры (л)</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" th:field="*{unit}"
+                     id="unit-kg" value="кг">
+              <label class="form-check-label" for="unit-kg">Килограммы (кг)</label>
+            </div>
+          </div>
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('unit')}" th:errors="*{unit}">
+            Пожалуйста, выберите единицу измерения
+          </div>
+        </div>
+
+        <!-- Поле "Кол-во в упаковке" -->
+        <div class="form-group">
+          <label for="quantity" class="form-label">
+            <i class="bi bi-box-seam me-2"></i>Количество в упаковке
+          </label>
+          <input type="number" class="form-control" id="quantity" th:field="*{quantity}"
+                 placeholder="24" required min="1">
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}">
+            Пожалуйста, введите корректное количество
+          </div>
+        </div>
+
+
+        <!-- Поле "Вес упаковки" -->
+        <div class="form-group">
+          <label for="weight" class="form-label">
+            <i class="bi bi-speedometer me-2"></i>Вес упаковки (кг)
+          </label>
+          <input type="number" class="form-control" id="weight" th:field="*{weight}"
+                 placeholder="0.5" step="0.01" min="0.01" required>
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('weight')}" th:errors="*{weight}">
+            Вес должен быть больше нуля
+          </div>
+        </div>
+
+        <!-- Поле "Цена" -->
+        <div class="form-group">
+          <label for="price" class="form-label">
+            <i class="bi bi-currency-ruble me-2"></i>Цена
+          </label>
+          <input type="number" class="form-control" id="price" th:field="*{price}"
+                 placeholder="55" required min="0" step="0.01">
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('price')}" th:errors="*{price}">
+            Пожалуйста, введите корректную цену
+          </div>
+        </div>
+
+        <!-- Поле "Количество на складе" -->
+        <div class="form-group">
+          <label for="amount" class="form-label">
+            <i class="bi bi-boxes me-2"></i>Количество на складе
+          </label>
+          <input type="number" class="form-control" id="amount" th:field="*{amount}"
+                 placeholder="1" min="1" required>
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}">
+            Количество должно быть больше нуля
+          </div>
+        </div>
+
+        <!-- Кнопки формы -->
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save me-1"></i>Сохранить
+          </button>
+          <button type="reset" class="btn btn-outline-secondary">
+            <i class="bi bi-eraser me-1"></i>Очистить
+          </button>
+          <button type="button" class="btn btn-outline-dark" onclick="history.back();">
+            <i class="bi bi-arrow-left me-1"></i>Назад
+          </button>
+        </div>
       </div>
-      <span class="validationError" th:if="${#fields.hasErrors('unit')}"
-            th:errors="*{unit}"
-            style="color: red; font-weight: bold;">Name error</span>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Кол-во в упаковке</label>
-      <input  class="form-control" th:field="*{quantity}" placeholder="24">
-      <span class="validationError" th:if="${#fields.hasErrors('quantity')}"
-            th:errors="*{quantity}"
-            style="color: red; font-weight: bold;">Name error</span>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Вес одной упаковки (кг)</label>
-      <input  class="form-control" th:field="*{weight}" placeholder="0">
-      <span class="validationError" th:if="${#fields.hasErrors('weight')}"
-            th:errors="*{weight}"
-            style="color: red; font-weight: bold;">Name error</span>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Цена</label>
-      <input  class="form-control" th:field="*{price}" placeholder="55">
-      <span class="validationError" th:if="${#fields.hasErrors('price')}"
-            th:errors="*{price}"
-            style="color: red; font-weight: bold;">Name error</span>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Количество на складе</label>
-      <input  class="form-control" th:field="*{amount}" placeholder="0">
-      <span class="validationError" th:if="${#fields.hasErrors('amount')}"
-            th:errors="*{amount}"
-            style="color: red; font-weight: bold;">Name error</span>
-    </div>
-    <input type="submit" value="Сохранить" class="btn btn-success">
-    <input type="reset" name="clearFilter" value="Очистить" class="btn btn-danger">
-    <input type="button" value="Назад" class="btn btn-primary" onclick="history.back();">
-  </form>
-</div>
+    </form>
+  </div>
+</main>
+
+<!-- Скрипт для валидации формы -->
+<script>
+  (() => {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+
+    Array.from(forms).forEach(form => {
+      // Добавляем кастомную валидацию для полей
+      const weightField = form.querySelector('#weight');
+      const amountField = form.querySelector('#amount');
+
+      weightField.addEventListener('input', function() {
+        this.setCustomValidity(this.value > 0 ? '' : 'Вес должен быть больше нуля');
+      });
+
+      amountField.addEventListener('input', function() {
+        this.setCustomValidity(this.value > 0 ? '' : 'Количество должно быть больше нуля');
+      });
+
+      form.addEventListener('submit', event => {
+        // Проверяем кастомные условия перед отправкой
+        if (parseFloat(weightField.value) <= 0) {
+          weightField.setCustomValidity('Вес должен быть больше нуля');
+        }
+
+        if (parseInt(amountField.value) <= 0) {
+          amountField.setCustomValidity('Количество должно быть больше нуля');
+        }
+
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+        form.classList.add('was-validated')
+      }, false)
+    })
+  })()
+</script>
+
 </body>
 </html>

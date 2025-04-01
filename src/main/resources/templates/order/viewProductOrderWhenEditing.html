@@ -1,56 +1,69 @@
-<!doctype html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+<!DOCTYPE html>
+<html lang="ru" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/header.html :: headerfiles(pageTitle='Товары')}"></head>
+<head>
+  <th:block th:replace="~{fragments/header.html :: headerfiles(pageTitle='Каталог товаров')}"/>
+  <link rel="stylesheet" th:href="@{/css/products.css}">
+</head>
 <body>
 <div th:replace="~{fragments/header.html :: header}"></div>
 
-<div class="d-flex justify-content-center align-items-center mt-5">
-  <div class="card" style="width: 100%; max-width: 1200px;">
-    <div class="card-header">
-      Товары
+<main class="products-container">
+  <div class="products-card shadow-lg rounded-4">
+    <div class="products-header bg-gradient-primary rounded-top-4">
+      <h1 class="h4 mb-0 text-white">
+        <i class="bi bi-box-seam me-2"></i>Каталог товаров
+      </h1>
     </div>
-    <div class="card-body">
-      <div class="input-group mb-3">
-        <form method="get" th:action="@{/search-product}" th:object="${allProducts}" class="input-group" >
-          <button class="btn btn-primary" type="submit" id="button-addon1">Поиск</button>
-          <input type="text" name="query" class="form-control"  aria-label="Example text with button addon" aria-describedby="button-addon1">
-          <span th:if="${error}" th:text="${error}" style="color: red; font-weight: bold;"></span>
-        </form>
-      </div>
+
+    <div class="products-body p-4">
+      <!-- Таблица товаров -->
       <div class="table-responsive">
-        <table class="table table-bordered table-hover">
-          <thead class="thead-dark">
+        <table class="products-table table table-hover align-middle">
+          <thead>
           <tr>
-            <th scope="col">Код</th>
-            <th scope="col">Товар</th>
-            <th scope="col">Объём</th>
-            <th scope="col">Ед.</th>
-            <th scope="col">Кол-во в уп.</th>
-            <th scope="col">Цена</th>
-            <th scope="col">Количесто на складе</th>
-            <th scope="col">Действия</th>
+            <th width="8%">Код</th>
+            <th width="20%">Товар</th>
+            <th width="10%">Объём</th>
+            <th width="8%">Ед.</th>
+            <th width="12%">Кол-во в уп.</th>
+            <th width="12%">Цена</th>
+            <th width="15%">На складе</th>
+            <th width="15%">Действия</th>
           </tr>
           </thead>
           <tbody>
-          <tr th:each="product : ${allProducts}">
-            <td th:text="${product.code}"></td>
+          <tr th:each="product : ${allProducts}" class="product-row">
+            <td th:text="${product.code}" class="fw-bold text-primary"></td>
             <td th:text="${product.name}"></td>
             <td th:text="${product.volume}"></td>
             <td th:text="${product.unit}"></td>
             <td th:text="${product.quantity}"></td>
-            <td th:text="${product.price}"></td>
-            <td th:text="${product.amount}"></td>
+            <td th:text="${product.price} + ' ₽'"></td>
             <td>
-              <a th:href="@{/orders/order-edit/{id}/select/addToCart/{code}(id=${order.id}, code=${product.code})}" class="btn btn-primary btn-sm me-2">Выбрать</a>
+                                <span th:class="${product.amount > 0} ? 'badge bg-success' : 'badge bg-danger'"
+                                      th:text="${product.amount} + ' шт.'"></span>
+            </td>
+            <td>
+              <a th:href="@{/orders/order-edit/{id}/select/addToCart/{code}(id=${order.id}, code=${product.code})}"
+                 class="btn btn-sm btn-outline-primary select-btn">
+                <i class="bi bi-cart-plus me-1"></i> Выбрать
+              </a>
             </td>
           </tr>
           </tbody>
         </table>
-        <input type="button" value="Назад" class="btn btn-primary" onclick="history.back();">
+      </div>
+
+      <!-- Кнопка назад -->
+      <div class="text-end mt-3">
+        <button onclick="history.back();" class="btn btn-outline-secondary back-btn">
+          <i class="bi bi-arrow-left me-1"></i> Назад
+        </button>
       </div>
     </div>
   </div>
-</div>
+</main>
+
 </body>
 </html>

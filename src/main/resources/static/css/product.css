@@ -1,0 +1,144 @@
+/* Основные стили */
+.products-container {
+    max-width: 1400px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.products-card {
+    background: white;
+    border: none;
+    overflow: hidden;
+}
+
+.products-header {
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    padding: 1.5rem;
+}
+
+.products-body {
+    background-color: #f8f9fc;
+}
+
+/* Форма поиска */
+.search-form {
+    position: relative;
+}
+
+.search-input {
+    border-radius: 0.375rem 0 0 0.375rem;
+    border-right: none;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.25);
+    border-color: #4e73df;
+}
+
+.search-btn {
+    border-radius: 0 0.375rem 0.375rem 0;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+}
+
+/* Таблица товаров */
+.products-table {
+    background-color: white;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.products-table thead {
+    background-color: #4e73df;
+    color: white;
+}
+
+.products-table th {
+    font-weight: 600;
+    padding: 1rem;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+.products-table td {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+}
+
+.product-row:hover {
+    background-color: rgba(78, 115, 223, 0.05);
+}
+
+/* Бейджи количества */
+.badge {
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.35rem 0.65rem;
+    border-radius: 0.375rem;
+}
+
+/* Кнопки действий */
+.btn-outline-primary {
+    color: #4e73df;
+    border-color: #4e73df;
+}
+
+.btn-outline-primary:hover {
+    background-color: #4e73df;
+    color: white !important;
+}
+
+.btn-outline-danger {
+    color: #e74a3b;
+    border-color: #e74a3b;
+}
+
+.btn-outline-danger:hover {
+    background-color: #e74a3b;
+    color: white !important;
+}
+
+.delete-form {
+    display: inline-block;
+}
+
+/* Сообщения об ошибках */
+.error-message {
+    color: #e74a3b;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Адаптивность */
+@media (max-width: 992px) {
+    .products-actions .col-md-6 {
+        margin-bottom: 1rem;
+    }
+
+    .products-table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .products-table th,
+    .products-table td {
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 576px) {
+    .products-header {
+        padding: 1rem;
+    }
+
+    .products-body {
+        padding: 1rem;
+    }
+
+    .search-btn {
+        padding: 0.75rem;
+    }
+}

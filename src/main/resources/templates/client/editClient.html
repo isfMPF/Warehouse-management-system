@@ -1,59 +1,137 @@
-<!doctype html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+<!DOCTYPE html>
+<html lang="ru" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/header.html :: headerfiles(pageTitle='Редактировать')}"></head>
+<head>
+  <th:block th:replace="~{fragments/header.html :: headerfiles(pageTitle='Редактирование клиента')}"/>
+  <link rel="stylesheet" th:href="@{/css/add-client.css}">
+</head>
 <body>
 <div th:replace="~{fragments/header.html :: header}"></div>
-<div class="container mt-2">
-  <form method="post" th:action="@{/edit-client}" th:object="${client}">
 
-    <div th:if="${param.success}">
-      <div class="alert alert-success" role="alert">
-        Клиент успешно обновлен
-      </div>
+<main class="client-form-container">
+  <div class="client-form-card shadow-lg rounded-4">
+    <div class="form-header bg-gradient-primary rounded-top-4">
+      <h1 class="h4 mb-0 text-white">
+        <i class="bi bi-pencil-square me-2"></i>Редактирование клиента
+      </h1>
     </div>
 
-    <div class="mb-3">
+    <form method="post" th:action="@{/edit-client}" th:object="${client}" class="needs-validation" novalidate>
+      <!-- Скрытое поле ID -->
       <input type="hidden" th:field="*{id}">
 
-      <label class="form-label">Код</label>
-      <input  class="form-control"  th:field="*{codeClient}" readonly>
-      <span class="validationError" th:if="${#fields.hasErrors('codeClient')}"
-            th:errors="*{codeClient}"
-            style="color: red; font-weight: bold;"> Name error</span>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Название торговой точки</label>
-      <input  class="form-control" th:field="*{name}">
-      <span class="validationError" th:if="${#fields.hasErrors('name')}"
-            th:errors="*{name}"
-            style="color: red; font-weight: bold;">Name error</span>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Адрес</label>
-      <input  class="form-control" th:field="*{address}">
-      <span class="validationError" th:if="${#fields.hasErrors('address')}"
-            th:errors="*{address}"
-            style="color: red; font-weight: bold;">Name error</span>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">ФИО</label>
-      <input  class="form-control" th:field="*{fio}">
-      <span class="validationError" th:if="${#fields.hasErrors('fio')}"
-            th:errors="*{fio}"
-            style="color: red; font-weight: bold;">Name error</span>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Телефон</label>
-      <input  class="form-control" th:field="*{phone}">
-      <span class="validationError" th:if="${#fields.hasErrors('phone')}"
-            th:errors="*{phone}"
-            style="color: red; font-weight: bold;">Name error</span>
-    </div>
-    <input type="submit" value="Обновить" class="btn btn-success">
-    <input type="reset" name="clearFilter" value="Очистить" class="btn btn-danger">
-    <input type="button" value="Назад" class="btn btn-primary" onclick="history.back();">
-  </form>
-</div>
+      <!-- Уведомление об успехе -->
+      <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>Данные клиента успешно обновлены
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+      <div class="form-body">
+        <!-- Поле "Код клиента" -->
+        <div class="form-group">
+          <label for="codeClient" class="form-label">Код клиента</label>
+          <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-upc-scan"></i>
+                        </span>
+            <input type="text" class="form-control" id="codeClient" th:field="*{codeClient}"
+                   readonly>
+          </div>
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('codeClient')}" th:errors="*{codeClient}">
+            Пожалуйста, введите корректный код
+          </div>
+        </div>
+
+        <!-- Поле "Название торговой точки" -->
+        <div class="form-group">
+          <label for="name" class="form-label">Название торговой точки</label>
+          <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-shop"></i>
+                        </span>
+            <input type="text" class="form-control" id="name" th:field="*{name}" required>
+          </div>
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">
+            Пожалуйста, введите название
+          </div>
+        </div>
+
+        <!-- Поле "Адрес" -->
+        <div class="form-group">
+          <label for="address" class="form-label">Адрес</label>
+          <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-geo-alt"></i>
+                        </span>
+            <input type="text" class="form-control" id="address" th:field="*{address}" required>
+          </div>
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('address')}" th:errors="*{address}">
+            Пожалуйста, введите адрес
+          </div>
+        </div>
+
+        <!-- Поле "ФИО" -->
+        <div class="form-group">
+          <label for="fio" class="form-label">ФИО контактного лица</label>
+          <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-person-badge"></i>
+                        </span>
+            <input type="text" class="form-control" id="fio" th:field="*{fio}" required>
+          </div>
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('fio')}" th:errors="*{fio}">
+            Пожалуйста, введите ФИО
+          </div>
+        </div>
+
+        <!-- Поле "Телефон" -->
+        <div class="form-group">
+          <label for="phone" class="form-label">Телефон</label>
+          <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-telephone"></i>
+                        </span>
+            <input type="tel" class="form-control" id="phone" th:field="*{phone}" required>
+          </div>
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}">
+            Пожалуйста, введите корректный телефон
+          </div>
+        </div>
+
+        <!-- Кнопки формы -->
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save me-1"></i>Обновить
+          </button>
+          <button type="reset" class="btn btn-outline-secondary">
+            <i class="bi bi-eraser me-1"></i>Очистить
+          </button>
+          <button type="button" class="btn btn-outline-dark" onclick="history.back();">
+            <i class="bi bi-arrow-left me-1"></i>Назад
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</main>
+
+<!-- Скрипт для валидации формы -->
+<script>
+  (() => {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+
+    Array.from(forms).forEach(form => {
+      form.addEventListener('submit', event => {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+        form.classList.add('was-validated')
+      }, false)
+    })
+  })()
+</script>
+
 </body>
 </html>

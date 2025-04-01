@@ -25,5 +25,7 @@ public class ProductEntity {
     private int amount; //кол-во на складе
     private Double weight;
 
+    @Version  // Аннотация для оптимистичной блокировки!
+    private Long version;
 
 }

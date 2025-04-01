@@ -24,10 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -65,6 +62,14 @@ public class OrderService {
         for (OrderItemRequestDto orderItemRequestDto : orderRequestDto.getItems()) {
                 // Получаем продукт по ID
                 ProductEntity product = (ProductEntity) productRepository.findByCode(String.valueOf(orderItemRequestDto.getCode()));
+
+
+            if (orderItemRequestDto.getAmount() > product.getAmount()) {
+                throw new IllegalArgumentException(
+                        "Недостаточно товара '" + product.getName() + "' на складе. " +
+                                "Доступно: " + product.getAmount() + ", запрошено: " + orderItemRequestDto.getAmount()
+                );
+            }
 
                 product.setAmount(product.getAmount() - orderItemRequestDto.getAmount());
                 productRepository.save(product);
@@ -141,49 +146,43 @@ public class OrderService {
         orderRepository.delete(order);
     }
 
-    public void calculatePromo(Long orderId){
+    public Map<String, Object> calculatePromo(Long orderId) {
+        Map<String, Object> result = new HashMap<>();
+        List<String> messages = new ArrayList<>();
+        boolean promoApplied = false;
 
         OrderResponseDto order = orderMapper.toResponseDto(orderRepository.findOrderById(orderId));
-
-        // Получаем список товаров из заказа
         List<OrderItemResponseDto> orderItems = order.getItem();
-
         List<PromotionResponseDTO> activePromo = promotionService.getActivePromo();
         List<OrderItemEntity> freeItemsToAdd = new ArrayList<>();
 
-        if(!activePromo.isEmpty()) {
+        if (!activePromo.isEmpty()) {
             for (PromotionResponseDTO promo : activePromo) {
-
-                // Приводим коды акции к Long для сравнения
                 Set<Long> promoIncludedCodes = promo.getIncludedProductCodes().stream()
                         .map(Long::valueOf)
                         .collect(Collectors.toSet());
 
-                // 1. Проверяем наличие обязательного товара
+                // Проверка обязательного товара
                 boolean hasRequiredProduct = orderItems.stream()
                         .anyMatch(item -> item.getCode().toString().equals(promo.getRequiredProductCode()));
 
-
                 if (!hasRequiredProduct) {
+                    messages.add("Акция '" + promo.getName() + "' не применена: отсутствует обязательный товар " +
+                            promo.getRequiredProductName() + " " + promo.getRequiredProductVolume() + 'л' + " "+
+                            '(' + promo.getRequiredProductCode() + ')');
                     continue;
                 }
 
-                // 2. Считаем общее количество товаров акции в заказе
+                // Подсчет товаров акции
                 int totalIncludedProducts = orderItems.stream()
                         .filter(item -> promoIncludedCodes.contains(item.getCode()))
                         .mapToInt(OrderItemResponseDto::getAmount)
                         .sum();
 
-
-                // 3. Проверяем условие акции и рассчитываем количество бесплатных товаров
                 if (totalIncludedProducts >= promo.getRequiredQuantity() - 1) {
-                    // Вычисляем сколько раз выполнено условие акции (целочисленное деление)
                     int freeItemsCount = (totalIncludedProducts / (promo.getRequiredQuantity() - 1)) * promo.getFreeQuantity();
-                    System.out.println("Подарок:" + freeItemsCount);
-                    // 4. Добавляем бесплатный товар
+
                     ProductEntity freeProduct = productRepository.findByCode(promo.getFreeProductCode());
-                    System.out.println("freeProduct: " + freeProduct.toString());
-                    // Проверяем, не добавлен ли уже этот товар как бесплатный
                     boolean alreadyAdded = orderItems.stream()
                             .anyMatch(item -> item.getCode().toString().equals(promo.getFreeProductCode())
                                     && item.getPrice().compareTo(BigDecimal.ZERO.doubleValue()) == 0);
@@ -198,15 +197,24 @@ public class OrderService {
                         freeItem.setWeight(freeProduct.getWeight());
 
                         freeItemsToAdd.add(freeItem);
-                    }
+                        messages.add("Применена акция '" + promo.getName() + "': " + freeItemsCount + " шт. " + freeProduct.getName() + " " + freeProduct.getVolume() + 'л' + " бесплатно");
+                        promoApplied = true;
+                    }else{messages.add("Акция '" + promo.getName() + "' уже применена.");}
+                } else {
+                    messages.add("Акция '" + promo.getName() + "' не применена: недостаточно товаров для акции");
                 }
             }
+        } else {
+            messages.add("Нет доступных акций");
         }
 
-        // 5. Сохраняем все бесплатные товары
         if (!freeItemsToAdd.isEmpty()) {
             orderItemRepository.saveAll(freeItemsToAdd);
         }
+
+        result.put("messages", messages);
+        result.put("promoApplied", promoApplied);
+        return result;
     }
 
     public void returnOrder(Long id){

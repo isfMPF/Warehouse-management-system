@@ -1,0 +1,52 @@
+ .dashboard-card {
+        background: white;
+        border: none;
+        overflow: hidden;
+    }
+
+    .dashboard-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .metric-card {
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .metric-title {
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .metric-value {
+        font-weight: 700;
+        font-size: 1.5rem;
+    }
+
+    .metric-icon {
+        font-size: 1.8rem;
+        opacity: 0.2;
+    }
+
+    .input-group-text {
+        border-right: none;
+    }
+
+    .form-control:focus + .input-group-text {
+        border-color: #667eea;
+    }
+
+    @media (max-width: 768px) {
+        .metric-value {
+            font-size: 1.3rem;
+        }
+
+        .metric-icon {
+            font-size: 1.5rem;
+        }
+    }

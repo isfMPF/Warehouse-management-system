@@ -1,0 +1,164 @@
+/* Основные стили */
+.orders-container {
+    max-width: 1400px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.orders-card {
+    background: white;
+    border: none;
+    overflow: hidden;
+}
+
+.orders-header {
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    padding: 1.5rem;
+}
+
+.orders-body {
+    background-color: #f8f9fc;
+}
+
+/* Форма заказов */
+.orders-form {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Карточка заказа */
+.order-card {
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.15rem 0.75rem rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    overflow: hidden;
+    border: 1px solid #eaeaea;
+}
+
+.order-header {
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.order-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2b2d42;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.order-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.order-meta-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #5a5c69;
+}
+
+/* Таблица товаров */
+.order-items {
+    padding: 0 1.5rem 1.5rem;
+}
+
+.order-items-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.order-items-table th {
+    background-color: #f8f9fa;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #5a5c69;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.order-items-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+}
+
+.order-items-table tr:last-child td {
+    border-bottom: none;
+}
+
+.order-items-table tr:hover td {
+    background-color: rgba(78, 115, 223, 0.03);
+}
+
+/* Кнопки действий */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.btn-success {
+    background-color: #1cc88a;
+    border-color: #1cc88a;
+    transition: all 0.2s;
+}
+
+.btn-success:hover {
+    background-color: #17a673;
+    border-color: #17a673;
+    transform: translateY(-1px);
+}
+
+.btn-outline-secondary {
+    transition: all 0.2s;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #f8f9fa;
+}
+
+/* Адаптивность */
+@media (max-width: 992px) {
+    .order-meta {
+        gap: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .order-items {
+        padding: 0 1rem 1rem;
+        overflow-x: auto;
+    }
+
+    .order-items-table {
+        min-width: 800px;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+}
+
+@media (max-width: 576px) {
+    .orders-header {
+        padding: 1rem;
+    }
+
+    .order-header {
+        padding: 1rem;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}

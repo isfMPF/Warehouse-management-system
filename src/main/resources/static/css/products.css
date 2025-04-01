@@ -1,0 +1,118 @@
+/* Основные стили */
+.products-container {
+    max-width: 1400px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.products-card {
+    background: white;
+    border: none;
+    overflow: hidden;
+}
+
+.products-header {
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    padding: 1.5rem;
+}
+
+.products-body {
+    background-color: #f8f9fc;
+    padding: 1.5rem;
+}
+
+/* Таблица товаров */
+.products-table {
+    background-color: white;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    width: 100%;
+}
+
+.products-table thead {
+    background-color: #4e73df;
+    color: white;
+}
+
+.products-table th {
+    font-weight: 600;
+    padding: 1rem;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+.products-table td {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+}
+
+.product-row:hover {
+    background-color: rgba(78, 115, 223, 0.05);
+}
+
+/* Бейджи количества */
+.badge {
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.35rem 0.65rem;
+    border-radius: 0.375rem;
+}
+
+/* Кнопки */
+.select-btn {
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+    border: 1px solid #4e73df;
+    color: #4e73df;
+}
+
+.select-btn:hover {
+    background-color: #4e73df;
+    color: white !important;
+    transform: translateY(-1px);
+}
+
+.back-btn {
+    border-radius: 0.5rem;
+    padding: 0.5rem 1.5rem;
+    transition: all 0.2s;
+}
+
+.back-btn:hover {
+    background-color: #f8f9fa;
+}
+
+/* Адаптивность */
+@media (max-width: 992px) {
+    .products-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .products-table th,
+    .products-table td {
+        min-width: 120px;
+    }
+
+    .products-header {
+        padding: 1rem;
+    }
+
+    .products-body {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .products-container {
+        padding: 0 0.5rem;
+    }
+
+    .back-btn {
+        width: 100%;
+    }
+}
