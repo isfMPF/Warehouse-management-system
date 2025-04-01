@@ -208,4 +208,8 @@ public class OrderService {
             orderItemRepository.saveAll(freeItemsToAdd);
         }
     }
+
+    public void returnOrder(Long id){
+        deleteOrderWithItems(id);
+    }
 }

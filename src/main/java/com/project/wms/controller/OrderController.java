@@ -472,4 +472,21 @@ public class OrderController {
 
     }
 
+    @GetMapping("/return/{id}")
+    public String returnOrder(@PathVariable(value = "id") Long id, Model model){
+
+        try {
+
+            orderService.returnOrder(id);
+            return "redirect:/orders";
+
+        } catch (Exception e) {
+            logger.error("Ошибка при возврате заказа", e);
+            model.addAttribute("errorMessage", "Ошибка при возврате заказа");
+            return "error/error";
+        }
+
+
+    }
+
 }
