@@ -24,7 +24,9 @@ public class SecurityConfig {
                         .requestMatchers("/promotions/create").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/clientDelete/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/productDelete/**").hasRole("ADMIN")
+                        .requestMatchers("/logistics/export").hasRole("ADMIN")
                         .anyRequest().authenticated()
+
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
@@ -33,6 +35,10 @@ public class SecurityConfig {
                 )
                 .logout(logout -> logout
                         .permitAll()
+
+                )
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/logistics/export")
                 );
         return http.build();
     }

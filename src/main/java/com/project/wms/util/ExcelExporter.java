@@ -25,9 +25,13 @@ public class ExcelExporter {
             Sheet summarySheet = workbook.createSheet("Сводка по товарам");
             createProductSummarySheet(summarySheet, orders, workbook);
 
+            // Лист со сводкой по клиентам
+            Sheet clientsSheet = workbook.createSheet("Сводка по клиентам");
+            createClientsSummarySheet(clientsSheet, orders, workbook);
+
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             workbook.write(outputStream);
-            return outputStream.toByteArray();
+            return outputStream.toByteArray()   ;
         }
     }
 
@@ -230,6 +234,99 @@ public class ExcelExporter {
             }
         }
     }
+
+    private static void createClientsSummarySheet(Sheet sheet, List<OrderResponseDto> orders, Workbook workbook) {
+        // Создаем единый стиль для всей таблицы
+        Font tableFont = workbook.createFont();
+        tableFont.setFontName("Arial");
+        tableFont.setFontHeightInPoints((short)11);
+
+        // Стиль для заголовков
+        CellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFont(tableFont);
+        headerStyle.setBorderTop(BorderStyle.THIN);
+        headerStyle.setBorderBottom(BorderStyle.THIN);
+        headerStyle.setBorderLeft(BorderStyle.THIN);
+        headerStyle.setBorderRight(BorderStyle.THIN);
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+
+        // Стиль для обычных ячеек с границами
+        CellStyle dataStyle = workbook.createCellStyle();
+        dataStyle.setFont(tableFont);
+        dataStyle.setBorderTop(BorderStyle.THIN);
+        dataStyle.setBorderBottom(BorderStyle.THIN);
+        dataStyle.setBorderLeft(BorderStyle.THIN);
+        dataStyle.setBorderRight(BorderStyle.THIN);
+
+        // Стиль для денежных значений с границами
+        CellStyle moneyStyle = workbook.createCellStyle();
+        moneyStyle.setFont(tableFont);
+        moneyStyle.setDataFormat(workbook.createDataFormat().getFormat("#,##0.00"));
+        moneyStyle.setBorderTop(BorderStyle.THIN);
+        moneyStyle.setBorderBottom(BorderStyle.THIN);
+        moneyStyle.setBorderLeft(BorderStyle.THIN);
+        moneyStyle.setBorderRight(BorderStyle.THIN);
+
+        // Заголовки таблицы
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"Номер заказа", "Клиент", "Сумма заказа", "Оплата", "Долг", "Примечание"};
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        // Заполняем данные
+        int rowNum = 1;
+        for (OrderResponseDto order : orders) {
+            Row row = sheet.createRow(rowNum++);
+
+            // Номер заказа
+            Cell orderIdCell = row.createCell(0);
+            orderIdCell.setCellValue(order.getId());
+            orderIdCell.setCellStyle(dataStyle);
+
+            // Клиент
+            Cell clientCell = row.createCell(1);
+            clientCell.setCellValue(order.getClientName());
+            clientCell.setCellStyle(dataStyle);
+
+            // Сумма заказа (с границами)
+            Cell totalCell = row.createCell(2);
+            totalCell.setCellValue(order.getTotal());
+            totalCell.setCellStyle(moneyStyle);
+
+            // Оплата
+            Cell paymentCell = row.createCell(3);
+            paymentCell.setCellValue("");
+            paymentCell.setCellStyle(dataStyle);
+
+            // Долг
+            Cell debtCell = row.createCell(4);
+            debtCell.setCellValue("");
+            debtCell.setCellStyle(dataStyle);
+
+            // Примечание
+            Cell noteCell = row.createCell(5);
+            noteCell.setCellValue("");
+            noteCell.setCellStyle(dataStyle);
+        }
+
+        // Авто-размер колонок
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+    }
+    // Стиль для денежных значений
+    private static CellStyle createMoneyStyle(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setFontName("Arial");
+        style.setFont(font);
+        style.setDataFormat(workbook.createDataFormat().getFormat("#,##0.00"));
+        return style;
+    }
+
 
     // Вспомогательные методы для создания строк
     private static void createWeightRow(Row row, double weight, CellStyle style, Sheet sheet) {

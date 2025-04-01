@@ -132,9 +132,8 @@ public class LogisticController {
 
 
     @PostMapping("/logistics/export")
-    public String exportOrder(
-            @RequestParam(name = "selectedOrderIds", required = false) List<Long> selectedOrderIds,
-            HttpServletResponse response,Model model) throws IOException {
+    public String exportOrder(@RequestParam(name = "selectedOrderIds", required = false) List<Long> selectedOrderIds,
+            HttpServletResponse response,Model model){
         try {
             if (selectedOrderIds == null || selectedOrderIds.isEmpty()) {
                 return null;
@@ -177,14 +176,14 @@ public class LogisticController {
             response.getOutputStream().write(excelBytes);
             response.flushBuffer();
 
+            System.out.println(orders);
             return null;
+
         } catch (Exception e) {
             logger.error("Ошибка при экспорте", e);
             model.addAttribute("errorMessage", "Ошибка при экспорте");
             return "error/error";
         }
-
-
     }
 
     // Улучшенный метод парсинга объема
