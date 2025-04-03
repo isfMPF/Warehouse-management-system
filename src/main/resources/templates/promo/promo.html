@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
-<head th:replace="~{fragments/header.html :: headerfiles(pageTitle='Промо')}"></head>
+<head th:replace="~{fragments/header.html :: headerfiles(pageTitle='Промоакции')}"></head>
 <body>
 <div th:replace="~{fragments/header.html :: header}"></div>
 
@@ -15,7 +15,7 @@
         </a>
       </div>
     </div>
-    <div class="card-body">Просто
+    <div class="card-body">
       <div class="table-responsive">
         <table class="table table-bordered table-hover">
           <thead class="thead-dark">
@@ -41,18 +41,23 @@
               <span th:if="${!promo.isActive}" class="badge bg-secondary">Неактивна</span>
             </td>
             <td>
-              Купить <span th:text="${promo.requiredQuantity - 1}"></span> шт.
-              <div th:if="${promo.requiredProductName}" class="text-muted small">
-                + <span th:text="${promo.requiredProductName + ' ' + promo.requiredProductVolume + ' ' + 'л'}"></span>
+              Купить
+              <span th:text="${promo.displayRequiredQuantity}"></span> шт.
+              <div th:if="${promo.requiredProduct.name}" class="text-muted small">
+                + <span th:text="${promo.requiredProduct.name + ' ' + promo.requiredProduct.volume + 'л'}"></span>
               </div>
             </td>
+
             <td>
-              Получить <span th:text="${promo.freeQuantity}"></span> шт.
-              <div class="text-muted small" th:text="${promo.freeProductName + ' ' + promo.freeProductVolume + ' ' + 'л'}"></div>
+              Получить
+              <span th:text="${promo.freeQuantity}"></span> шт.
+              <div class="text-muted small"
+                   th:text="${promo.freeProduct.name + ' ' + promo.freeProduct.volume + 'л'}"></div>
             </td>
             <td>
-              <div th:each="product : ${promo.includedProductNames}" class="mb-1">
-                <span class="badge bg-info" th:text="${product}"></span>
+              <div th:each="product : ${promo.includedProducts}" class="mb-1">
+                <span class="badge bg-info"
+                      th:text="${product.productResponseDto.name + ' (' + product.productResponseDto.volume + 'л)'}"></span>
               </div>
             </td>
             <td>
@@ -69,7 +74,7 @@
             </td>
           </tr>
           <tr th:if="${promotions.isEmpty()}">
-            <td colspan="8" class="text-center text-muted">Нет доступных промоакций</td>
+            <td colspan="7" class="text-center text-muted">Нет доступных промоакций</td>
           </tr>
           </tbody>
         </table>
@@ -78,11 +83,10 @@
   </div>
 </div>
 
-<!-- Подтверждение удаления -->
 <script>
   document.querySelectorAll('.delete-form').forEach(form => {
       form.addEventListener('submit', function(e) {
-          if (!confirm('Вы уверены, что хотите удалить это промо?')) {
+          if (!confirm('Вы уверены, что хотите удалить эту промоакцию?')) {
               e.preventDefault();
           }
       });

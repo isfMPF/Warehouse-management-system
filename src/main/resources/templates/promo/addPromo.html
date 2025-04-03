@@ -1,42 +1,44 @@
 <!doctype html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/header.html :: headerfiles(pageTitle='Добавить товар')}"></head>
+<head th:replace="~{fragments/header.html :: headerfiles(pageTitle='Создать акцию')}"></head>
 <body>
 <div th:replace="~{fragments/header.html :: header}"></div>
 
 <div class="container mt-5">
-    <h2 class="mb-4">Создать новый промо</h2>
+    <h2 class="mb-4">Создать новую акцию</h2>
 
-    <form th:action="@{/promotions/create}" th:object="${promotion}" method="post">
+    <form th:action="@{/promotions/create}" th:object="${promotionRequestDTO}" method="post">
+        <!-- Блок основной информации -->
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
-                Базовая информация
+                Основные параметры
             </div>
             <div class="card-body">
-                <!-- Name -->
+                <!-- Название акции -->
                 <div class="mb-3">
-                    <label for="name" class="form-label">Название</label>
+                    <label for="name" class="form-label">Название акции*</label>
                     <input type="text" class="form-control" id="name" th:field="*{name}"
+                           required
                            th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''">
                     <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}"
                          th:errors="*{name}"></div>
                 </div>
 
-                <!-- Dates -->
+                <!-- Период действия -->
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label for="startDate" class="form-label">Дата начала</label>
+                        <label for="startDate" class="form-label">Дата начала*</label>
                         <input type="date" class="form-control" id="startDate"
-                               name="startDate" th:field="*{startDate}"
+                               th:field="*{startDate}" required
                                th:classappend="${#fields.hasErrors('startDate')} ? 'is-invalid' : ''">
                         <div class="invalid-feedback" th:if="${#fields.hasErrors('startDate')}"
                              th:errors="*{startDate}"></div>
                     </div>
                     <div class="col-md-6">
-                        <label for="endDate" class="form-label">Дата окончания</label>
+                        <label for="endDate" class="form-label">Дата окончания*</label>
                         <input type="date" class="form-control" id="endDate"
-                               name="endDate" th:field="*{endDate}"
+                               th:field="*{endDate}" required
                                th:classappend="${#fields.hasErrors('endDate')} ? 'is-invalid' : ''">
                         <div class="invalid-feedback" th:if="${#fields.hasErrors('endDate')}"
                              th:errors="*{endDate}"></div>
@@ -45,25 +47,25 @@
             </div>
         </div>
 
-        <!-- Quantity Rules -->
+        <!-- Условия акции -->
         <div class="card mb-4">
             <div class="card-header bg-info text-white">
-                Количество
+                Условия акции
             </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <label for="requiredQuantity" class="form-label">Необходимое количество</label>
+                        <label for="requiredQuantity" class="form-label">Купить (шт)*</label>
                         <input type="number" class="form-control" id="requiredQuantity"
-                               th:field="*{requiredQuantity}" min="1"
+                               th:field="*{requiredQuantity}" min="1" required
                                th:classappend="${#fields.hasErrors('requiredQuantity')} ? 'is-invalid' : ''">
                         <div class="invalid-feedback" th:if="${#fields.hasErrors('requiredQuantity')}"
                              th:errors="*{requiredQuantity}"></div>
                     </div>
                     <div class="col-md-6">
-                        <label for="freeQuantity" class="form-label">Бесплатное количество</label>
+                        <label for="freeQuantity" class="form-label">Получить бесплатно (шт)*</label>
                         <input type="number" class="form-control" id="freeQuantity"
-                               th:field="*{freeQuantity}" min="1"
+                               th:field="*{freeQuantity}" min="1" required
                                th:classappend="${#fields.hasErrors('freeQuantity')} ? 'is-invalid' : ''">
                         <div class="invalid-feedback" th:if="${#fields.hasErrors('freeQuantity')}"
                              th:errors="*{freeQuantity}"></div>
@@ -72,69 +74,74 @@
             </div>
         </div>
 
-        <!-- Product Selection -->
+        <!-- Товары для акции -->
         <div class="card mb-4">
             <div class="card-header bg-success text-white">
-                Товары
+                Участники акции
             </div>
             <div class="card-body">
-                <!-- Free Product -->
+                <!-- Обязательный товар -->
                 <div class="mb-3">
-                    <label for="freeProductCode" class="form-label">Бесплатный товар</label>
-                    <select class="form-select" id="freeProductCode" th:field="*{freeProductCode}"
-                            th:classappend="${#fields.hasErrors('freeProductCode')} ? 'is-invalid' : ''">
-                        <option value="">Выберите бесплатный товар</option>
+                    <label for="requiredProductCode" class="form-label">Обязательный товар*</label>
+                    <select class="form-select" id="requiredProductCode"
+                            th:field="*{requiredProduct.code}" required
+                            th:classappend="${#fields.hasErrors('requiredProduct.code')} ? 'is-invalid' : ''">
+                        <option value="">Выберите товар...</option>
                         <option th:each="product : ${allProducts}"
                                 th:value="${product.code}"
-                                th:text="${product.name + ' ' + product.volume + 'л (' + product.code + ')'}"></option>
+                                th:text="${product.name + ' (' + product.volume + 'л)'}"></option>
                     </select>
-                    <div class="invalid-feedback" th:if="${#fields.hasErrors('freeProductCode')}"
-                         th:errors="*{freeProductCode}"></div>
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('requiredProduct.code')}"
+                         th:errors="*{requiredProduct.code}"></div>
                 </div>
 
-                <!-- Required Product -->
+                <!-- Бесплатный товар -->
                 <div class="mb-3">
-                    <label for="requiredProductCode" class="form-label">Обязательный товар</label>
-                    <select class="form-select" id="requiredProductCode" th:field="*{requiredProductCode}"
-                            th:classappend="${#fields.hasErrors('requiredProductCode')} ? 'is-invalid' : ''">
-                        <option value="">Выберите обязательный товар</option>
+                    <label for="freeProductCode" class="form-label">Бесплатный товар*</label>
+                    <select class="form-select" id="freeProductCode"
+                            th:field="*{freeProduct.code}" required
+                            th:classappend="${#fields.hasErrors('freeProduct.code')} ? 'is-invalid' : ''">
+                        <option value="">Выберите товар...</option>
                         <option th:each="product : ${allProducts}"
                                 th:value="${product.code}"
-                                th:text="${product.name + ' ' + product.volume + 'л (' + product.code + ')'}"></option>
+                                th:text="${product.name + ' (' + product.volume + 'л)'}"></option>
                     </select>
-                    <div class="invalid-feedback" th:if="${#fields.hasErrors('requiredProductCode')}"
-                         th:errors="*{requiredProductCode}"></div>
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('freeProduct.code')}"
+                         th:errors="*{freeProduct.code}"></div>
                 </div>
 
-                <!-- Included Products -->
+                <!-- Включенные товары -->
                 <div class="mb-3">
-                    <label class="form-label">Включенные товары</label>
-                    <div th:classappend="${#fields.hasErrors('includedProductCodes')} ? 'is-invalid' : ''">
-                        <div class="form-control" style="height: auto; min-height: 100px; overflow-y: auto;">
+                    <label class="form-label">Товары для акции*</label>
+                    <div th:classappend="${#fields.hasErrors('includedProducts')} ? 'is-invalid' : ''">
+                        <div class="border rounded p-2" style="max-height: 200px; overflow-y: auto;">
                             <div th:each="product : ${allProducts}" class="form-check">
                                 <input class="form-check-input" type="checkbox"
-                                       th:id="'product_' + ${product.code}"
+                                       th:id="'incProduct_' + ${product.code}"
                                        th:value="${product.code}"
-                                       th:field="*{includedProductCodes}">
-                                <label class="form-check-label" th:for="'product_' + ${product.code}"
-                                       th:text="${product.name + ' ' + product.volume + 'л (' + product.code + ')'}"></label>
+                                       th:field="*{includedProducts}">
+                                <label class="form-check-label" th:for="'incProduct_' + ${product.code}"
+                                       th:text="${product.name + ' (' + product.volume + 'л)'}"></label>
                             </div>
                         </div>
                     </div>
-                    <div class="invalid-feedback" th:if="${#fields.hasErrors('includedProductCodes')}"
-                         th:errors="*{includedProductCodes}"></div>
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('includedProducts')}"
+                         th:errors="*{includedProducts}"></div>
                 </div>
+
             </div>
         </div>
 
-        <!-- Submit Button -->
-        <div class="d-grid gap-2 mb-5">
-            <button type="submit" class="btn btn-primary btn-lg">Создать</button>
-            <a th:href="@{/promotions}" class="btn btn-secondary btn-lg">Отмена</a>
+        <!-- Кнопки отправки -->
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-5">
+            <a th:href="@{/promotions}" class="btn btn-secondary me-md-2">Отмена</a>
+            <button type="submit" class="btn btn-primary">Создать акцию</button>
         </div>
     </form>
 </div>
-
 
 </body>
 </html>

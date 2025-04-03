@@ -30,5 +30,6 @@ public interface ProductMapper {
 
     ProductRequestDto toRequestDto(ProductEntity entity);
 
+
     List<ProductResponseDto> toProductResponseDto(List<OrderItemResponseDto> item);
 }

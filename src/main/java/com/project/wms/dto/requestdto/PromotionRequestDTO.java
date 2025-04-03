@@ -1,5 +1,8 @@
 package com.project.wms.dto.requestdto;
 
+import com.project.wms.dto.responsedto.ProductResponseDto;
+import com.project.wms.entity.ProductEntity;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -29,13 +32,16 @@ public class PromotionRequestDTO {
     @Min(value = 1, message = "Минимальное количество бесплатных товаров - 1")
     private Integer freeQuantity;
 
-    @NotBlank(message = "Код бесплатного товара обязателен")
-    private String freeProductCode;
+    @Valid
+    @NotNull(message = "Информация о бесплатном товаре обязательна")
+    private ProductEntity freeProduct;
 
-    @NotBlank(message = "Код обязательного товара обязателен")
-    private String requiredProductCode;
+    @Valid
+    @NotNull(message = "Информация об обязательном товаре обязательна")
+    private ProductEntity requiredProduct;
 
     @NotEmpty(message = "Список товаров для акции не может быть пустым")
-    private Set<String> includedProductCodes;
+    private Set<String> includedProducts;
+
 
 }

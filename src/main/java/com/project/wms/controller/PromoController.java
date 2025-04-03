@@ -3,6 +3,7 @@ package com.project.wms.controller;
 import com.project.wms.dto.requestdto.PromotionRequestDTO;
 import com.project.wms.dto.responsedto.ProductResponseDto;
 import com.project.wms.dto.responsedto.PromotionResponseDTO;
+import com.project.wms.mapper.ProductMapper;
 import com.project.wms.mapper.PromotionMapper;
 import com.project.wms.service.ProductService;
 import com.project.wms.service.PromotionService;
@@ -15,95 +16,130 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 @Controller
+@RequestMapping("/promotions")
 public class PromoController {
 
-    @Autowired
-    private ProductService productService;
-    @Autowired
-    private PromotionService promotionService;
-    @Autowired
-    private PromotionMapper promotionMapper;
+    private final ProductService productService;
+    private final PromotionService promotionService;
+    private final PromotionMapper promotionMapper;
+    private final ProductMapper productMapper;
     private static final Logger logger = LoggerFactory.getLogger(PromoController.class);
 
-    @GetMapping("/promotions")
-    public String show(Model model){
+    @Autowired
+    public PromoController(ProductService productService,
+                           PromotionService promotionService,
+                           PromotionMapper promotionMapper, ProductMapper productMapper) {
+        this.productService = productService;
+        this.promotionService = promotionService;
+        this.promotionMapper = promotionMapper;
+        this.productMapper = productMapper;
+    }
+
+    @GetMapping
+    public String showAllPromotions(Model model) {
         try {
             List<PromotionResponseDTO> promotions = promotionService.getAllPromotions();
+
+            // Логика вычисления displayRequiredQuantity для каждой промоакции
+            for (PromotionResponseDTO promo : promotions) {
+                // Проверяем, есть ли в includedProducts товар с таким же кодом, как у requiredProduct
+                boolean hasRequiredProduct = promo.getIncludedProducts().stream()
+                        .anyMatch(p -> p.getProductResponseDto().getCode().equals(promo.getRequiredProduct().getCode()));
+
+                // Если есть, уменьшаем на 1, иначе оставляем как есть
+                promo.setDisplayRequiredQuantity(hasRequiredProduct ? promo.getRequiredQuantity() - 1 : promo.getRequiredQuantity());
+            }
+
             model.addAttribute("promotions", promotions);
             return "promo/promo";
         } catch (Exception e) {
-            logger.error("Ошибка при загрузки страницы", e);
-            model.addAttribute("errorMessage", "Ошибка при загрузки страницы");
+            logger.error("Ошибка при загрузке страницы промоакций", e);
+            model.addAttribute("errorMessage", "Ошибка при загрузке списка акций");
             return "error/error";
         }
-
     }
 
-    @GetMapping("/promotions/create")
+    @GetMapping("/create")
     public String showCreateForm(Model model) {
         try {
-            model.addAttribute("promotion", new PromotionRequestDTO());
-            model.addAttribute("allProducts", productService.getAllProducts());
+            PromotionRequestDTO promotionDTO = new PromotionRequestDTO();
+            List<ProductResponseDto> productResponseDtos = StreamSupport.stream(productService.getAllProducts().spliterator(), false)
+                    .map(productMapper::toResponseDto)
+                    .toList();
+            System.out.println(productResponseDtos);
+            model.addAttribute("promotionRequestDTO", promotionDTO);
+            model.addAttribute("allProducts", productResponseDtos);
             return "promo/addPromo";
         } catch (Exception e) {
-            logger.error("Ошибка при создании промо", e);
-            model.addAttribute("errorMessage", "Ошибка при создании промо");
+            logger.error("Ошибка при открытии формы создания акции", e);
+            model.addAttribute("errorMessage", "Ошибка при загрузке формы");
             return "error/error";
         }
-
     }
 
-    @PostMapping("/promotions/create")
+    @PostMapping("/create")
     public String createPromotion(
-            @ModelAttribute("promotion") @Valid PromotionRequestDTO promotionDTO,
+            @ModelAttribute("promotionRequestDTO") @Valid PromotionRequestDTO promotionDTO,
             BindingResult result,
             Model model) {
 
         try {
-            // Проверка на null (добавьте эту проверку первой)
-            if (promotionDTO.getEndDate() == null || promotionDTO.getStartDate() == null) {
-                result.rejectValue("endDate", "error.date.null", "Даты начала и окончания обязательны");
+            // Дополнительная валидация дат
+            if (promotionDTO.getStartDate() != null && promotionDTO.getEndDate() != null
+                    && promotionDTO.getEndDate().isBefore(promotionDTO.getStartDate())) {
+                result.rejectValue("endDate", "date.invalid",
+                        "Дата окончания должна быть после даты начала");
             }
-            // Затем остальная валидация
-            else if (promotionDTO.getEndDate().isBefore(promotionDTO.getStartDate())) {
-                result.rejectValue("endDate", "error.endDate",
-                        "Дата окончания должна быть не раньше даты начала");
+
+            // Проверка выбранных товаров
+            if (promotionDTO.getFreeProduct() != null
+                    && promotionDTO.getFreeProduct().getCode() != null
+                    && promotionDTO.getRequiredProduct() != null
+                    && promotionDTO.getRequiredProduct().getCode() != null
+                    && promotionDTO.getFreeProduct().getCode()
+                    .equals(promotionDTO.getRequiredProduct().getCode())) {
+                result.rejectValue("freeProduct.code", "product.duplicate",
+                        "Бесплатный и обязательный товар не могут совпадать");
             }
 
             if (result.hasErrors()) {
-                model.addAttribute("allProducts", productService.getAllProducts());
+                List<ProductResponseDto> productResponseDtos = StreamSupport.stream(productService.getAllProducts().spliterator(), false)
+                        .map(productMapper::toResponseDto)
+                        .toList();
+                model.addAttribute("allProducts", productResponseDtos);
                 return "promo/addPromo";
             }
 
             promotionService.createPromo(promotionDTO);
+
             return "redirect:/promotions";
         } catch (Exception e) {
-            logger.error("Ошибка при создании промо", e);
-            model.addAttribute("errorMessage", "Ошибка при создании промо");
-            return "error/error";
+            logger.error("Ошибка при создании акции", e);
+            model.addAttribute("errorMessage", "Ошибка при создании акции: " + e.getMessage());
+            model.addAttribute("allProducts", productService.getAllProducts());
+            return "promo/addPromo";
         }
-
     }
-
-
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/promotions/delete/{id}")
-    public String deletePromotion(@PathVariable("id") Long id, Model model) {
+    @PostMapping("/delete/{id}")
+    public String deletePromotion(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             promotionService.deletePromotion(id);
-            return "redirect:/promotions";
+            redirectAttributes.addFlashAttribute("successMessage", "Акция успешно удалена");
         } catch (Exception e) {
-            logger.error("Ошибка при удалении промо", e);
-            model.addAttribute("errorMessage", "Ошибка при удалении промо");
-            return "error/error";
+            logger.error("Ошибка при удалении акции ID: {}", id, e);
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Ошибка при удалении акции: " + e.getMessage());
         }
+        return "redirect:/promotions";
     }
-
-
 }

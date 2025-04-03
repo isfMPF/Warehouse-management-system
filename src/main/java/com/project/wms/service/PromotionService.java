@@ -8,72 +8,78 @@ import com.project.wms.mapper.PromotionMapper;
 import com.project.wms.repository.ProductRepository;
 import com.project.wms.repository.PromotionRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class PromotionService {
 
-    @Autowired
-    private PromotionRepository promotionRepository;
-    @Autowired
-    private  ProductRepository productRepository;
-    @Autowired
-    private PromotionMapper promotionMapper;
+    private final PromotionRepository promotionRepository;
+    private final ProductRepository productRepository;
+    private final PromotionMapper promotionMapper;
 
-   public void createPromo(PromotionRequestDTO promotionRequestDTO){
+    public void createPromo(PromotionRequestDTO promotionRequestDTO) {
+        // 1. Проверяем даты акции
+        validatePromotionDates(promotionRequestDTO.getStartDate(), promotionRequestDTO.getEndDate());
 
-       // 1. Проверяем даты акции
-       validatePromotionDates(promotionRequestDTO.getStartDate(), promotionRequestDTO.getEndDate());
+        // 2. Находим и валидируем бесплатный товар
+        ProductEntity freeProduct = productRepository.findByCode(promotionRequestDTO.getFreeProduct().getCode());
 
-       // 2. Находим связанные продукты
-       ProductEntity freeProduct = productRepository.findByCode(promotionRequestDTO.getFreeProductCode());
+        // 3. Находим и валидируем обязательный товар
+        ProductEntity requiredProduct = productRepository.findByCode(promotionRequestDTO.getRequiredProduct().getCode());
 
+        // 4. Собираем коды включенных товаров
+        Set<String> includedProductCodes = promotionRequestDTO.getIncludedProducts();
 
-       ProductEntity requiredProduct = productRepository.findByCode(promotionRequestDTO.getRequiredProductCode());
+        // 5. Находим все включенные продукты
+        Set<ProductEntity> includedProducts = productRepository.findByCodeIn(includedProductCodes);
 
-       // 3. Находим все включенные продукты
-       Set<ProductEntity> includedProducts = productRepository.findByCodeIn(promotionRequestDTO.getIncludedProductCodes());
+        // 6. Проверяем, что все указанные продукты найдены
+        validateProductsExist(includedProductCodes, includedProducts);
 
-       // 4. Проверяем, что все указанные продукты найдены
-       if (includedProducts.size() != promotionRequestDTO.getIncludedProductCodes().size()) {
-           Set<String> foundCodes = includedProducts.stream()
-                   .map(ProductEntity::getCode)
-                   .collect(Collectors.toSet());
+        // 7. Создаем и настраиваем сущность акции
+        PromotionEntity promotion = new PromotionEntity();
+        promotion.setName(promotionRequestDTO.getName());
+        promotion.setStartDate(promotionRequestDTO.getStartDate());
+        promotion.setEndDate(promotionRequestDTO.getEndDate());
+        promotion.setRequiredQuantity(promotionRequestDTO.getRequiredQuantity());
+        promotion.setFreeQuantity(promotionRequestDTO.getFreeQuantity());
+        promotion.setFreeProduct(freeProduct);
+        promotion.setRequiredProduct(requiredProduct);
 
-           Set<String> notFoundCodes = promotionRequestDTO.getIncludedProductCodes().stream()
-                   .filter(code -> !foundCodes.contains(code))
-                   .collect(Collectors.toSet());
+        // 8. Добавляем включенные товары
+        includedProducts.forEach(promotion::addIncludedProduct);
 
-           throw new EntityNotFoundException(
-                   "Следующие продукты не найдены: " + String.join(", ", notFoundCodes));
-       }
+        // 9. Сохраняем акцию
+        PromotionEntity savedPromotion = promotionRepository.save(promotion);
 
-       // 5. Преобразуем DTO в Entity
-       PromotionEntity promotion = promotionMapper.toEntity(promotionRequestDTO);
+    }
 
-       // 6. Устанавливаем связи
-       promotion.setFreeProduct(freeProduct);
-       promotion.setRequiredProduct(requiredProduct);
-       promotion.setIncludedProducts(includedProducts);
+    private void validateProductsExist(Set<String> requestedCodes, Set<ProductEntity> foundProducts) {
+        if (foundProducts.size() != requestedCodes.size()) {
+            Set<String> foundCodes = foundProducts.stream()
+                    .map(product -> product.getCode())
+                    .collect(Collectors.toSet());
 
-       // 7. Сохраняем в базу данных
-       promotionRepository.save(promotion);
-   }
+            Set<String> notFoundCodes = requestedCodes.stream()
+                    .filter(code -> !foundCodes.contains(code))
+                    .collect(Collectors.toSet());
+
+            throw new EntityNotFoundException(
+                    "Следующие товары не найдены: " + String.join(", ", notFoundCodes));
+        }
+    }
 
     private void validatePromotionDates(LocalDate startDate, LocalDate endDate) {
         if (startDate.isAfter(endDate)) {
             throw new IllegalArgumentException(
                     "Дата начала акции не может быть позже даты окончания");
         }
-
         if (startDate.isBefore(LocalDate.now())) {
             throw new IllegalArgumentException(
                     "Дата начала акции не может быть в прошлом");
@@ -81,24 +87,22 @@ public class PromotionService {
     }
 
     public List<PromotionResponseDTO> getAllPromotions() {
-        List<PromotionEntity> promotions = promotionRepository.findAllWithProducts();
-        return promotions.stream()
-                .map(promotionMapper::toResponseDTO)
+        return promotionRepository.findAllWithProductsOrderedByStartDate().stream()
+                .map(promotionMapper::toResponseDto)
                 .collect(Collectors.toList());
     }
+
+
+
+    public List<PromotionResponseDTO> getActivePromotions() {
+        return promotionRepository.findActivePromotions().stream()
+                .map(promotionMapper::toResponseDto)
+                .collect(Collectors.toList());
+    }
+
 
     public void deletePromotion(Long id) {
         promotionRepository.deleteById(id);
     }
-
-    public List<PromotionResponseDTO> getActivePromo(){
-       List<PromotionResponseDTO> list = promotionRepository.findActivePromo().stream()
-               .map(promotionMapper::toResponseDTO)
-               .toList();
-
-       return list;
-    }
-
-
 
 }

@@ -151,25 +151,32 @@ public class OrderService {
         List<String> messages = new ArrayList<>();
         boolean promoApplied = false;
 
-        OrderResponseDto order = orderMapper.toResponseDto(orderRepository.findOrderById(orderId));
+        OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
+        OrderResponseDto order = orderMapper.toResponseDto(orderEntity);
         List<OrderItemResponseDto> orderItems = order.getItem();
-        List<PromotionResponseDTO> activePromo = promotionService.getActivePromo();
+        List<PromotionResponseDTO> activePromo = promotionService.getActivePromotions();
         List<OrderItemEntity> freeItemsToAdd = new ArrayList<>();
+        List<ProductEntity> productsToUpdate = new ArrayList<>();
 
         if (!activePromo.isEmpty()) {
             for (PromotionResponseDTO promo : activePromo) {
-                Set<Long> promoIncludedCodes = promo.getIncludedProductCodes().stream()
-                        .map(Long::valueOf)
+                // Преобразуем коды товаров акции в Long
+                Set<Long> promoIncludedCodes = promo.getIncludedProducts().stream()
+                        .map(p -> Long.valueOf(p.getProductResponseDto().getCode()))
                         .collect(Collectors.toSet());
 
                 // Проверка обязательного товара
                 boolean hasRequiredProduct = orderItems.stream()
-                        .anyMatch(item -> item.getCode().toString().equals(promo.getRequiredProductCode()));
+                        .anyMatch(item -> item.getCode().toString().equals(promo.getRequiredProduct().getCode()));
 
                 if (!hasRequiredProduct) {
-                    messages.add("Акция '" + promo.getName() + "' не применена: отсутствует обязательный товар " +
-                            promo.getRequiredProductName() + " " + promo.getRequiredProductVolume() + 'л' + " "+
-                            '(' + promo.getRequiredProductCode() + ')');
+                    messages.add(String.format(
+                            "Акция '%s' не применена: отсутствует обязательный товар %s %sл (%s)",
+                            promo.getName(),
+                            promo.getRequiredProduct().getName(),
+                            promo.getRequiredProduct().getVolume(),
+                            promo.getRequiredProduct().getCode()
+                    ));
                     continue;
                 }
 
@@ -179,33 +186,63 @@ public class OrderService {
                         .mapToInt(OrderItemResponseDto::getAmount)
                         .sum();
 
-                if (totalIncludedProducts >= promo.getRequiredQuantity() - 1) {
-                    int freeItemsCount = (totalIncludedProducts / (promo.getRequiredQuantity() - 1)) * promo.getFreeQuantity();
+                if (totalIncludedProducts >= promo.getRequiredQuantity()) {
+                    int freeItemsCount = (totalIncludedProducts / promo.getRequiredQuantity()) * promo.getFreeQuantity();
 
-                    ProductEntity freeProduct = productRepository.findByCode(promo.getFreeProductCode());
+                    ProductEntity freeProduct = productRepository.findByCode(promo.getFreeProduct().getCode());
+
                     boolean alreadyAdded = orderItems.stream()
-                            .anyMatch(item -> item.getCode().toString().equals(promo.getFreeProductCode())
+                            .anyMatch(item -> item.getCode().toString().equals(promo.getFreeProduct().getCode())
                                     && item.getPrice().compareTo(BigDecimal.ZERO.doubleValue()) == 0);
 
                     if (!alreadyAdded && freeItemsCount > 0) {
+                        // Проверяем наличие товара на складе
+                        if (freeProduct.getAmount() >= freeItemsCount) {
+                            freeProduct.setAmount(freeProduct.getAmount() - freeItemsCount);
+                            productsToUpdate.add(freeProduct);
+                        } else {
+                            messages.add(String.format(
+                                    "Акция '%s' не применена: недостаточно бесплатного товара на складе",
+                                    promo.getName()
+                            ));
+                            continue;
+                        }
+
+                        // Создаем бесплатный товар
                         OrderItemEntity freeItem = new OrderItemEntity();
-                        freeItem.setOrder(orderRepository.findById(orderId).orElseThrow());
+                        freeItem.setOrder(orderEntity);
                         freeItem.setCode(freeProduct);
                         freeItem.setAmount(freeItemsCount);
                         freeItem.setPrice(0.0);
                         freeItem.setTotal(0.0);
                         freeItem.setWeight(freeProduct.getWeight());
-
                         freeItemsToAdd.add(freeItem);
-                        messages.add("Применена акция '" + promo.getName() + "': " + freeItemsCount + " шт. " + freeProduct.getName() + " " + freeProduct.getVolume() + 'л' + " бесплатно");
+
+                        messages.add(String.format(
+                                "Применена акция '%s': %d шт. %s %sл бесплатно",
+                                promo.getName(),
+                                freeItemsCount,
+                                freeProduct.getName(),
+                                freeProduct.getVolume()
+                        ));
                         promoApplied = true;
-                    }else{messages.add("Акция '" + promo.getName() + "' уже применена.");}
+                    } else {
+                        messages.add(String.format("Акция '%s' уже применена.", promo.getName()));
+                    }
                 } else {
-                    messages.add("Акция '" + promo.getName() + "' не применена: недостаточно товаров для акции");
+                    messages.add(String.format(
+                            "Акция '%s' не применена: недостаточно товаров для акции",
+                            promo.getName()
+                    ));
                 }
             }
         } else {
             messages.add("Нет доступных акций");
+        }
+
+        // Сохраняем изменения
+        if (!productsToUpdate.isEmpty()) {
+            productRepository.saveAll(productsToUpdate);
         }
 
         if (!freeItemsToAdd.isEmpty()) {

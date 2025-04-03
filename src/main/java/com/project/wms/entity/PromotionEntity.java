@@ -37,28 +37,37 @@ public class PromotionEntity {
     @Column(name = "free_quantity", nullable = false)
     private Integer freeQuantity;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "free_product_code", referencedColumnName = "code")
     private ProductEntity freeProduct;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "required_product_code", referencedColumnName = "code")
     private ProductEntity requiredProduct;
 
-    @ManyToMany
-    @JoinTable(
-            name = "promotion_products",
-            joinColumns = @JoinColumn(name = "promotion_id"),
-            inverseJoinColumns = @JoinColumn(name = "product_code", referencedColumnName = "code")
-    )
-    private Set<ProductEntity> includedProducts = new HashSet<>();
+    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true,  fetch = FetchType.EAGER)
+    private Set<PromotionProduct> includedProducts = new HashSet<>();
 
     public boolean isActive() {
         LocalDate today = LocalDate.now();
-        LocalDate start = startDate;
-        LocalDate end = endDate;
-
-        return !today.isBefore(start) && !today.isAfter(end);
+        return !today.isBefore(startDate) && !today.isAfter(endDate);
     }
 
+    public void addIncludedProduct(ProductEntity product) {
+        if (product == null) {
+            throw new IllegalArgumentException("Продукт не может быть null");
+        }
+
+        // Проверяем, есть ли уже этот продукт в списке
+        boolean exists = includedProducts.stream()
+                .anyMatch(promotionProduct -> promotionProduct.getProduct().getCode().equals(product.getCode()));
+
+        if (!exists) {
+            PromotionProduct promotionProduct = new PromotionProduct();
+            promotionProduct.setPromotion(this);
+            promotionProduct.setProduct(product);
+            includedProducts.add(promotionProduct);
+        }
+    }
 }
+
