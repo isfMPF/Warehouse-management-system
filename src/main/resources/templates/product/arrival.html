@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{fragments/header.html :: headerfiles(pageTitle='Редактирование товара')}"/>
+  <link rel="stylesheet" th:href="@{/css/add-product.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header.html :: header}"></div>
+
+<main class="product-form-container">
+  <div class="product-form-card shadow-lg rounded-4">
+    <div class="form-header bg-gradient-primary rounded-top-4">
+      <h1 class="h4 mb-0 text-white">
+        <i class="bi bi-pencil-square me-2"></i>Приход товара
+      </h1>
+    </div>
+
+    <form method="post" th:action="@{/products/arrival}" th:object="${productArrivalDto}" class="needs-validation" novalidate>
+      <!-- Уведомление об успехе -->
+      <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>Товар успешно обновлен
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+      <div class="form-body">
+        <div class="mb-3">
+          <label th:for="*{code}" class="form-label fw-bold">Товар</label>
+          <select th:field="*{code}" class="form-select form-select-lg" required>
+            <option value="" selected>Выберите товара...</option>
+            <option th:each="product : ${products}"
+                    th:value="${product.code}"
+                    th:text="${product.name +'-'+ product.volume + 'л' + ' --> На складе: ' + product.amount +' '+ 'шт'}">
+            </option>
+          </select>
+          <div class="invalid-feedback">
+            Пожалуйста, выберите товара
+          </div>
+          <span class="text-danger small fw-bold" th:if="${#fields.hasErrors('code')}"
+                th:errors="*{code}"></span>
+        </div>
+
+        <!-- Поле "Количество на складе" -->
+        <div class="form-group mb-3">
+          <label for="amountToAdd" class="form-label">
+            <i class="bi bi-boxes me-2"></i>Количество для прихода
+          </label>
+          <input type="number" class="form-control" id="amountToAdd" th:field="*{amountToAdd}"
+                 placeholder="0" min="1" required>
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('amountToAdd')}" th:errors="*{amountToAdd}">
+            Количество должно быть больше нуля
+          </div>
+          <span class="text-danger small fw-bold" th:if="${#fields.hasErrors('amountToAdd')}"
+                th:errors="*{amountToAdd}"></span>
+        </div>
+
+        <!-- Кнопки формы -->
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save me-1"></i>Приход
+          </button>
+          <button type="reset" class="btn btn-outline-secondary">
+            <i class="bi bi-eraser me-1"></i>Очистить
+          </button>
+          <button type="button" class="btn btn-outline-dark" onclick="history.back();">
+            <i class="bi bi-arrow-left me-1"></i>Назад
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</main>
+
+<!-- Скрипт для валидации формы -->
+<script>
+  (() => {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+
+    Array.from(forms).forEach(form => {
+      // Добавляем кастомную валидацию для полей
+      const weightField = form.querySelector('#weight');
+      const amountField = form.querySelector('#amount');
+
+      weightField.addEventListener('input', function() {
+        this.setCustomValidity(this.value > 0 ? '' : 'Вес должен быть больше нуля');
+      });
+
+      amountField.addEventListener('input', function() {
+        this.setCustomValidity(this.value > 0 ? '' : 'Количество должно быть больше нуля');
+      });
+
+      form.addEventListener('submit', event => {
+        // Проверяем кастомные условия перед отправкой
+        if (parseFloat(weightField.value) <= 0) {
+          weightField.setCustomValidity('Вес должен быть больше нуля');
+        }
+
+        if (parseInt(amountField.value) <= 0) {
+          amountField.setCustomValidity('Количество должно быть больше нуля');
+        }
+
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+        form.classList.add('was-validated')
+      }, false)
+    })
+  })()
+</script>
+
+</body>
+</html>

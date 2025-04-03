@@ -93,7 +93,7 @@ public class PromoController {
 
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/promotions/delete/{id}")
+    @PostMapping("/promotions/delete/{id}")
     public String deletePromotion(@PathVariable("id") Long id, Model model) {
         try {
             promotionService.deletePromotion(id);

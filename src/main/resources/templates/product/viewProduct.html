@@ -43,6 +43,10 @@
             <a href="/products" class="btn btn-outline-secondary">
               <i class="bi bi-arrow-counterclockwise me-1"></i>Сбросить
             </a>
+            <a  sec:authorize="hasRole('ROLE_ADMIN')"
+                    href="/products/arrival" class="btn btn-outline-primary">
+              <i class="bi bi-arrow-bar-right me-1"></i>Приход
+            </a>
           </div>
         </div>
       </div>

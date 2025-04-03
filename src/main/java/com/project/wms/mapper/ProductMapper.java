@@ -13,6 +13,7 @@ import java.util.List;
 public interface ProductMapper {
 
     @Mapping(target = "id", source = "id")
+    @Mapping(target = "version", ignore = true) // Игнорируем version при создании новой сущности
     ProductEntity toEntity(ProductRequestDto productRequestDto);
     ProductResponseDto toResponseDto(ProductEntity product);
 
@@ -25,6 +26,9 @@ public interface ProductMapper {
     @Mapping(target = "unit", ignore = true) // Поле unit не заполняется
     @Mapping(source = "weight", target = "weight")
     ProductResponseDto toProductResponseDto(OrderItemResponseDto orderItem);
+
+
+    ProductRequestDto toRequestDto(ProductEntity entity);
 
     List<ProductResponseDto> toProductResponseDto(List<OrderItemResponseDto> item);
 }

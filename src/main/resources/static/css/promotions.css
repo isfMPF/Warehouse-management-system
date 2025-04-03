@@ -1,0 +1,259 @@
+/* Main container */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* Card styles */
+.promo-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.promo-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+    color: white;
+}
+
+.promo-card-header h2 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.promo-card-body {
+    padding: 0;
+}
+
+/* Button styles */
+.btn-create {
+    background-color: #4cc9f0;
+    border: none;
+    color: white;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.btn-create:hover {
+    background-color: #3a86ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(58, 134, 255, 0.3);
+}
+
+/* Table styles */
+.table-container {
+    overflow-x: auto;
+    padding: 0 1.5rem;
+}
+
+.promo-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 1.5rem 0;
+}
+
+.promo-table thead th {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+    padding: 1rem 1.25rem;
+    text-align: left;
+    border-bottom: 2px solid #e9ecef;
+    position: sticky;
+    top: 0;
+}
+
+.promo-table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.promo-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.promo-table tbody td {
+    padding: 1.25rem;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: middle;
+}
+
+/* Badge styles */
+.badge {
+    padding: 0.35rem 0.65rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+}
+
+.badge.active {
+    background-color: rgba(40, 167, 69, 0.15);
+    color: #28a745;
+}
+
+.badge.inactive {
+    background-color: rgba(108, 117, 125, 0.15);
+    color: #6c757d;
+}
+
+/* Date range styles */
+.date-range {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.date-separator {
+    color: #6c757d;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+/* Promo condition & reward styles */
+.promo-condition, .promo-reward {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.additional-condition, .reward-product {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+/* Product badges */
+.product-badges {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.product-badge {
+    background-color: #f0f8ff;
+    border-radius: 4px;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+}
+
+/* Action buttons */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-action {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.btn-action.edit {
+    background-color: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+}
+
+.btn-action.edit:hover {
+    background-color: rgba(13, 110, 253, 0.2);
+}
+
+.btn-action.delete {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.btn-action.delete:hover {
+    background-color: rgba(220, 53, 69, 0.2);
+}
+
+/* Empty table message */
+.empty-table {
+    padding: 2rem;
+    text-align: center;
+    color: #6c757d;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Modal styles */
+.modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+    border-bottom: 1px solid #e9ecef;
+    padding: 1.25rem 1.5rem;
+}
+
+.modal-footer {
+    border-top: 1px solid #e9ecef;
+    padding: 1.25rem 1.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .promo-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .promo-table thead {
+        display: none;
+    }
+
+    .promo-table tbody tr {
+        display: block;
+        margin-bottom: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .promo-table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #f1f1f1;
+    }
+
+    .promo-table tbody td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        margin-right: 1rem;
+        color: #495057;
+    }
+
+    .action-buttons {
+        justify-content: flex-end;
+    }
+}

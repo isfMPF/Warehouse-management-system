@@ -481,7 +481,7 @@ public class OrderController {
         }
     }
 
-    @GetMapping("/return/{id}")
+    @PostMapping("/return/{id}")
     public String returnOrder(@PathVariable(value = "id") Long id, Model model){
 
         try {

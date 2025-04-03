@@ -15,7 +15,7 @@
         </a>
       </div>
     </div>
-    <div class="card-body">
+    <div class="card-body">Просто
       <div class="table-responsive">
         <table class="table table-bordered table-hover">
           <thead class="thead-dark">
@@ -57,8 +57,14 @@
             </td>
             <td>
               <div class="btn-group btn-group-sm">
-                <a th:href="@{/promotions/delete/{id}(id=${promo.id})}" class="btn btn-danger btn-sm"
-                   sec:authorize="hasRole('ADMIN')">Delete</a>
+                <form th:action="@{/promotions/delete/{id}(id=${promo.id})}" method="post"
+                      sec:authorize="hasRole('ADMIN')"
+                      class="delete-form">
+                  <button type="submit" class="btn btn-sm btn-outline-danger"
+                          title="Удалить" onclick="return confirm('Удалить промо?')">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
               </div>
             </td>
           </tr>
@@ -72,7 +78,16 @@
   </div>
 </div>
 
-
+<!-- Подтверждение удаления -->
+<script>
+  document.querySelectorAll('.delete-form').forEach(form => {
+      form.addEventListener('submit', function(e) {
+          if (!confirm('Вы уверены, что хотите удалить это промо?')) {
+              e.preventDefault();
+          }
+      });
+  });
+</script>
 
 </body>
 </html>

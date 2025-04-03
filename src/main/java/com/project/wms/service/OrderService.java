@@ -217,6 +217,7 @@ public class OrderService {
         return result;
     }
 
+    @Transactional
     public void returnOrder(Long id){
         deleteOrderWithItems(id);
     }

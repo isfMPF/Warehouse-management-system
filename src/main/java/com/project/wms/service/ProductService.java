@@ -5,6 +5,7 @@ import com.project.wms.entity.ClientEntity;
 import com.project.wms.entity.ProductEntity;
 import com.project.wms.mapper.ProductMapper;
 import com.project.wms.repository.ProductRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,4 +44,27 @@ public class ProductService {
     }
 
 
+    public void increaseProductAmount(String code, int amountToAdd) {
+        ProductEntity product = productRepository.findByCode(code);
+        product.setAmount(product.getAmount() + amountToAdd);
+        productRepository.save(product);
+    }
+
+    public void updateProduct(ProductRequestDto productRequestDto) {
+        // Загружаем существующую сущность
+        ProductEntity existingEntity = productRepository.findById(productRequestDto.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+
+        // Обновляем поля, кроме version
+        existingEntity.setCode(productRequestDto.getCode());
+        existingEntity.setName(productRequestDto.getName());
+        existingEntity.setVolume(productRequestDto.getVolume());
+        existingEntity.setUnit(productRequestDto.getUnit());
+        existingEntity.setQuantity(productRequestDto.getQuantity());
+        existingEntity.setPrice(productRequestDto.getPrice());
+        existingEntity.setAmount(productRequestDto.getAmount());
+        existingEntity.setWeight(productRequestDto.getWeight());
+
+        productRepository.save(existingEntity);
+    }
 }

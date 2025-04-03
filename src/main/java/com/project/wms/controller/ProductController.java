@@ -1,9 +1,12 @@
 package com.project.wms.controller;
 
+import com.project.wms.dto.requestdto.ProductArrivalDto;
 import com.project.wms.dto.requestdto.ProductRequestDto;
 import com.project.wms.dto.responsedto.ClientResponseDto;
 import com.project.wms.dto.responsedto.ProductResponseDto;
+import com.project.wms.entity.ProductEntity;
 import com.project.wms.mapper.ProductMapper;
+import com.project.wms.repository.ProductRepository;
 import com.project.wms.service.ProductService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -23,11 +26,13 @@ import java.util.stream.StreamSupport;
 public class ProductController {
     public ProductService productService;
     public ProductMapper productMapper;
+    public ProductRepository productRepository;
     private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
 
-    public ProductController(ProductService productService, ProductMapper productMapper) {
+    public ProductController(ProductService productService, ProductMapper productMapper, ProductRepository productRepository) {
         this.productService = productService;
         this.productMapper = productMapper;
+        this.productRepository = productRepository;
     }
 
     @GetMapping("/products")
@@ -39,7 +44,7 @@ public class ProductController {
                     .toList();
 
             model.addAttribute("allProducts", productResponseDtos);
-            return "/product/viewProduct";
+            return "product/viewProduct";
         }catch (Exception e) {
             logger.error("Ошибка при загрузки страницы", e);
             model.addAttribute("errorMessage", "Ошибка при загрузки страницы");
@@ -53,7 +58,7 @@ public class ProductController {
 
         try {
             model.addAttribute("productRequestDto", new ProductRequestDto());
-            return "/product/addProduct";
+            return "product/addProduct";
         } catch (Exception e) {
             logger.error("Ошибка при загрузки страницы", e);
             model.addAttribute("errorMessage", "Ошибка при загрузки страницы");
@@ -86,41 +91,39 @@ public class ProductController {
 
     @GetMapping("/productEdit/{id}")
     public String Edit(@PathVariable(value = "id") long id, Model model) {
-
         try {
-            ProductResponseDto productResponseDto = StreamSupport.stream(productService.getAllProducts().spliterator(), false)
-                    .map(productMapper::toResponseDto)
-                    .filter(product -> product.getId() == id)
-                    .findFirst()
+            ProductEntity productEntity = productRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Товар не найден"));
 
+            ProductResponseDto productResponseDto = productMapper.toResponseDto(productEntity);
             model.addAttribute("product", productResponseDto);
-            model.addAttribute("productRequestDto", new ProductRequestDto());
-            return "/product/editProduct";
+            model.addAttribute("productRequestDto", productMapper.toRequestDto(productEntity));
+            return "product/editProduct";
         } catch (Exception e) {
             logger.error("Ошибка при редактировании товара", e);
-            model.addAttribute("errorMessage", "Ошибка при редактировании товара");
+            model.addAttribute("errorMessage", e.getMessage() + " Ошибка при редактировании товара");
             return "error/error";
         }
-
-
     }
 
     @PostMapping("/edit-product")
-    public String editClient(@ModelAttribute("product") @Valid ProductRequestDto productRequestDto,
-                            BindingResult errors, Model model){
-
+    public String editClient(@ModelAttribute("productRequestDto") @Valid ProductRequestDto productRequestDto,
+                             BindingResult errors, Model model) {
         try {
-            if(errors.hasErrors())
-            {
-                return "/product/editProduct";
+            if(errors.hasErrors()) {
+                // Если есть ошибки, возвращаемся на форму с текущими данными
+                ProductResponseDto productResponseDto = productMapper.toResponseDto(
+                        productRepository.findById(productRequestDto.getId()).orElseThrow()
+                );
+                model.addAttribute("product", productResponseDto);
+                return "product/editProduct";
             }
 
-            productService.addProduct(productRequestDto);
+            productService.updateProduct(productRequestDto);
             return "redirect:/products";
         } catch (Exception e) {
             logger.error("Ошибка при редактировании товара", e);
-            model.addAttribute("errorMessage", "Ошибка при редактировании товара");
+            model.addAttribute("errorMessage", "Ошибка при редактировании товара: " + e.getMessage());
             return "error/error";
         }
     }
@@ -160,7 +163,7 @@ public class ProductController {
 
             if(products == null){
                 model.addAttribute("error", "Товар не найден");
-                return "/product/viewProduct";
+                return "product/viewProduct";
             }
 
             model.addAttribute("allProducts", products);
@@ -171,4 +174,45 @@ public class ProductController {
             return "error/error";
         }
     }
+
+    @GetMapping("/products/arrival")
+    public String arrivalProduct(Model model) {
+        try {
+            List<ProductResponseDto> productResponseDtos = StreamSupport.stream(productService.getAllProducts().spliterator(), false)
+                    .map(productMapper::toResponseDto)
+                    .toList();
+
+            model.addAttribute("products", productResponseDtos);
+            model.addAttribute("productArrivalDto", new ProductArrivalDto()); // Используем новый DTO
+            return "product/arrival";
+        } catch (Exception e) {
+            logger.error("Ошибка при приходе товара", e);
+            model.addAttribute("errorMessage", "Ошибка при приходе товара");
+            return "error/error";
+        }
+    }
+
+    @PostMapping("/products/arrival")
+    public String updateAmount(@ModelAttribute("productArrivalDto") @Valid ProductArrivalDto productArrivalDto,
+                               BindingResult errors, Model model) {
+        try {
+            if(errors.hasErrors()) {
+                // Нужно снова добавить список товаров, так как при ошибке форма будет показана снова
+                List<ProductResponseDto> productResponseDtos = StreamSupport.stream(productService.getAllProducts().spliterator(), false)
+                        .map(productMapper::toResponseDto)
+                        .toList();
+                model.addAttribute("products", productResponseDtos);
+                return "product/arrival";
+            }
+
+            productService.increaseProductAmount(productArrivalDto.getCode(), productArrivalDto.getAmountToAdd());
+            return "redirect:/products?success";
+        } catch (Exception e) {
+            logger.error("Ошибка при приходе товара", e);
+            model.addAttribute("errorMessage", "Ошибка при приходе товара: " + e.getMessage());
+            return "error/error";
+        }
+    }
+
+
 }

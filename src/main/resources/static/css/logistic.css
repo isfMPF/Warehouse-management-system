@@ -1,0 +1,22 @@
+ .order-row:hover {
+    cursor: pointer;
+  }
+  .order-row:hover td {
+    background-color: rgba(13, 110, 253, 0.1) !important;
+  }
+  .form-check-input {
+    cursor: pointer;
+  }
+  .card {
+    border: none;
+  }
+  .table thead th {
+    position: sticky;
+    top: 0;
+    background-color: #212529;
+    z-index: 10;
+  }
+  .table-responsive {
+    max-height: 65vh;
+    overflow-y: auto;
+  }

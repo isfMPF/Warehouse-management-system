@@ -111,7 +111,6 @@ public class LogisticController {
             }
 
             model.addAttribute("orders", orders);
-            System.out.println(orders);
             return "logistic/information";
         } catch (Exception e) {
             logger.error("Ошибка при формировании заказов", e);

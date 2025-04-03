@@ -1,126 +1,252 @@
 <!doctype html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+<html lang="ru" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/header.html :: headerfiles(pageTitle='Заказы')}"></head>
-<body>
+<head th:replace="~{fragments/header.html :: headerfiles(pageTitle='Управление заказами')}">
+  <link rel="stylesheet" th:href="@{/css/logistic.css}">
+</head>
+<body class="bg-light">
 <div th:replace="~{fragments/header.html :: header}"></div>
 
-<div class="d-flex justify-content-center align-items-center mt-5">
-  <div class="card" style="width: 100%; max-width: 1200px;">
-    <div class="card-header">
+<div class="container-fluid py-4">
+  <div class="card shadow-lg border-0 rounded-lg overflow-hidden">
+    <div class="card-header bg-primary text-white py-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="fas fa-truck me-2"></i>Логистика заказов</h4>
+        <div class="d-flex">
+          <a href="/logistics" class="btn btn-light btn-sm me-2">
+            <i class="fas fa-sync-alt me-1"></i> Обновить
+          </a>
+          <button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#helpModal">
+            <i class="fas fa-question-circle me-1"></i> Помощь
+          </button>
+        </div>
+      </div>
     </div>
-    <div class="card-body">
+
+    <div class="card-body p-4">
       <!-- Форма поиска -->
-      <form th:action="@{/logistics/search}" method="get" class="mb-3">
-        <div class="row g-3 align-items-center">
-          <!-- Кнопка "Сегодня" -->
-          <div class="col-12 col-md-auto">
-            <a href="/logistics" class="btn btn-info w-100">Показать</a>
+      <form th:action="@{/logistics/search}" method="get" class="mb-4">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-2">
+            <a href="/logistics" class="btn btn-info w-100">
+              <i class="fas fa-calendar-day me-1"></i> Сегодня
+            </a>
           </div>
 
-          <!-- Поле "От:" -->
-          <div class="col-12 col-md-auto">
-            <label for="start" class="form-label">От:</label>
-          </div>
-          <div class="col-12 col-md">
-            <input type="date" name="start" id="start" class="form-control">
-          </div>
-
-          <!-- Поле "До:" -->
-          <div class="col-12 col-md-auto">
-            <label for="end" class="form-label">До:</label>
-          </div>
-          <div class="col-12 col-md">
-            <input type="date" name="end" id="end" class="form-control">
+          <div class="col-md-3">
+            <label for="start" class="form-label text-muted small mb-1">От:</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+              <input type="date" name="start" id="start" class="form-control">
+            </div>
           </div>
 
-          <!-- Кнопка "Поиск" -->
-          <div class="col-12 col-md-auto">
-            <button type="submit" class="btn btn-success w-100">Поиск</button>
+          <div class="col-md-3">
+            <label for="end" class="form-label text-muted small mb-1">До:</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+              <input type="date" name="end" id="end" class="form-control">
+            </div>
+          </div>
+
+          <div class="col-md-2">
+            <button type="submit" class="btn btn-success w-100">
+              <i class="fas fa-search me-1"></i> Поиск
+            </button>
+          </div>
+
+          <div class="col-md-2">
+            <button type="button" class="btn btn-outline-secondary w-100" onclick="resetDates()">
+              <i class="fas fa-times me-1"></i> Сбросить
+            </button>
           </div>
         </div>
       </form>
+
       <form th:action="@{/logistics/process-selected}" method="post" id="ordersForm">
         <div class="table-responsive">
-          <table class="table table-bordered table-hover">
-            <thead class="thead-dark">
+          <table class="table table-hover table-striped align-middle">
+            <thead class="table-dark">
             <tr>
-              <th scope="col" style="width: 16px; height: 16px;">
-                <input type="checkbox" id="selectAll" class="form-check-input">
+              <th scope="col" style="width: 40px;">
+                <div class="form-check">
+                  <input type="checkbox" id="selectAll" class="form-check-input">
+                </div>
               </th>
-              <th scope="col">ID Заказ</th>
+              <th scope="col" class="text-nowrap">ID Заказа</th>
               <th scope="col">Клиент</th>
-              <th scope="col">Итог</th>
-              <th scope="col">Дата</th>
-              <th scope="col">Вес (кг)</th>
+              <th scope="col" class="text-end">Сумма</th>
+              <th scope="col" class="text-center">Дата</th>
+              <th scope="col" class="text-end">Вес (кг)</th>
+              <th scope="col" class="text-end">Количество</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="order : ${orders}">
+            <tr th:each="order : ${orders}" class="order-row">
               <td>
-                <input class="form-check-input order-checkbox" type="checkbox"
-                       th:value="${order.id}" th:checked="true"
-                       name="selectedOrderIds"
-                       th:data-weight="${#aggregates.sum(order.item.?[weight != null].![amount * weight])}" />
+                <div class="form-check">
+                  <input class="form-check-input order-checkbox" type="checkbox"
+                         th:value="${order.id}" th:checked="true"
+                         name="selectedOrderIds"
+                         th:data-weight="${#aggregates.sum(order.item.?[weight != null].![amount * weight])}"
+                         th:data-quantity="${#aggregates.sum(order.item.?[amount != null].![amount])}">
+                </div>
               </td>
-              <td th:text="${order.id}"></td>
-              <td th:text="${order.clientName}"></td>
-              <td th:text="${order.total} + ' ₽'"></td>
-              <td th:text="${#temporals.format(order.date, 'dd.MM.yyyy')}"></td>
-              <td th:text="${#aggregates.sum(order.item.?[weight != null].![amount * weight])}"></td>
+              <td class="fw-bold" th:text="${order.id}"></td>
+              <td>
+                <span th:text="${order.clientName}" class="d-inline-block text-truncate" style="max-width: 200px;"></span>
+              </td>
+              <td class="text-end" th:text="${#numbers.formatDecimal(order.total, 1, 2, 'COMMA')} + ' ₽'"></td>
+              <td class="text-center" th:text="${#temporals.format(order.date, 'dd.MM.yyyy')}"></td>
+              <td class="text-end" th:text="${#numbers.formatDecimal(#aggregates.sum(order.item.?[weight != null].![amount * weight]), 1, 2, 'COMMA')}"></td>
+              <td class="text-end" th:text="${#aggregates.sum(order.item.?[amount != null].![amount])}"></td>
             </tr>
             </tbody>
-            <tfoot>
-            <tr class="table-info">
-              <td colspan="5" class="text-end"><strong>Общий вес выбранных заказов:</strong></td>
-              <td id="totalWeight">0 кг</td>
+            <tfoot class="table-group-divider">
+            <tr class="table-active fw-bold">
+              <td colspan="3" class="text-end">Итого выбранных заказов:</td>
+              <td id="selectedCount" class="text-end">0</td>
+              <td></td>
+              <td id="totalWeight" class="text-end">0.00 кг</td>
+              <td id="totalQuantity" class="text-end">0</td>
             </tr>
             </tfoot>
           </table>
-          <div th:if="${errorMessage}" class="alert alert-danger">
+
+          <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show mt-3">
+            <i class="fas fa-exclamation-triangle me-2"></i>
             <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+
+          <div class="d-flex justify-content-between mt-4">
+            <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+              <i class="fas fa-arrow-left me-1"></i> Назад
+            </button>
+            <button type="submit" class="btn btn-success px-4">
+              <i class="fas fa-truck-loading me-1"></i> Обработать выбранные
+            </button>
           </div>
         </div>
-        <button class="btn btn-success" type="submit">Показать заказы</button>
-        <input type="button" value="Назад" class="btn btn-primary" onclick="history.back();">
       </form>
     </div>
   </div>
 </div>
+
+<!-- Модальное окно помощи -->
+<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="helpModalLabel"><i class="fas fa-question-circle me-2"></i>Помощь</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <h5>Как работать с этой страницей:</h5>
+        <ul class="list-group list-group-flush mb-3">
+          <li class="list-group-item">
+            <i class="fas fa-check-square text-primary me-2"></i>
+            Отметьте заказы для обработки с помощью флажков
+          </li>
+          <li class="list-group-item">
+            <i class="fas fa-calendar-alt text-primary me-2"></i>
+            Используйте фильтр по дате для поиска нужных заказов
+          </li>
+          <li class="list-group-item">
+            <i class="fas fa-truck text-primary me-2"></i>
+            Нажмите "Обработать выбранные" для формирования маршрута
+          </li>
+        </ul>
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle me-2"></i>
+          Внизу таблицы отображается сводная информация по выбранным заказам.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Понятно</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+      // Инициализация datepicker
+      flatpickr(".flatpickr", {
+          locale: "ru",
+          dateFormat: "d.m.Y",
+          allowInput: true
+      });
+
       const checkboxes = document.querySelectorAll('.order-checkbox');
       const selectAll = document.getElementById('selectAll');
       const totalWeightElement = document.getElementById('totalWeight');
+      const totalQuantityElement = document.getElementById('totalQuantity');
+      const selectedCountElement = document.getElementById('selectedCount');
 
-      // Функция расчета общего веса
-      function calculateTotalWeight() {
+      // Функция расчета общего веса, количества и выбранных заказов
+      function calculateTotals() {
           let totalWeight = 0;
+          let totalQuantity = 0;
+          let selectedCount = 0;
+
           checkboxes.forEach(checkbox => {
               if (checkbox.checked) {
                   totalWeight += parseFloat(checkbox.dataset.weight) || 0;
+                  totalQuantity += parseFloat(checkbox.dataset.quantity) || 0;
+                  selectedCount++;
               }
           });
+
           totalWeightElement.textContent = totalWeight.toFixed(2) + ' кг';
+          totalQuantityElement.textContent = totalQuantity;
+          selectedCountElement.textContent = selectedCount;
+
+          // Подсветка строк
+          document.querySelectorAll('.order-row').forEach(row => {
+              const checkbox = row.querySelector('.order-checkbox');
+              if (checkbox.checked) {
+                  row.classList.add('table-primary');
+              } else {
+                  row.classList.remove('table-primary');
+              }
+          });
       }
 
       // Обработчик для отдельных чекбоксов
       checkboxes.forEach(checkbox => {
-          checkbox.addEventListener('change', calculateTotalWeight);
+          checkbox.addEventListener('change', calculateTotals);
       });
 
       // Обработчик для "Выбрать все"
       selectAll.addEventListener('change', function() {
+          const isChecked = this.checked;
           checkboxes.forEach(checkbox => {
-              checkbox.checked = this.checked;
+              checkbox.checked = isChecked;
           });
-          calculateTotalWeight();
+          calculateTotals();
       });
 
+      // Сброс дат
+      window.resetDates = function() {
+          document.getElementById('start').value = '';
+          document.getElementById('end').value = '';
+      }
+
       // Первоначальный расчет
-      calculateTotalWeight();
+      calculateTotals();
+
+      // Подтверждение формы
+      document.getElementById('ordersForm').addEventListener('submit', function(e) {
+          const selectedCount = document.querySelectorAll('.order-checkbox:checked').length;
+          if (selectedCount === 0) {
+              e.preventDefault();
+              alert('Пожалуйста, выберите хотя бы один заказ для обработки');
+          }
+      });
   });
 </script>
-
 </body>
 </html>
