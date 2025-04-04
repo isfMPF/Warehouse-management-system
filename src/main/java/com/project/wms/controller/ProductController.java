@@ -44,6 +44,8 @@ public class ProductController {
                     .toList();
 
             model.addAttribute("allProducts", productResponseDtos);
+            int totalAmount = productRepository.findAll().stream().mapToInt(ProductEntity::getAmount).sum();
+            model.addAttribute("totalAmount", totalAmount);
             return "product/viewProduct";
         }catch (Exception e) {
             logger.error("Ошибка при загрузки страницы", e);

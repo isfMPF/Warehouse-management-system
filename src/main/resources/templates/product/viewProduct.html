@@ -53,6 +53,10 @@
 
       <!-- Таблица товаров -->
       <div class="table-responsive">
+         <span class="badge bg-info mb-3" sec:authorize="hasRole('ROLE_ADMIN')">
+                Всего товаров:
+           <span th:text="${totalAmount}"></span> шт.
+         </span>
         <table class="products-table table table-hover align-middle">
           <thead>
           <tr>
