@@ -8,6 +8,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,16 +39,76 @@ public class ExcelExporter {
     private static void createOrdersSheet(Sheet sheet, List<OrderResponseDto> orders, Workbook workbook) {
         // Стили для оформления
         CellStyle headerStyle = createHeaderStyle(workbook);
-        CellStyle orderHeaderStyle = createOrderHeaderStyle(workbook);
         CellStyle itemStyle = createItemStyle(workbook);
         CellStyle totalStyle = createTotalStyle(workbook);
-        CellStyle weightStyle = createWeightStyle(workbook);
+        CellStyle clientInfoStyle = createClientInfoStyle(workbook);
+        CellStyle documentTitleStyle = createDocumentTitleStyle(workbook);
+        CellStyle signatureStyle = createSignatureStyle(workbook);
+
+        // Установка ширины колонок
+        sheet.setColumnWidth(0, 15*256); // Код
+        sheet.setColumnWidth(1, 25*256); // Наименование
+        sheet.setColumnWidth(3, 10*256); // Кол-во
+        sheet.setColumnWidth(4, 15*256); // Цена
+        sheet.setColumnWidth(5, 15*256); // Сумма
+
+        // Настройки печати
+        sheet.setAutobreaks(false);
+        PrintSetup printSetup = sheet.getPrintSetup();
+        printSetup.setPaperSize(PrintSetup.A4_PAPERSIZE);
+        printSetup.setFitHeight((short) 0);  // Отключаем подгонку по высоте
+        printSetup.setFitWidth((short) 1);   // Подгоняем только по ширине
+
+        // Параметры страницы для Pantum M6500
+        final int MAX_ROWS_PER_PAGE = 48;    // Оптимальное значение для A4
+        final int ORDERS_PER_PAGE = 2;       // 2 заказа на страницу
+        final int BUFFER_ROWS = 5;           // Буферные строки для надежности
+
         int rowNum = 0;
+        int orderCount = 0;
+        int pageStartRow = 0;
 
         for (OrderResponseDto order : orders) {
-            // Строка с информацией о заказе
-            Row orderRow = sheet.createRow(rowNum++);
-            createOrderHeaderRow(orderRow, order, orderHeaderStyle);
+            int orderStartRow = rowNum;
+            // Шапка документа
+            Row headerRow1 = sheet.createRow(rowNum++);
+            Cell headerCell1 = headerRow1.createCell(0);
+            headerCell1.setCellValue("Тахвилкунанда     ЧДММ \"ПОЧОЕВ И\"");
+            headerCell1.setCellStyle(documentTitleStyle);
+            sheet.addMergedRegion(new CellRangeAddress(rowNum-1, rowNum-1, 0, 4));
+
+            Row headerRow2 = sheet.createRow(rowNum++);
+            Cell headerCell2 = headerRow2.createCell(0);
+            headerCell2.setCellValue("Анбор раф.    ЧМШ Исфара");
+            headerCell2.setCellStyle(documentTitleStyle);
+            sheet.addMergedRegion(new CellRangeAddress(rowNum-1, rowNum-1, 0, 4));
+
+            // Информация о клиенте
+            Row clientRow = sheet.createRow(rowNum++);
+            Cell clientCell = clientRow.createCell(0);
+            clientCell.setCellValue("Кабулкунанда : " + order.getClientName());
+            clientCell.setCellStyle(clientInfoStyle);
+            sheet.addMergedRegion(new CellRangeAddress(rowNum-1, rowNum-1, 0, 4));
+
+            // Информация о машине
+            Row carRow = sheet.createRow(rowNum++);
+            Cell carCell = carRow.createCell(0);
+            carCell.setCellValue("Бо автомашинаи :  Портер TJ __________");
+            carCell.setCellStyle(clientInfoStyle);
+            sheet.addMergedRegion(new CellRangeAddress(rowNum-1, rowNum-1, 0, 4));
+
+            // Номер заказа и дата
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+            String formattedDate = order.getDate().format(formatter);
+
+            Row orderNumRow = sheet.createRow(rowNum++);
+            Cell orderNumCell = orderNumRow.createCell(0);
+            orderNumCell.setCellValue("Б О Р Х А Т И   Х А Р О Ч О Т И № " + order.getId() + "   " + formattedDate);
+            orderNumCell.setCellStyle(clientInfoStyle);
+            sheet.addMergedRegion(new CellRangeAddress(rowNum-1, rowNum-1, 0, 4));
+
+            // Пустая строка
+            rowNum++;
 
             // Заголовки таблицы товаров
             Row itemHeaderRow = sheet.createRow(rowNum++);
@@ -67,15 +128,53 @@ public class ExcelExporter {
                     orderWeight += item.getWeight() * item.getAmount();
                 }
 
-
-                // Добавляем строку с итогами по заказу
+                // Строка с итогами (вес и сумма)
                 Row totalRow = sheet.createRow(rowNum++);
-                createTotalRow(totalRow, totalItems, orderTotal, totalStyle, sheet);
+                Cell weightCell = totalRow.createCell(0);
+                weightCell.setCellValue(String.format("%.1f кг", orderWeight));
+                weightCell.setCellStyle(totalStyle);
 
-                // Добавляем строку с весом заказа
-                Row weightRow = sheet.createRow(rowNum++);
-                createWeightRow(weightRow, orderWeight, weightStyle, sheet);
+                Cell emptyB = totalRow.createCell(1);
+                emptyB.setCellStyle(totalStyle);
 
+
+
+                // Переносим количество под столбец "Кол-во"
+                Cell quantityValueCell = totalRow.createCell(2); // Теперь в столбце D (3)
+                quantityValueCell.setCellValue(totalItems);
+                quantityValueCell.setCellStyle(totalStyle);
+
+                Cell totalLabelCell = totalRow.createCell(3);
+                totalLabelCell.setCellValue("Итого:");
+                totalLabelCell.setCellStyle(totalStyle);
+
+                Cell totalValueCell = totalRow.createCell(4);
+                totalValueCell.setCellValue(String.format("%.2f смн.", orderTotal));
+                totalValueCell.setCellStyle(totalStyle);
+
+                // Контактная информация
+                Row contactRow = sheet.createRow(rowNum++);
+                Cell contactCell = contactRow.createCell(0);
+                contactCell.setCellValue("По всем вопросам звонить: Тел: (+992) 98 818 90 00 Dc Почоев Илхом");
+                contactCell.setCellStyle(clientInfoStyle);
+                sheet.addMergedRegion(new CellRangeAddress(rowNum-1, rowNum-1, 0, 4));
+
+                // Пустая строка
+                rowNum++;
+
+                // Подписи
+                Row signatureRow = sheet.createRow(rowNum++);
+                Cell deliveryCell = signatureRow.createCell(0);
+                deliveryCell.setCellValue("Супорид _______________");
+                deliveryCell.setCellStyle(signatureStyle);
+
+                Cell receiverCell = signatureRow.createCell(3);
+                receiverCell.setCellValue("Кабул кард _____________");
+                receiverCell.setCellStyle(signatureStyle);
+
+                // Объединяем ячейки для подписей
+                sheet.addMergedRegion(new CellRangeAddress(rowNum-1, rowNum-1, 0, 1));
+                sheet.addMergedRegion(new CellRangeAddress(rowNum-1, rowNum-1, 3, 4));
             } else {
                 Row emptyRow = sheet.createRow(rowNum++);
                 Cell cell = emptyRow.createCell(0);
@@ -86,16 +185,80 @@ public class ExcelExporter {
                 ));
             }
 
-            // Пустые строки для удобства печати (5 строки)
-            for (int i = 0; i < 4; i++) {
-                sheet.createRow(rowNum++);
+            // Добавляем пустые строки между заказами
+            rowNum += 4;
+
+            // 2. Подсчет строк в текущем заказе
+            int orderRowCount = rowNum - orderStartRow;
+            orderCount++;
+
+            // 3. Управление разрывами страниц
+            if (orderCount % ORDERS_PER_PAGE == 0 ||
+                    (rowNum - pageStartRow) > (MAX_ROWS_PER_PAGE - BUFFER_ROWS)) {
+
+                // Устанавливаем разрыв страницы
+                sheet.setRowBreak(rowNum - 1);
+                pageStartRow = rowNum;
+
+                // Добавляем разделитель (необязательно)
+                Row separator = sheet.createRow(rowNum++);
+                separator.setHeightInPoints(5f);
             }
         }
+        // Финализация настроек печати
+        sheet.setFitToPage(false);  // Важно отключить для фиксированного масштаба
+        sheet.setRowSumsBelow(false);
 
-        // Авто-размер колонок
-        for (int i = 0; i < 6; i++) {
-            sheet.autoSizeColumn(i);
-        }
+        // Жестко задаем поля (в дюймах)
+        sheet.setMargin(Sheet.LeftMargin, 0.7);
+        sheet.setMargin(Sheet.RightMargin, 0.7);
+        sheet.setMargin(Sheet.TopMargin, 0.75);
+        sheet.setMargin(Sheet.BottomMargin, 0.75);
+    }
+
+
+
+    // Новый метод для создания стиля с центрированием
+    private static CellStyle createCenteredStyle(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        return style;
+    }
+
+
+    // Стиль для заголовка документа
+    private static CellStyle createDocumentTitleStyle(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);
+        font.setFontName("Arial");
+        font.setFontHeightInPoints((short) 12);
+        style.setFont(font);
+        style.setAlignment(HorizontalAlignment.CENTER);
+        return style;
+    }
+
+    // Стиль для информации о клиенте
+    private static CellStyle createClientInfoStyle(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);  // Жирный шрифт
+        font.setFontName("Arial");
+        font.setFontHeightInPoints((short) 11);
+        style.setFont(font);
+        style.setAlignment(HorizontalAlignment.CENTER);
+        return style;
+    }
+
+    // Стиль для подписей
+    private static CellStyle createSignatureStyle(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setFontName("Arial");
+        font.setFontHeightInPoints((short) 11);
+        style.setFont(font);
+        return style;
     }
 
 
@@ -317,45 +480,10 @@ public class ExcelExporter {
             sheet.autoSizeColumn(i);
         }
     }
-    // Стиль для денежных значений
-    private static CellStyle createMoneyStyle(Workbook workbook) {
-        CellStyle style = workbook.createCellStyle();
-        Font font = workbook.createFont();
-        font.setFontName("Arial");
-        style.setFont(font);
-        style.setDataFormat(workbook.createDataFormat().getFormat("#,##0.00"));
-        return style;
-    }
 
-
-    // Вспомогательные методы для создания строк
-    private static void createWeightRow(Row row, double weight, CellStyle style, Sheet sheet) {
-        Cell cell = row.createCell(0);
-        cell.setCellValue("Вес: " + String.format("%.1f кг", weight));
-        cell.setCellStyle(style);
-        sheet.addMergedRegion(new CellRangeAddress(
-                row.getRowNum(), row.getRowNum(), 0, 5
-        ));
-    }
-
-
-    private static void createOrderHeaderRow(Row row, OrderResponseDto order, CellStyle style) {
-        String orderInfo = String.format("Заказ #%d | Клиент: %s (%s) | Дата: %s",
-                order.getId(), order.getClientName(), order.getCodeClient(),
-                order.getDate());
-
-        Cell cell = row.createCell(0);
-        cell.setCellValue(orderInfo);
-        cell.setCellStyle(style);
-
-        // Объединение ячеек для заголовка заказа
-        row.getSheet().addMergedRegion(new CellRangeAddress(
-                row.getRowNum(), row.getRowNum(), 0, 5
-        ));
-    }
 
     private static void createItemHeaderRow(Row row, CellStyle style) {
-        String[] headers = {"Код", "Наименование", "Объем", "Кол-во", "Цена", "Сумма"};
+        String[] headers = {"Код", "Наименование", "Кол-во", "Цена", "Сумма"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = row.createCell(i);
             cell.setCellValue(headers[i]);
@@ -370,66 +498,24 @@ public class ExcelExporter {
         cell0.setCellStyle(style);
 
         Cell cell1 = row.createCell(1);
-        cell1.setCellValue(item.getName());
+        cell1.setCellValue(item.getName() + " " + item.getVolume() + "L" + "x" + item.getQuantity());
         cell1.setCellStyle(style);
 
-        Cell cell2 = row.createCell(2);
-        cell2.setCellValue(item.getVolume() + " л");
-        cell2.setCellStyle(style);
-
-        Cell cell3 = row.createCell(3);
+        Cell cell3 = row.createCell(2);
         cell3.setCellValue(item.getAmount());
         cell3.setCellStyle(style);
 
-        Cell cell4 = row.createCell(4);
-        cell4.setCellValue(item.getPrice() + " ₽");
+        Cell cell4 = row.createCell(3);
+        cell4.setCellValue(item.getPrice());
         cell4.setCellStyle(style);
 
-        Cell cell5 = row.createCell(5);
-        cell5.setCellValue(item.getTotal() + " ₽");
+        Cell cell5 = row.createCell(4);
+        cell5.setCellValue(item.getTotal());
         cell5.setCellStyle(style);
 
     }
 
-    private static void createTotalRow(Row row, int totalItems, double orderTotal, CellStyle style, Sheet sheet) {
-        // Создаем все ячейки строки
-        Cell cell0 = row.createCell(0);
-        cell0.setCellValue("Итого:");
-        cell0.setCellStyle(style);
 
-        Cell cell1 = row.createCell(1);
-        cell1.setCellStyle(style); // Пустая ячейка с границами
-
-        Cell cell2 = row.createCell(2);
-        cell2.setCellStyle(style); // Пустая ячейка с границами
-
-        Cell cell3 = row.createCell(3);
-        cell3.setCellValue(totalItems);
-        cell3.setCellStyle(style);
-
-        Cell cell4 = row.createCell(4);
-        cell4.setCellStyle(style); // Пустая ячейка с границами
-
-        Cell cell5 = row.createCell(5);
-        cell5.setCellValue("Итог: " + orderTotal + " ₽");
-        cell5.setCellStyle(style);
-
-        // Объединяем ячейки для надписи "Итого:"
-        sheet.addMergedRegion(new CellRangeAddress(
-                row.getRowNum(), row.getRowNum(), 0, 2
-        ));
-    }
-
-    // Стиль для строки с весом
-    private static CellStyle createWeightStyle(Workbook workbook) {
-        CellStyle style = workbook.createCellStyle();
-        Font font = workbook.createFont();
-        font.setBold(true);
-        style.setFont(font);
-        style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        return style;
-    }
 
 
     private static CellStyle createHeaderStyle(Workbook workbook) {
@@ -445,20 +531,11 @@ public class ExcelExporter {
         style.setBorderTop(BorderStyle.THIN);
         style.setBorderLeft(BorderStyle.THIN);
         style.setBorderRight(BorderStyle.THIN);
+        style.setAlignment(HorizontalAlignment.CENTER); // Добавляем выравнивание
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
         return style;
     }
 
-    private static CellStyle createOrderHeaderStyle(Workbook workbook) {
-        CellStyle style = workbook.createCellStyle();
-        Font font = workbook.createFont();
-        font.setBold(true);
-        font.setColor(IndexedColors.DARK_BLUE.getIndex());
-        style.setFont(font);
-        style.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
-        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        style.setAlignment(HorizontalAlignment.LEFT);
-        return style;
-    }
 
     private static CellStyle createItemStyle(Workbook workbook) {
         CellStyle style = workbook.createCellStyle();
@@ -467,6 +544,10 @@ public class ExcelExporter {
         style.setBorderTop(BorderStyle.THIN);
         style.setBorderLeft(BorderStyle.THIN);
         style.setBorderRight(BorderStyle.THIN);
+
+        // Выравнивание по центру
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
         return style;
     }
 
@@ -477,6 +558,11 @@ public class ExcelExporter {
         style.setFont(font);
         style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
         style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        // Выравнивание по центру
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+
         // Границы со всех сторон
         style.setBorderBottom(BorderStyle.THIN);
         style.setBorderTop(BorderStyle.THIN);

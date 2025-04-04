@@ -14,6 +14,7 @@ public interface OrderItemMapper {
     @Mapping(source = "code.code", target = "code")
     @Mapping(source = "code.name", target = "name")
     @Mapping(source = "code.volume", target = "volume")
+    @Mapping(source = "code.quantity", target = "quantity")
     @Mapping(source = "amount", target = "amount")
     @Mapping(source = "price", target = "price")
     @Mapping(source = "total", target = "total")
