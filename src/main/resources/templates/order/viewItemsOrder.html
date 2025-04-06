@@ -109,6 +109,63 @@
                 </div>
             </form>
         </div>
+
+        <!-- Блок итогов заказа -->
+        <div class="card border-0 my-4 mx-3">
+            <div class="card-body p-0">
+                <h5 class="card-title text-muted mb-3 fw-bold ps-3">
+                    <i class="bi bi-receipt me-2"></i>Сводка заказа
+                </h5>
+                <div class="row g-3 px-3 pb-3">
+                    <!-- Общее количество -->
+                    <div class="col-md-4">
+                        <div class="p-3 bg-white rounded-3 shadow-sm h-100 border-start border-4 border-primary">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1 small">Общее количество</h6>
+                                    <h4 class="mb-0 fw-bold" id="totalQuantity">0</h4>
+                                </div>
+                                <div class="bg-primary bg-opacity-10 p-2 rounded">
+                                    <i class="bi bi-box-seam text-primary fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Общая сумма -->
+                    <div class="col-md-4">
+                        <div class="p-3 bg-white rounded-3 shadow-sm h-100 border-start border-4 border-success">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1 small">Общая сумма</h6>
+                                    <h4 class="mb-0 fw-bold" id="totalSum">0.00 ₽</h4>
+                                </div>
+                                <div class="bg-success bg-opacity-10 p-2 rounded">
+                                    <i class="bi bi-currency-ruble text-success fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Промо товары -->
+                    <div class="col-md-4">
+                        <div class="p-3 bg-white rounded-3 shadow-sm h-100 border-start border-4 border-warning">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1 small">Промо товары</h6>
+                                    <h4 class="mb-0 fw-bold" id="promoCount">0</h4>
+                                </div>
+                                <div class="bg-warning bg-opacity-10 p-2 rounded">
+                                    <i class="bi bi-percent text-warning fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
     </div>
 </main>
 
@@ -132,6 +189,53 @@
       })
     })()
 </script>
+
+<script th:inline="javascript">
+    const includedProductCodes = [[${includedProductCodes}]];
+</script>
+
+<script>
+    function recalculateSummary() {
+      const rows = document.querySelectorAll("tbody tr");
+      let totalQuantity = 0;
+      let totalSum = 0;
+      let promoCount = 0;
+
+      rows.forEach(row => {
+        const priceCell = row.querySelector("td:nth-child(4)");
+        const quantityInput = row.querySelector("input[type='number']");
+        const hiddenCodeInput = row.querySelector("input[type='hidden']");
+
+        if (!priceCell || !quantityInput || !hiddenCodeInput) return;
+
+        const code = hiddenCodeInput.value.trim();
+        const quantity = parseInt(quantityInput.value) || 0;
+        const priceText = priceCell.textContent.replace(/[^\d,]/g, '').replace(',', '.');
+        const price = parseFloat(priceText) || 0;
+
+        totalQuantity += quantity;
+        totalSum += price * quantity;
+
+        if (includedProductCodes.includes(code)) {
+          promoCount += quantity;
+        }
+      });
+
+      document.getElementById("totalQuantity").textContent = totalQuantity;
+      document.getElementById("totalSum").textContent = totalSum.toFixed(2) + " ₽";
+      document.getElementById("promoCount").textContent = promoCount;
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const inputs = document.querySelectorAll("input[type='number']");
+      inputs.forEach(input => {
+        input.addEventListener("input", recalculateSummary);
+      });
+
+      recalculateSummary();
+    });
+</script>
+
 
 </body>
 </html>

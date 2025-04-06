@@ -4,14 +4,12 @@ import com.project.wms.dto.requestdto.OrderRequestDto;
 import com.project.wms.dto.responsedto.ClientResponseDto;
 import com.project.wms.dto.responsedto.OrderResponseDto;
 import com.project.wms.dto.responsedto.ProductResponseDto;
+import com.project.wms.dto.responsedto.PromotionResponseDTO;
 import com.project.wms.mapper.ClientMapper;
 import com.project.wms.mapper.OrderItemMapper;
 import com.project.wms.mapper.OrderMapper;
 import com.project.wms.mapper.ProductMapper;
-import com.project.wms.service.ClientService;
-import com.project.wms.service.OrderItemService;
-import com.project.wms.service.OrderService;
-import com.project.wms.service.ProductService;
+import com.project.wms.service.*;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -50,6 +48,8 @@ public class OrderController {
     private ProductService productService;
     @Autowired
     private ProductMapper productMapper;
+    @Autowired
+    private PromotionService promotionService;
     private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
 
     @GetMapping
@@ -126,7 +126,17 @@ public class OrderController {
                 cart = new ArrayList<>();
             }
 
+            List<PromotionResponseDTO> promotions = promotionService.getAllPromotions();
+
+            List<String> includedProductCodes = promotions.stream()
+                    .flatMap(promotion -> promotion.getIncludedProducts().stream())
+                    .map(promotionProduct -> promotionProduct.getProductResponseDto().getCode())
+                    .distinct()
+                    .toList();
+
+
             model.addAttribute("cart", cart);
+            model.addAttribute("includedProductCodes", includedProductCodes);
             model.addAttribute("orderRequestDto",new OrderRequestDto());
             return "order/viewItemsOrder";
         } catch (Exception e) {
@@ -134,8 +144,6 @@ public class OrderController {
             model.addAttribute("errorMessage", "Ошибка при создании заказа");
             return "error/error";
         }
-
-
     }
 
     @GetMapping("/create/select")
