@@ -20,7 +20,7 @@ public class OrderEntity {
     @CreatedDate
     private LocalDate date;
 
-    @ManyToOne(fetch = FetchType.EAGER,cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_id")
     private ClientEntity codeClient;
 

@@ -103,7 +103,7 @@ public class ClientController {
                 return "/client/addClient";
             }
 
-            clientService.addClient(clientRequestDto);
+           clientService.addClient(clientRequestDto);
             return "redirect:/clients";
         } catch (Exception e) {
             logger.error("Ошибка при добавлении клиента", e);
