@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Data
 public class ForwarderRequestDto {
 
-
+    private Long id;
     @NotEmpty(message = "Введите имя")
     private String firstName;
     @NotEmpty(message = "Введите фамилию")

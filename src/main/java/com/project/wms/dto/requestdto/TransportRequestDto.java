@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 public class TransportRequestDto {
 
+    private Long id;
     @NotEmpty(message = "Введите марку автомобиля")
     private String name;
     @NotEmpty(message = "Введите гос номер")
