@@ -64,6 +64,34 @@
       </form>
 
       <form th:action="@{/logistics/process-selected}" method="post" id="ordersForm">
+
+        <!-- Блок выбора транспорта и экспедитора -->
+        <div class="row mb-4 g-3">
+          <div class="col-md-6">
+            <label for="transportSelect" class="form-label required-field">Транспорт</label>
+            <select class="form-select select2" id="transportSelect" name="transportId" required>
+              <option value="" selected disabled>Выберите транспорт</option>
+              <option th:each="transport : ${transports}"
+                      th:value="${transport.id}"
+                      th:text="${transport.name + ' (' + transport.number + ')'}">
+              </option>
+            </select>
+            <div class="invalid-feedback">Пожалуйста, выберите транспорт</div>
+          </div>
+
+          <div class="col-md-6">
+            <label for="forwarderSelect" class="form-label required-field">Экспедитор</label>
+            <select class="form-select select2" id="forwarderSelect" name="forwarderId" required>
+              <option value="" selected disabled>Выберите экспедитора</option>
+              <option th:each="forwarder : ${forwarders}"
+                      th:value="${forwarder.id}"
+                      th:text="${forwarder.lastName + ' ' + forwarder.firstName + ' ' + forwarder.patronymic}">
+              </option>
+            </select>
+            <div class="invalid-feedback">Пожалуйста, выберите экспедитора</div>
+          </div>
+        </div>
+
         <div class="table-responsive">
           <table class="table table-hover table-striped align-middle">
             <thead class="table-dark">
@@ -138,27 +166,31 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title" id="helpModalLabel"><i class="fas fa-question-circle me-2"></i>Помощь</h5>
+        <h5 class="modal-title" id="helpModalLabel"><i class="bi bi-question-circle me-2"></i>Помощь</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <h5>Как работать с этой страницей:</h5>
         <ul class="list-group list-group-flush mb-3">
           <li class="list-group-item">
-            <i class="fas fa-check-square text-primary me-2"></i>
+            <i class="bi bi-check-square text-primary me-2"></i>
             Отметьте заказы для обработки с помощью флажков
           </li>
           <li class="list-group-item">
-            <i class="fas fa-calendar-alt text-primary me-2"></i>
+            <i class="bi bi-calendar text-primary me-2"></i>
             Используйте фильтр по дате для поиска нужных заказов
           </li>
           <li class="list-group-item">
-            <i class="fas fa-truck text-primary me-2"></i>
+            <i class="bi bi-truck text-primary me-2"></i>
+            Выберите транспорт и экспедитора (обязательно)
+          </li>
+          <li class="list-group-item">
+            <i class="bi bi-save text-primary me-2"></i>
             Нажмите "Обработать выбранные" для формирования маршрута
           </li>
         </ul>
         <div class="alert alert-info">
-          <i class="fas fa-info-circle me-2"></i>
+          <i class="bi bi-info-circle me-2"></i>
           Внизу таблицы отображается сводная информация по выбранным заказам.
         </div>
       </div>
@@ -244,6 +276,24 @@
           if (selectedCount === 0) {
               e.preventDefault();
               alert('Пожалуйста, выберите хотя бы один заказ для обработки');
+          }
+
+           // Проверка выбора транспорта и экспедитора
+          const transportSelect = document.getElementById('transportSelect');
+          const forwarderSelect = document.getElementById('forwarderSelect');
+
+          if (!transportSelect.value) {
+              e.preventDefault();
+              transportSelect.focus();
+              alert('Пожалуйста, выберите транспорт');
+              return;
+          }
+
+          if (!forwarderSelect.value) {
+              e.preventDefault();
+              forwarderSelect.focus();
+              alert('Пожалуйста, выберите экспедитора');
+              return;
           }
       });
   });

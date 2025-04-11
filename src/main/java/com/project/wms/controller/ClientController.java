@@ -42,7 +42,7 @@ public class ClientController {
             return "client/viewClients";
 
         } catch (Exception e) {
-            logger.error("Ошибка при загрузки список клиентов", e);
+            logger.error("Ошибка при загрузке списков клиентов", e);
             model.addAttribute("errorMessage", "Не удалось загрузить данные клиентов");
             return "error/error";
         }
@@ -100,7 +100,7 @@ public class ClientController {
         try{
             if(errors.hasErrors())
             {
-                return "/client/addClient";
+                return "client/addClient";
             }
 
            clientService.addClient(clientRequestDto);
@@ -124,7 +124,7 @@ public class ClientController {
 
             model.addAttribute("client", clientDto);
             model.addAttribute("clientRequestDto", new ClientRequestDto());
-            return "/client/editClient";
+            return "client/editClient";
 
         } catch (Exception e) {
             logger.error("Ошибка при редактировании клиента", e);
@@ -140,7 +140,7 @@ public class ClientController {
         try {
             if(errors.hasErrors())
             {
-                return "/client/editClient";
+                return "client/editClient";
             }
 
             clientService.addClient(clientRequestDto);

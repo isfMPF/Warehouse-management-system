@@ -67,12 +67,22 @@
                     </li>
                     <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                         <a class="nav-link" href="/logistics">
-                            <i class="bi bi-truck"></i> Логистика
+                            <i class="bi-geo-alt"></i> Логистика
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/promotions">
                             <i class="bi bi-percent"></i> Промо
+                        </a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                        <a class="nav-link" href="/transport">
+                            <i class="bi bi-truck"></i> Транспорт
+                        </a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                        <a class="nav-link" href="/forwarder">
+                            <i class="bi bi-person-vcard me-2"></i> Экспедитор
                         </a>
                     </li>
                 </ul>

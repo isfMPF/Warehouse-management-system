@@ -2,6 +2,7 @@ package com.project.wms.util;
 
 import com.project.wms.dto.responsedto.OrderItemResponseDto;
 import com.project.wms.dto.responsedto.OrderResponseDto;
+import com.project.wms.dto.responsedto.OrderResponseDtoToExport;
 import lombok.Getter;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -16,7 +17,7 @@ import java.util.Map;
 
 public class ExcelExporter {
 
-    public static byte[] exportOrdersToExcel(List<OrderResponseDto> orders) throws IOException {
+    public static byte[] exportOrdersToExcel(List<OrderResponseDtoToExport> orders) throws IOException {
         try (Workbook workbook = new XSSFWorkbook()) {
             // Лист с детализацией заказов
             Sheet ordersSheet = workbook.createSheet("Детали заказов");
@@ -36,7 +37,7 @@ public class ExcelExporter {
         }
     }
 
-    private static void createOrdersSheet(Sheet sheet, List<OrderResponseDto> orders, Workbook workbook) {
+    private static void createOrdersSheet(Sheet sheet, List<OrderResponseDtoToExport> orders, Workbook workbook) {
         // Стили для оформления
         CellStyle headerStyle = createHeaderStyle(workbook);
         CellStyle itemStyle = createItemStyle(workbook);
@@ -44,6 +45,7 @@ public class ExcelExporter {
         CellStyle clientInfoStyle = createClientInfoStyle(workbook);
         CellStyle documentTitleStyle = createDocumentTitleStyle(workbook);
         CellStyle signatureStyle = createSignatureStyle(workbook);
+        CellStyle orderNumberStyle = createBorkhatStyle(workbook);
 
         // Установка ширины колонок
         sheet.setColumnWidth(0, 15*256); // Код
@@ -68,45 +70,46 @@ public class ExcelExporter {
         int orderCount = 0;
         int pageStartRow = 0;
 
-        for (OrderResponseDto order : orders) {
+        for (OrderResponseDtoToExport order : orders) {
             int orderStartRow = rowNum;
-            // Шапка документа
+            // Шапка документа - первая строка (2 колонки)
             Row headerRow1 = sheet.createRow(rowNum++);
             Cell headerCell1 = headerRow1.createCell(0);
-            headerCell1.setCellValue("Тахвилкунанда     ЧДММ \"ПОЧОЕВ И\"");
+            headerCell1.setCellValue("Тахвилкунанда ЧДММ \"ПОЧОЕВ И\"");
             headerCell1.setCellStyle(documentTitleStyle);
-            sheet.addMergedRegion(new CellRangeAddress(rowNum-1, rowNum-1, 0, 4));
 
-            Row headerRow2 = sheet.createRow(rowNum++);
-            Cell headerCell2 = headerRow2.createCell(0);
-            headerCell2.setCellValue("Анбор раф.    ЧМШ Исфара");
+            Cell headerCell2 = headerRow1.createCell(2); // Смещаем вправо
+            headerCell2.setCellValue("Анбор раф. ЧМШ Исфара");
             headerCell2.setCellStyle(documentTitleStyle);
-            sheet.addMergedRegion(new CellRangeAddress(rowNum-1, rowNum-1, 0, 4));
 
-            // Информация о клиенте
-            Row clientRow = sheet.createRow(rowNum++);
-            Cell clientCell = clientRow.createCell(0);
-            clientCell.setCellValue("Кабулкунанда : " + order.getClientName());
-            clientCell.setCellStyle(clientInfoStyle);
-            sheet.addMergedRegion(new CellRangeAddress(rowNum-1, rowNum-1, 0, 4));
-
-            // Информация о машине
-            Row carRow = sheet.createRow(rowNum++);
-            Cell carCell = carRow.createCell(0);
-            carCell.setCellValue("Бо автомашинаи :  Портер TJ __________");
+            // Вторая строка (2 колонки)
+            Row headerRow2 = sheet.createRow(rowNum++);
+            Cell carCell = headerRow2.createCell(0);
+            carCell.setCellValue("Бо автомашинаи: " + order.getTransport());
             carCell.setCellStyle(clientInfoStyle);
-            sheet.addMergedRegion(new CellRangeAddress(rowNum-1, rowNum-1, 0, 4));
 
-            // Номер заказа и дата
+            Cell forwarderCell = headerRow2.createCell(2); // Смещаем вправо
+            forwarderCell.setCellValue("Экспедитор: " + order.getForwarder());
+            forwarderCell.setCellStyle(clientInfoStyle);
+
+            // Третья строка (2 колонки)
+            Row headerRow3 = sheet.createRow(rowNum++);
+            Cell clientCell = headerRow3.createCell(0);
+            clientCell.setCellValue("Кабулкунанда: " + order.getClientName());
+            clientCell.setCellStyle(clientInfoStyle);
+
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
             String formattedDate = order.getDate().format(formatter);
+            Cell dateCell = headerRow3.createCell(2); // Смещаем вправо
+            dateCell.setCellValue("Сана: " + formattedDate);
+            dateCell.setCellStyle(clientInfoStyle);
 
-            Row orderNumRow = sheet.createRow(rowNum++);
-            Cell orderNumCell = orderNumRow.createCell(0);
-            orderNumCell.setCellValue("Б О Р Х А Т И   Х А Р О Ч О Т И № " + order.getId() + "   " + formattedDate);
-            orderNumCell.setCellStyle(clientInfoStyle);
-            sheet.addMergedRegion(new CellRangeAddress(rowNum-1, rowNum-1, 0, 4));
-
+            // Четвертая строка (центрированный заголовок)
+            Row headerRow4 = sheet.createRow(rowNum++);
+            Cell orderNumCell = headerRow4.createCell(1); // Начинаем со второй колонки
+            orderNumCell.setCellValue("Б О Р Х А Т И   Х А Р О Ч О Т И № " + order.getId());
+            orderNumCell.setCellStyle(orderNumberStyle);
+            sheet.addMergedRegion(new CellRangeAddress(rowNum-1, rowNum-1, 1, 3)); // Объединяем 3 колонки
             // Пустая строка
             rowNum++;
 
@@ -233,9 +236,9 @@ public class ExcelExporter {
         Font font = workbook.createFont();
         font.setBold(true);
         font.setFontName("Arial");
-        font.setFontHeightInPoints((short) 12);
+        font.setFontHeightInPoints((short) 10);
         style.setFont(font);
-        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setAlignment(HorizontalAlignment.LEFT);
         return style;
     }
 
@@ -245,7 +248,19 @@ public class ExcelExporter {
         Font font = workbook.createFont();
         font.setBold(true);  // Жирный шрифт
         font.setFontName("Arial");
-        font.setFontHeightInPoints((short) 11);
+        font.setFontHeightInPoints((short) 10);
+        style.setFont(font);
+        style.setAlignment(HorizontalAlignment.LEFT);
+        return style;
+    }
+
+    // Стиль для информации о Борхати харочиоти
+    private static CellStyle createBorkhatStyle(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);  // Жирный шрифт
+        font.setFontName("Arial");
+        font.setFontHeightInPoints((short) 10);
         style.setFont(font);
         style.setAlignment(HorizontalAlignment.CENTER);
         return style;
@@ -262,13 +277,13 @@ public class ExcelExporter {
     }
 
 
-    private static void createProductSummarySheet(Sheet sheet, List<OrderResponseDto> orders, Workbook workbook) {
+    private static void createProductSummarySheet(Sheet sheet, List<OrderResponseDtoToExport> orders, Workbook workbook) {
         // Собираем статистику по товарам
         Map<String, ProductSummary> productSummary = new HashMap<>();
         double totalWeightAll = 0;
         int totalQuantityAll = 0;
 
-        for (OrderResponseDto order : orders) {
+        for (OrderResponseDtoToExport order : orders) {
             if (order.getItem() != null) {
                 for (OrderItemResponseDto item : order.getItem()) {
                     String code = item.getCode().toString();
@@ -398,7 +413,7 @@ public class ExcelExporter {
         }
     }
 
-    private static void createClientsSummarySheet(Sheet sheet, List<OrderResponseDto> orders, Workbook workbook) {
+    private static void createClientsSummarySheet(Sheet sheet, List<OrderResponseDtoToExport> orders, Workbook workbook) {
         // Создаем единый стиль для всей таблицы
         Font tableFont = workbook.createFont();
         tableFont.setFontName("Arial");
@@ -441,7 +456,7 @@ public class ExcelExporter {
 
         // Заполняем данные
         int rowNum = 1;
-        for (OrderResponseDto order : orders) {
+        for (OrderResponseDtoToExport order : orders) {
             Row row = sheet.createRow(rowNum++);
 
             // Номер заказа

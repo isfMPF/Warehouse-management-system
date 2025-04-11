@@ -18,6 +18,8 @@
 
         <div class="orders-body p-4">
             <form action="/logistics/export" method="post" class="orders-form">
+                <input type="hidden" th:value="${transport}" name="transportId">
+                <input type="hidden" th:value="${forwarder}" name="forwarderId">
                 <div class="orders-list">
                     <div class="order-card" th:each="order : ${orders}">
                         <!-- Шапка заказа -->

@@ -48,8 +48,8 @@ public class ProductController {
             model.addAttribute("totalAmount", totalAmount);
             return "product/viewProduct";
         }catch (Exception e) {
-            logger.error("Ошибка при загрузки страницы", e);
-            model.addAttribute("errorMessage", "Ошибка при загрузки страницы");
+            logger.error("Ошибка при загрузке страницы", e);
+            model.addAttribute("errorMessage", "Ошибка при загрузке страницы");
             return "error/error";
         }
 
@@ -62,8 +62,8 @@ public class ProductController {
             model.addAttribute("productRequestDto", new ProductRequestDto());
             return "product/addProduct";
         } catch (Exception e) {
-            logger.error("Ошибка при загрузки страницы", e);
-            model.addAttribute("errorMessage", "Ошибка при загрузки страницы");
+            logger.error("Ошибка при загрузке страницы", e);
+            model.addAttribute("errorMessage", "Ошибка при загрузке страницы");
             return "error/error";
         }
 

@@ -2,7 +2,7 @@
 <html lang="ru" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
 <head>
-    <th:block th:replace="~{fragments/header.html :: headerfiles(pageTitle='Добавление клиента')}"/>
+    <th:block th:replace="~{fragments/header.html :: headerfiles(pageTitle='Добавление транспорта')}"/>
     <link rel="stylesheet" th:href="@{/css/add-client.css}">
 </head>
 <body>
@@ -12,11 +12,11 @@
     <div class="client-form-card shadow-lg rounded-4">
         <div class="form-header bg-gradient-primary rounded-top-4">
             <h1 class="h4 mb-0 text-white">
-                <i class="bi bi-person-plus me-2"></i>Добавление нового транспорта
+                <i class="bi bi-truck me-2"></i>Добавление нового транспорта
             </h1>
         </div>
 
-        <form method="post" th:action="@{/add-transport}" th:object="${transportRequestDto}" class="needs-validation" novalidate>
+        <form method="post" th:action="@{/transport/save-transport}" th:object="${transportRequestDto}" class="needs-validation" novalidate>
             <!-- Уведомление об успехе -->
             <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="bi bi-check-circle-fill me-2"></i>Транспорт успешно добавлен
@@ -24,85 +24,58 @@
             </div>
 
             <div class="form-body">
-                <!-- Поле "Код клиента" -->
-                <div class="form-group">
-                    <label for="codeClient" class="form-label">Код клиента</label>
-                    <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="bi bi-upc-scan"></i>
-                        </span>
-                        <input type="text" class="form-control" id="codeClient" th:field="*{codeClient}"
-                               placeholder="160103650" required>
-                    </div>
-                    <div class="invalid-feedback" th:if="${#fields.hasErrors('codeClient')}" th:errors="*{codeClient}">
-                        Пожалуйста, введите корректный код
-                    </div>
-                </div>
 
-                <!-- Поле "Название торговой точки" -->
+                <input type="hidden" class="form-control" id="id" th:field="*{id}">
                 <div class="form-group">
-                    <label for="name" class="form-label">Название торговой точки</label>
+                    <label for="name" class="form-label">Марка транспорта</label>
                     <div class="input-group">
                         <span class="input-group-text">
-                            <i class="bi bi-shop"></i>
+                            <i class="bi bi-car-front"></i>
                         </span>
                         <input type="text" class="form-control" id="name" th:field="*{name}"
-                               placeholder="Ашан" required>
+                               placeholder="Портер" required>
                     </div>
                     <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">
-                        Пожалуйста, введите название
+                        Пожалуйста, введите корректную марку
                     </div>
                 </div>
 
-                <!-- Поле "Адрес" -->
+
                 <div class="form-group">
-                    <label for="address" class="form-label">Адрес</label>
+                    <label for="number" class="form-label">Гос. номер</label>
                     <div class="input-group">
                         <span class="input-group-text">
-                            <i class="bi bi-geo-alt"></i>
+                            <i class="bi bi-123"></i>
                         </span>
-                        <input type="text" class="form-control" id="address" th:field="*{address}"
-                               placeholder="ул. Примерная, д. 1" required>
+                        <input type="text" class="form-control" id="number" th:field="*{number}"
+                               placeholder="000 EE 00" required>
                     </div>
-                    <div class="invalid-feedback" th:if="${#fields.hasErrors('address')}" th:errors="*{address}">
-                        Пожалуйста, введите адрес
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('number')}" th:errors="*{number}">
+                        Пожалуйста, введите гос. номер
                     </div>
                 </div>
 
-                <!-- Поле "ФИО" -->
-                <div class="form-group">
-                    <label for="fio" class="form-label">ФИО контактного лица</label>
-                    <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="bi bi-person-badge"></i>
-                        </span>
-                        <input type="text" class="form-control" id="fio" th:field="*{fio}"
-                               placeholder="Иванов Иван Иванович" required>
-                    </div>
-                    <div class="invalid-feedback" th:if="${#fields.hasErrors('fio')}" th:errors="*{fio}">
-                        Пожалуйста, введите ФИО
-                    </div>
-                </div>
 
-                <!-- Поле "Телефон" -->
                 <div class="form-group">
-                    <label for="phone" class="form-label">Телефон</label>
+                    <label for="capacity" class="form-label">Грузоподъёмность</label>
                     <div class="input-group">
                         <span class="input-group-text">
-                            <i class="bi bi-telephone"></i>
+                            <i class="bi bi-box-seam"></i>
                         </span>
-                        <input type="tel" class="form-control" id="phone" th:field="*{phone}"
-                               placeholder="+79123456789" required>
+                        <input type="number" class="form-control" id="capacity" th:field="*{capacity}"
+                               placeholder="2500" required>
                     </div>
-                    <div class="invalid-feedback" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}">
-                        Пожалуйста, введите корректный телефон
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('capacity')}" th:errors="*{capacity}">
+                        Пожалуйста, введите грузоподъёмность
                     </div>
                 </div>
 
                 <!-- Кнопки формы -->
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-save me-1"></i>Сохранить
+                        <i class="bi me-1"
+                           th:classappend="${id != null} ? 'bi-arrow-repeat' : 'bi-save'"></i>
+                        <span th:text="${id != null} ? 'Обновить' : 'Сохранить'"></span>
                     </button>
                     <button type="reset" class="btn btn-outline-secondary">
                         <i class="bi bi-eraser me-1"></i>Очистить

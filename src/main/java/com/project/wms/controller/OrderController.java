@@ -63,8 +63,8 @@ public class OrderController {
 
             return "order/viewOrders";
         } catch (Exception e) {
-            logger.error("Ошибка при загрузки страницы", e);
-            model.addAttribute("errorMessage", "Ошибка при загрузки страницы");
+            logger.error("Ошибка при загрузке страницы", e);
+            model.addAttribute("errorMessage", "Ошибка при загрузке страницы");
             return "error/error";
         }
 

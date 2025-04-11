@@ -13,4 +13,8 @@ public class ForwarderResponseDto {
     private String patronymic; //отчество
     private LocalDate birthDay;
     private String phone;
+
+    public String getFullName(){
+        return this.lastName + ' ' + this.firstName;
+    }
 }

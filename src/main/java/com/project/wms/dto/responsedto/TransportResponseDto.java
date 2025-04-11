@@ -8,4 +8,8 @@ public class TransportResponseDto {
     private String name;
     private String number;
     private Double capacity;
+
+    public String getInfo(){
+        return this.name + " TJ " + this.number;
+    }
 }

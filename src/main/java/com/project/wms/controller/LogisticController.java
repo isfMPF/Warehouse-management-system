@@ -1,10 +1,13 @@
 package com.project.wms.controller;
 
+import com.project.wms.dto.responsedto.ForwarderResponseDto;
 import com.project.wms.dto.responsedto.OrderResponseDto;
-import com.project.wms.mapper.OrderItemMapper;
-import com.project.wms.mapper.OrderMapper;
-import com.project.wms.service.OrderItemService;
+import com.project.wms.dto.responsedto.OrderResponseDtoToExport;
+import com.project.wms.dto.responsedto.TransportResponseDto;
+import com.project.wms.mapper.*;
+import com.project.wms.service.ForwarderService;
 import com.project.wms.service.OrderService;
+import com.project.wms.service.Transportservice;
 import com.project.wms.util.ExcelExporter;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -17,11 +20,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class LogisticController {
@@ -31,9 +33,11 @@ public class LogisticController {
     @Autowired
     private OrderMapper orderMapper;
     @Autowired
-    private OrderItemMapper orderItemMapper;
+    private Transportservice transportservice;
     @Autowired
-    private OrderItemService orderItemService;
+    private ForwarderService forwarderService;
+    @Autowired
+    private OrderMapperToExport orderMapperToExport;
 
     private static final Logger logger = LoggerFactory.getLogger(LogisticController.class);
 
@@ -49,11 +53,12 @@ public class LogisticController {
 
 
             model.addAttribute("orders", orders);
-
+            model.addAttribute("transports", transportservice.findAll());
+            model.addAttribute("forwarders", forwarderService.findAll());
             return "logistic/logistic";
         } catch (Exception e) {
-            logger.error("Ошибка при загрузки заказов", e);
-            model.addAttribute("errorMessage", "Ошибка при загрузки заказов");
+            logger.error("Ошибка при загрузке заказов", e);
+            model.addAttribute("errorMessage", "Ошибка при загрузке заказов");
             return "error/error";
         }
 
@@ -70,7 +75,8 @@ public class LogisticController {
                     .toList();
 
             model.addAttribute("orders", orders);
-
+            model.addAttribute("transports", transportservice.findAll());
+            model.addAttribute("forwarders", forwarderService.findAll());
             return "logistic/logistic";
         } catch (Exception e) {
             logger.error("Ошибка при поиске заказов", e);
@@ -84,7 +90,8 @@ public class LogisticController {
     @PostMapping("/logistics/process-selected")
     public String processSelectedOrders(
             @RequestParam(name = "selectedOrderIds", required = false) List<Long> selectedOrderIds,
-            Model model) {
+            @RequestParam(name = "transportId") Long transportId,
+            @RequestParam(name = "forwarderId") Long forwarderId, Model model) {
 
         try{
             if (selectedOrderIds == null || selectedOrderIds.isEmpty()) {
@@ -111,6 +118,8 @@ public class LogisticController {
             }
 
             model.addAttribute("orders", orders);
+            model.addAttribute("transport", transportId);
+            model.addAttribute("forwarder", forwarderId);
             return "logistic/information";
         } catch (Exception e) {
             logger.error("Ошибка при формировании заказов", e);
@@ -132,18 +141,33 @@ public class LogisticController {
 
     @PostMapping("/logistics/export")
     public String exportOrder(@RequestParam(name = "selectedOrderIds", required = false) List<Long> selectedOrderIds,
-            HttpServletResponse response,Model model){
+            HttpServletResponse response, @RequestParam(name = "transportId") Long transportId,
+                              @RequestParam(name = "forwarderId") Long forwarderId, Model model){
         try {
             if (selectedOrderIds == null || selectedOrderIds.isEmpty()) {
                 return null;
             }
 
-            List<OrderResponseDto> orders = new ArrayList<>();
+            String transport = transportservice.findById(transportId)
+                    .map(TransportResponseDto::getInfo)
+                    .orElse("Без транспорта");
+
+            String forwarder = forwarderService.findById(forwarderId)
+                    .map(ForwarderResponseDto::getFullName)
+                    .orElse("Без экспедитора");
+
+
+
+
+            List<OrderResponseDtoToExport> orders = new ArrayList<>();
             String exportDate = "";
 
             // Получаем и обрабатываем заказы
             for (Long selectedOrderId : selectedOrderIds) {
-                OrderResponseDto order = orderMapper.toResponseDto(orderService.getOrderById(selectedOrderId));
+                OrderResponseDtoToExport order = orderMapperToExport.toResponseDto(orderService.getOrderById(selectedOrderId));
+
+                order.setForwarder(forwarder);
+                order.setTransport(transport);
 
                 orders.add(order);
 
@@ -155,7 +179,7 @@ public class LogisticController {
             }
 
             // Сортируем товары внутри каждого заказа по объему (от большего к меньшему)
-            for (OrderResponseDto order : orders) {
+            for (OrderResponseDtoToExport order : orders) {
                 if (order.getItem() != null) {
                     order.getItem().sort((item1, item2) -> {
                         double volume1 = parseVolumeExport(item1.getVolume());
