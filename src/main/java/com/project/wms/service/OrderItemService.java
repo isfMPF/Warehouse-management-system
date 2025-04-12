@@ -14,10 +14,6 @@ public class OrderItemService {
 
     @Autowired
     private OrderItemRepository orderItemRepository;
-    @Autowired
-    private OrderItemMapper orderItemMapper;
-    @Autowired
-    private ProductRepository productRepository;
 
     public List<OrderItemEntity> getAllItemsByOrderId(long orderId){
         return orderItemRepository.findAllByOrderId(orderId);
