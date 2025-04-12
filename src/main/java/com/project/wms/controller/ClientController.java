@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Controller
+@RequestMapping("/clients")
 public class ClientController {
 
     public final ClientService clientService;
@@ -30,7 +31,7 @@ public class ClientController {
         this.clientMapper = clientMapper;
     }
 
-    @GetMapping("/clients")
+    @GetMapping
     public String showAllClients(Model model) {
 
         try{

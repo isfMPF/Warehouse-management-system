@@ -16,7 +16,7 @@
             </h1>
         </div>
 
-        <form method="post" th:action="@{/add-client}" th:object="${clientRequestDto}" class="needs-validation" novalidate>
+        <form method="post" th:action="@{/clients/add-client}" th:object="${clientRequestDto}" class="needs-validation" novalidate>
             <!-- Уведомление об успехе -->
             <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="bi bi-check-circle-fill me-2"></i>Клиент успешно добавлен

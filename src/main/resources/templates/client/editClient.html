@@ -16,7 +16,7 @@
       </h1>
     </div>
 
-    <form method="post" th:action="@{/edit-client}" th:object="${client}" class="needs-validation" novalidate>
+    <form method="post" th:action="@{/clients/edit-client}" th:object="${client}" class="needs-validation" novalidate>
       <!-- Скрытое поле ID -->
       <input type="hidden" th:field="*{id}">
 

@@ -22,7 +22,7 @@
       <div class="client-actions mb-4">
         <div class="row g-3 align-items-center">
           <div class="col-md-6">
-            <form method="get" th:action="@{/search}" class="search-form">
+            <form method="get" th:action="@{/clients/search}" class="search-form">
               <div class="input-group">
                 <input type="text" name="query" class="form-control search-input"
                        placeholder="Поиск клиентов..." aria-label="Поиск клиентов"
@@ -36,10 +36,10 @@
           </div>
 
           <div class="col-md-6 text-md-end">
-            <a href="/form-client" class="btn btn-success me-2">
+            <a th:href="@{/clients/form-client}" class="btn btn-success me-2">
               <i class="bi bi-plus-circle me-1"></i>Добавить
             </a>
-            <a href="/clients" class="btn btn-outline-secondary">
+            <a th:href="@{/clients}" class="btn btn-outline-secondary">
               <i class="bi bi-arrow-counterclockwise me-1"></i>Сбросить
             </a>
           </div>
@@ -73,13 +73,13 @@
             </td>
             <td>
               <div class="d-flex flex-wrap gap-2">
-                <a th:href="@{/clientEdit/{id}(id=${client.id})}"
+                <a th:href="@{/clients/clientEdit/{id}(id=${client.id})}"
                    class="btn btn-sm btn-outline-primary"
                    title="Редактировать">
                   <i class="bi bi-pencil"></i>
                 </a>
 
-                <form th:action="@{/clientDelete/{id}(id=${client.id})}" method="post"
+                <form th:action="@{/clients/clientDelete/{id}(id=${client.id})}" method="post"
                       sec:authorize="hasRole('ADMIN')"
                       class="delete-form">
                   <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
