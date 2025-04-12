@@ -77,7 +77,7 @@ public class ProductController {
         try {
             if(errors.hasErrors())
             {
-                return "/product/addProduct";
+                return "product/addProduct";
             }
 
             productService.addProduct(productRequestDto);
@@ -151,7 +151,7 @@ public class ProductController {
         try {
             if (query == null || query.trim().isEmpty()) {
                 model.addAttribute("error", "Введите название для поиска.");
-                return "/product/viewProduct";
+                return "product/viewProduct";
             }
             List<ProductResponseDto> products = StreamSupport.stream(productService.getAllProducts().spliterator(), false)
                     .filter(product ->
@@ -169,7 +169,7 @@ public class ProductController {
             }
 
             model.addAttribute("allProducts", products);
-            return "/product/viewProduct";
+            return "product/viewProduct";
         } catch (Exception e) {
             logger.error("Ошибка при поиске товара", e);
             model.addAttribute("errorMessage", "Ошибка при поиске товара");

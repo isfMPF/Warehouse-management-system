@@ -55,7 +55,7 @@ public class ClientController {
         try {
             if (query == null || query.trim().isEmpty()) {
                 model.addAttribute("error", "Введите название для поиска.");
-                return "/client/viewClients";
+                return "client/viewClients";
             }
 
             List<ClientResponseDto> clients = StreamSupport.stream(clientService.getAllClients().spliterator(), false)
@@ -68,11 +68,11 @@ public class ClientController {
                     .collect(Collectors.toList());
             if(clients == null){
                 model.addAttribute("error", "Клиент не найден");
-                return "/client/viewClients";
+                return "client/viewClients";
             }
 
             model.addAttribute("allClients", clients);
-            return "/client/viewClients";
+            return "client/viewClients";
         } catch (Exception e) {
             logger.error("Ошибка при поиске клиента", e);
             model.addAttribute("errorMessage", "При поиске не удалось загрузить данные клиента");
@@ -86,7 +86,7 @@ public class ClientController {
 
         try {
             model.addAttribute("clientRequestDto", new ClientRequestDto());
-            return "/client/addClient";
+            return "client/addClient";
         } catch (Exception e) {
             logger.error("Ошибка при переходе на страницу Добавить клиент", e);
             model.addAttribute("errorMessage", "Ошибка при переходе на страницу 'Добавить клиент'");
