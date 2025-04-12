@@ -124,7 +124,7 @@
               <td>
                 <span th:text="${order.clientName}" class="d-inline-block text-truncate" style="max-width: 200px;"></span>
               </td>
-              <td class="text-end" th:text="${#numbers.formatDecimal(order.total, 1, 2, 'COMMA')} + ' ₽'"></td>
+              <td class="text-end" th:text="${#numbers.formatDecimal(order.total, 1, 2, 'COMMA')} + ' смн.'"></td>
               <td class="text-center" th:text="${#temporals.format(order.date, 'dd.MM.yyyy')}"></td>
               <td class="text-end" th:text="${#numbers.formatDecimal(#aggregates.sum(order.item.?[weight != null].![amount * weight]), 1, 2, 'COMMA')}"></td>
               <td class="text-end" th:text="${#aggregates.sum(order.item.?[amount != null].![amount])}"></td>

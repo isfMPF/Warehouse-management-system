@@ -41,7 +41,7 @@
                             </div>
                             <div class="order-meta-item">
                                 <i class="bi bi-cash-stack me-1"></i>
-                                <span th:text="${order.total} + ' ₽'"></span>
+                                <span th:text="${order.total} + ' смн.'"></span>
                             </div>
                             <div class="order-meta-item">
                                 <i class="bi bi-box-seam me-1"></i>
@@ -74,7 +74,7 @@
                                 <td th:text="${item.volume}"></td>
                                 <td th:text="${item.amount}"></td>
                                 <td th:text="${item.price}"></td>
-                                <td th:text="${#numbers.formatDecimal(item.total, 1, 2)} + ' смн.'"></td>
+                                <td th:text="${#numbers.formatDecimal(item.total, 1, 2)}"></td>
                             </tr>
                             </tbody>
                         </table>

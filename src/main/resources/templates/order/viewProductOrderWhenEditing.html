@@ -39,7 +39,7 @@
             <td th:text="${product.volume}"></td>
             <td th:text="${product.unit}"></td>
             <td th:text="${product.quantity}"></td>
-            <td th:text="${product.price} + ' ₽'"></td>
+            <td th:text="${product.price}"></td>
             <td>
                                 <span th:class="${product.amount > 0} ? 'badge bg-success' : 'badge bg-danger'"
                                       th:text="${product.amount} + ' шт.'"></span>

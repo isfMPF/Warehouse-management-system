@@ -68,7 +68,7 @@
                                 <td th:text="${product.code}" class="fw-bold text-muted"></td>
                                 <td th:text="${product.name}"></td>
                                 <td th:text="${product.volume}"></td>
-                                <td th:text="${#numbers.formatDecimal(product.price, 1, 2, 'COMMA')} + ' ₽'"></td>
+                                <td th:text="${#numbers.formatDecimal(product.price, 1, 2, 'COMMA')}"></td>
                                 <td>
                                     <input class="form-control form-control-sm"
                                            type="number"
