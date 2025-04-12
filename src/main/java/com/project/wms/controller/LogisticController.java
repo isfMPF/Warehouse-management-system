@@ -198,8 +198,6 @@ public class LogisticController {
             response.setHeader("Content-Disposition", "attachment; filename=" + filename);
             response.getOutputStream().write(excelBytes);
             response.flushBuffer();
-
-            System.out.println(orders);
             return null;
 
         } catch (Exception e) {

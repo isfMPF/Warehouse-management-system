@@ -74,7 +74,6 @@ public class PromoController {
             List<ProductResponseDto> productResponseDtos = StreamSupport.stream(productService.getAllProducts().spliterator(), false)
                     .map(productMapper::toResponseDto)
                     .toList();
-            System.out.println(productResponseDtos);
             model.addAttribute("promotionRequestDTO", promotionDTO);
             model.addAttribute("allProducts", productResponseDtos);
             return "promo/addPromo";

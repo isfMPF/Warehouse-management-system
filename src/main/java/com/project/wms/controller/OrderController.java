@@ -231,7 +231,7 @@ public class OrderController {
         try {
             // Проверка на ошибки валидации
             if(errors.hasErrors()){
-                System.out.println(errors);
+
                 List<ProductResponseDto> cart = (List<ProductResponseDto>) session.getAttribute("cart");
 
                 if (cart == null) {
@@ -403,14 +403,14 @@ public class OrderController {
             orderService.deleteOrderWithItems(orderId);
             // Проверка на ошибки валидации
             if(errors.hasErrors()){
-                System.out.println("Ошибка" + " " + errors);
+
                 OrderResponseDto order = orderMapper.toResponseDto(orderService.getOrderById(orderId));
 
                 List<ProductResponseDto> productsToSelect = StreamSupport.stream(productService.getAllProducts().spliterator(), false)
                         .map(productMapper::toResponseDto)
                         .toList();
 
-                System.out.println(order);
+
 
                 model.addAttribute("products",productsToSelect);
                 model.addAttribute("order", order);
