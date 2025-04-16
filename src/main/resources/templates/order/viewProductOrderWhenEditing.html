@@ -23,33 +23,37 @@
           <thead>
           <tr>
             <th width="8%">Код</th>
-            <th width="20%">Товар</th>
-            <th width="10%">Объём</th>
-            <th width="8%">Ед.</th>
-            <th width="12%">Кол-во в уп.</th>
+            <th width="20%" style="position: sticky; left: 0; background: white; z-index: 1;">Товар</th>
             <th width="12%">Цена</th>
             <th width="15%">На складе</th>
+            <th width="10%">Количество</th>
             <th width="15%">Действия</th>
           </tr>
           </thead>
           <tbody>
           <tr th:each="product : ${allProducts}" class="product-row">
             <td th:text="${product.code}" class="fw-bold text-primary"></td>
-            <td th:text="${product.name}"></td>
-            <td th:text="${product.volume}"></td>
-            <td th:text="${product.unit}"></td>
-            <td th:text="${product.quantity}"></td>
+            <td th:text="${product.name + ' ' + product.volume + 'L' + ' x ' + product.quantity}"
+                style="position: sticky; left: 0; background: white; z-index: 1;"></td>
             <td th:text="${product.price}"></td>
             <td>
                                 <span th:class="${product.amount > 0} ? 'badge bg-success' : 'badge bg-danger'"
                                       th:text="${product.amount} + ' шт.'"></span>
             </td>
-            <td>
-              <a th:href="@{/orders/order-edit/{id}/select/addToCart/{code}(id=${order.id}, code=${product.code})}"
-                 class="btn btn-sm btn-outline-primary select-btn">
-                <i class="bi bi-cart-plus me-1"></i> Выбрать
-              </a>
-            </td>
+            <form th:action="@{/orders/order-edit/{id}/select/addToCart/{code}(id=${order.id}, code=${product.code})}" method="get">
+              <td>
+                <input class="form-control form-control-sm"
+                       name="amount"
+                       type="number"
+                       min="1"
+                       required>
+              </td>
+                <td>
+                  <button type="submit" class="btn btn-sm btn-outline-primary select-btn">
+                    <i class="bi bi-cart-plus me-1"></i> Выбрать
+                  </button>
+                </td>
+            </form>
           </tr>
           </tbody>
         </table>

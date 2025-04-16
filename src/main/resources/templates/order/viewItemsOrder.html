@@ -68,27 +68,28 @@
                             </thead>
                             <tbody>
                             <tr th:each="product, iterStat : ${cart}" th:class="${iterStat.odd}? 'table-light'">
-                                <td th:text="${product.code}" class="fw-bold text-muted"></td>
-                                <td th:text="${product.name}"></td>
-                                <td th:text="${product.volume}"></td>
-                                <td th:text="${#numbers.formatDecimal(product.price, 1, 2, 'COMMA')}"></td>
+                                <td th:text="${product.product.code}" class="fw-bold text-muted"></td>
+                                <td th:text="${product.product.name}"></td>
+                                <td th:text="${product.product.volume}"></td>
+                                <td th:text="${#numbers.formatDecimal(product.product.price, 1, 2, 'COMMA')}"></td>
                                 <td>
                                     <input class="form-control form-control-sm"
                                            type="number"
                                            min="1"
-                                           th:field="*{items[__${iterStat.index}__].amount}"
-                                           required>
+                                           th:attr="name='items['+ ${iterStat.index} + '].amount'"
+                                           th:value="${product.amount}"
+                                           readonly>
                                     <span class="text-danger small"
                                           th:if="${#fields.hasErrors('items[__${iterStat.index}__].amount')}"
                                           th:errors="*{items[__${iterStat.index}__].amount}"></span>
                                 </td>
                                 <td>
-                                    <a th:href="@{/orders/create/del/{code}(code=${product.code})}"
+                                    <a th:href="@{/orders/create/del/{code}(code=${product.product.code})}"
                                        class="btn btn-outline-danger btn-sm">
                                         <i class="bi bi-trash"></i>
                                     </a>
                                 </td>
-                                <input type="hidden" th:attr="name='items['+ ${iterStat.index} + '].code'" th:value="${product.code}"/>
+                                <input type="hidden" th:attr="name='items['+ ${iterStat.index} + '].code'" th:value="${product.product.code}"/>
                             </tr>
                             </tbody>
                         </table>
@@ -141,7 +142,7 @@
                                     <h4 class="mb-0 fw-bold" id="totalSum">0.00 смн.</h4>
                                 </div>
                                 <div class="bg-success bg-opacity-10 p-2 rounded">
-                                    <i class="bi bi-currency-ruble text-success fs-4"></i>
+
                                 </div>
                             </div>
                         </div>
@@ -222,7 +223,7 @@
       });
 
       document.getElementById("totalQuantity").textContent = totalQuantity;
-      document.getElementById("totalSum").textContent = totalSum.toFixed(2) + " ₽";
+      document.getElementById("totalSum").textContent = totalSum.toFixed(2) + " смн.";
       document.getElementById("promoCount").textContent = promoCount;
     }
 

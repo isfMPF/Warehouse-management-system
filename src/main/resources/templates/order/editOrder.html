@@ -65,29 +65,29 @@
                             </thead>
                             <tbody>
                             <tr th:each="product,iterStat : ${cart}" th:class="${iterStat.odd}? 'bg-light'">
-                                <td th:text="${product.code}" class="fw-bold text-muted"></td>
-                                <td th:text="${product.name}"></td>
-                                <td th:text="${product.volume}"></td>
-                                <td th:text="${#numbers.formatDecimal(product.price, 1, 2, 'COMMA')}"></td>
+                                <td th:text="${product.product.code}" class="fw-bold text-muted"></td>
+                                <td th:text="${product.product.name}"></td>
+                                <td th:text="${product.product.volume}"></td>
+                                <td th:text="${#numbers.formatDecimal(product.product.price, 1, 2, 'COMMA')}"></td>
                                 <td>
                                     <input class="form-control form-control-sm"
                                            type="number"
                                            min="1"
                                            th:attr="name='items['+ ${iterStat.index} + '].amount'"
                                            th:value="${product.amount}"
-                                           required>
+                                           readonly>
                                     <span class="text-danger small"
                                           th:if="${#fields.hasErrors('items[__${iterStat.index}__].amount')}"
                                           th:errors="*{items[__${iterStat.index}__].amount}"></span>
                                 </td>
                                 <td class="text-end">
-                                    <a th:href="@{/orders/edit-order/{id}/del/{code}(id=${client.id}, code=${product.code})}"
+                                    <a th:href="@{/orders/edit-order/{id}/del/{code}(id=${client.id}, code=${product.product.code})}"
                                        class="btn btn-outline-danger btn-sm"
                                        title="Удалить товар">
                                         <i class="bi bi-trash"></i>
                                     </a>
                                 </td>
-                                <input type="hidden" th:attr="name='items['+ ${iterStat.index} + '].code'" th:value="${product.code}"/>
+                                <input type="hidden" th:attr="name='items['+ ${iterStat.index} + '].code'" th:value="${product.product.code}"/>
                             </tr>
                             </tbody>
                         </table>

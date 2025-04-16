@@ -10,6 +10,7 @@ import com.project.wms.mapper.OrderItemMapper;
 import com.project.wms.mapper.OrderMapper;
 import com.project.wms.mapper.ProductMapper;
 import com.project.wms.service.*;
+import com.project.wms.util.cart.CartItem;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -114,13 +116,14 @@ public class OrderController {
     public String createOrder(Model model, HttpSession session){
 
         try {
+
             List<ClientResponseDto> clientsToSelect = StreamSupport.stream(clientService.getAllClients().spliterator(), false)
                     .map(clientMapper::toResponseDto)
                     .toList();
 
             model.addAttribute("clients",clientsToSelect);
 
-            List<ProductResponseDto> cart = (List<ProductResponseDto>) session.getAttribute("cart");
+            List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
 
             if (cart == null) {
                 cart = new ArrayList<>();
@@ -147,16 +150,15 @@ public class OrderController {
     }
 
     @GetMapping("/create/select")
-    public String selectProduct(Model model){
+    public String selectProduct(Model model, HttpSession session){
 
         try {
             List<ProductResponseDto> productsToSelect = StreamSupport.stream(productService.getAllProducts().spliterator(), false)
                     .filter(product -> product.getAmount() > 5)
                     .map(productMapper::toResponseDto)
+                    .sorted(Comparator.comparing(ProductResponseDto::getVolume).reversed())
                     .toList();
-
             model.addAttribute("allProducts",productsToSelect);
-
             return "order/viewProductOrder";
         } catch (Exception e) {
             logger.error("Ошибка при выборе товара", e);
@@ -168,11 +170,16 @@ public class OrderController {
 
 
     @GetMapping("/create/select/addToCart/{code}")
-    public String addToCart(@PathVariable("code") String code, Model model, HttpSession session) {
+    public String addToCart(@PathVariable("code") String code, @RequestParam("amount") int amount,
+                            Model model, HttpSession session) {
 
         try {
             ProductResponseDto product = productMapper.toResponseDto(productService.getProductByCode(code));
-            List<ProductResponseDto> cart = (List<ProductResponseDto>) session.getAttribute("cart");
+
+            CartItem cartSession = new CartItem();
+
+
+            List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
 
             if (cart == null) {
                 cart = new ArrayList<>();
@@ -180,16 +187,19 @@ public class OrderController {
 
             // Проверяем, существует ли товар в корзине
             boolean productExists = false;
-            for (ProductResponseDto item : cart) {
-                if (item.getCode().equals(product.getCode())) {
+            for (CartItem item : cart) {
+                if (item.getProduct().getCode().equals(product.getCode())) {
                     productExists = true;
+                    item.setAmount(amount);
                     break;
                 }
             }
 
             // Если товара нет в корзине, добавляем его
             if (!productExists) {
-                cart.add(product);
+                cartSession.setProduct(product);
+                cartSession.setAmount(amount);
+                cart.add(cartSession);
             }
 
             session.setAttribute("cart", cart); // Сохраняем корзину в сессии
@@ -208,10 +218,10 @@ public class OrderController {
     public String delFromCart(@PathVariable("code") String code, HttpSession session, Model model) {
 
         try {
-            List<ProductResponseDto> cart = (List<ProductResponseDto>) session.getAttribute("cart");
+            List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
 
             if (cart != null) {
-                cart.removeIf(product -> code.equals(product.getCode()));
+                cart.removeIf(product -> code.equals(product.getProduct().getCode()));
                 session.setAttribute("cart", cart);
             }
 
@@ -232,7 +242,7 @@ public class OrderController {
             // Проверка на ошибки валидации
             if(errors.hasErrors()){
 
-                List<ProductResponseDto> cart = (List<ProductResponseDto>) session.getAttribute("cart");
+                List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
 
                 if (cart == null) {
                     cart = new ArrayList<>();
@@ -263,26 +273,20 @@ public class OrderController {
             model.addAttribute("errorMessage", "Ошибка при создании заказа");
             return "error/error";
         }
-
-
     }
 
     @GetMapping("/edit-order/{id}")
     public String editOrder(@PathVariable(value = "id") Long id, Model model, HttpSession session){
 
         try {
-            List<ProductResponseDto> cart = (List<ProductResponseDto>) session.getAttribute("cart");
+            List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
 
             OrderResponseDto order = orderMapper.toResponseDto(orderService.getOrderById(id));
 
             if (cart == null) {
-
-                List <ProductResponseDto> productResponseDto = productMapper.toProductResponseDto(order.getItem());
-
+                List <CartItem> productResponseDto = productMapper.toCart(order.getItem());
                 session.setAttribute("cart", productResponseDto);
-
                 model.addAttribute("client", order);
-
                 model.addAttribute("cart", productResponseDto);
             }else {
                 model.addAttribute("client", order);
@@ -304,10 +308,10 @@ public class OrderController {
     public String delFromOrder(@PathVariable(value = "id") Long id, @PathVariable(value = "code") String code, Model model, HttpSession session) {
 
         try {
-            List<ProductResponseDto> cart = (List<ProductResponseDto>) session.getAttribute("cart");
+            List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
 
             if (cart != null) {
-                cart.removeIf(product -> code.equals(product.getCode()));
+                cart.removeIf(product -> code.equals(product.getProduct().getCode()));
                 session.setAttribute("cart", cart);
             }
 
@@ -328,6 +332,7 @@ public class OrderController {
             List<ProductResponseDto> productsToSelect = StreamSupport.stream(productService.getAllProducts().spliterator(), false)
                     .filter(product -> product.getAmount() > 5)
                     .map(productMapper::toResponseDto)
+                    .sorted(Comparator.comparing(ProductResponseDto::getVolume).reversed())
                     .toList();
 
             OrderResponseDto order = orderMapper.toResponseDto(orderService.getOrderById(id));
@@ -348,15 +353,17 @@ public class OrderController {
     @GetMapping("/order-edit/{id}/select/addToCart/{code}")
     public String addToCartWhenEditing(@PathVariable(value = "id") Long id,
                                        @PathVariable("code") String code,
+                                       @RequestParam("amount") int amount,
                                        Model model,
                                        HttpSession session) {
 
         try {
+            CartItem cartItem = new CartItem();
             // Получаем товар по коду
             ProductResponseDto product = productMapper.toResponseDto(productService.getProductByCode(code));
 
             // Получаем корзину из сессии
-            List<ProductResponseDto> cart = (List<ProductResponseDto>) session.getAttribute("cart");
+            List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
 
             // Если корзина не существует, создаем новую
             if (cart == null) {
@@ -365,19 +372,19 @@ public class OrderController {
 
             // Проверяем, существует ли товар в корзине
             boolean productExists = false;
-            for (ProductResponseDto item : cart) {
-                if (item.getCode().equals(product.getCode())) {
-                    // Если товар уже есть в корзине, увеличиваем его количество на 1
-                    item.setAmount(item.getAmount() + 1);
+            for (CartItem item : cart) {
+                if (item.getProduct().getCode().equals(product.getCode())) {
+                    item.setAmount(amount);
                     productExists = true;
                     break;
                 }
             }
 
-            // Если товара нет в корзине, добавляем его с количеством 1
+            // Если товара нет в корзине, добавляем его с количеством amount
             if (!productExists) {
-                product.setAmount(1); // Устанавливаем начальное количество
-                cart.add(product);
+                cartItem.setProduct(product);
+                cartItem.setAmount(amount);
+                cart.add(cartItem);
             }
 
             // Сохраняем обновленную корзину в сессии
@@ -436,7 +443,7 @@ public class OrderController {
     public String cancel(@PathVariable(value = "id") Long id, HttpSession session, Model model){
 
         try {
-            List<ProductResponseDto> cart = (List<ProductResponseDto>) session.getAttribute("cart");
+            List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
 
             if (cart != null) {
                 session.removeAttribute("cart");
@@ -455,7 +462,7 @@ public class OrderController {
     public String cancelOrder(HttpSession session, Model model){
 
         try{
-            List<ProductResponseDto> cart = (List<ProductResponseDto>) session.getAttribute("cart");
+            List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
 
             if (cart != null) {
                 session.removeAttribute("cart");
