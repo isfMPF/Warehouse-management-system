@@ -98,16 +98,16 @@ public class PromoController {
                         "Дата окончания должна быть после даты начала");
             }
 
-            // Проверка выбранных товаров
-            if (promotionDTO.getFreeProduct() != null
-                    && promotionDTO.getFreeProduct().getCode() != null
-                    && promotionDTO.getRequiredProduct() != null
-                    && promotionDTO.getRequiredProduct().getCode() != null
-                    && promotionDTO.getFreeProduct().getCode()
-                    .equals(promotionDTO.getRequiredProduct().getCode())) {
-                result.rejectValue("freeProduct.code", "product.duplicate",
-                        "Бесплатный и обязательный товар не могут совпадать");
-            }
+//            // Проверка выбранных товаров
+//            if (promotionDTO.getFreeProduct() != null
+//                    && promotionDTO.getFreeProduct().getCode() != null
+//                    && promotionDTO.getRequiredProduct() != null
+//                    && promotionDTO.getRequiredProduct().getCode() != null
+//                    && promotionDTO.getFreeProduct().getCode()
+//                    .equals(promotionDTO.getRequiredProduct().getCode())) {
+//                result.rejectValue("freeProduct.code", "product.duplicate",
+//                        "Бесплатный и обязательный товар не могут совпадать");
+//            }
 
             if (result.hasErrors()) {
                 List<ProductResponseDto> productResponseDtos = StreamSupport.stream(productService.getAllProducts().spliterator(), false)

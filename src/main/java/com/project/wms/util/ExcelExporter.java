@@ -41,8 +41,10 @@ public class ExcelExporter {
         // Стили для оформления
         CellStyle headerStyle = createHeaderStyle(workbook);
         CellStyle itemStyle = createItemStyle(workbook);
+        CellStyle productNameStyle = styleNameProduct(workbook);
         CellStyle totalStyle = createTotalStyle(workbook);
         CellStyle clientInfoStyle = createClientInfoStyle(workbook);
+        CellStyle infoSheff = infoSheff(workbook);
         CellStyle documentTitleStyle = createDocumentTitleStyle(workbook);
         CellStyle signatureStyle = createSignatureStyle(workbook);
         CellStyle orderNumberStyle = createBorkhatStyle(workbook);
@@ -104,6 +106,7 @@ public class ExcelExporter {
             dateCell.setCellValue("Сана: " + formattedDate);
             dateCell.setCellStyle(clientInfoStyle);
 
+            rowNum++;
             // Четвертая строка (центрированный заголовок)
             Row headerRow4 = sheet.createRow(rowNum++);
             Cell orderNumCell = headerRow4.createCell(1); // Начинаем со второй колонки
@@ -125,7 +128,7 @@ public class ExcelExporter {
             if (order.getItem() != null && !order.getItem().isEmpty()) {
                 for (OrderItemResponseDto item : order.getItem()) {
                     Row itemRow = sheet.createRow(rowNum++);
-                    createItemRow(itemRow, item, itemStyle);
+                    createItemRow(itemRow, item, itemStyle,productNameStyle);
                     orderTotal += item.getTotal();
                     totalItems += item.getAmount();
                     orderWeight += item.getWeight() * item.getAmount();
@@ -159,7 +162,7 @@ public class ExcelExporter {
                 Row contactRow = sheet.createRow(rowNum++);
                 Cell contactCell = contactRow.createCell(0);
                 contactCell.setCellValue("По всем вопросам звонить: Тел: (+992) 98 818 90 00 Dc Почоев Илхом");
-                contactCell.setCellStyle(clientInfoStyle);
+                contactCell.setCellStyle(infoSheff);
                 sheet.addMergedRegion(new CellRangeAddress(rowNum-1, rowNum-1, 0, 4));
 
                 // Пустая строка
@@ -221,14 +224,6 @@ public class ExcelExporter {
 
 
 
-    // Новый метод для создания стиля с центрированием
-    private static CellStyle createCenteredStyle(Workbook workbook) {
-        CellStyle style = workbook.createCellStyle();
-        style.setAlignment(HorizontalAlignment.CENTER);
-        style.setVerticalAlignment(VerticalAlignment.CENTER);
-        return style;
-    }
-
 
     // Стиль для заголовка документа
     private static CellStyle createDocumentTitleStyle(Workbook workbook) {
@@ -236,7 +231,7 @@ public class ExcelExporter {
         Font font = workbook.createFont();
         font.setBold(true);
         font.setFontName("Arial");
-        font.setFontHeightInPoints((short) 10);
+        font.setFontHeightInPoints((short) 9);
         style.setFont(font);
         style.setAlignment(HorizontalAlignment.LEFT);
         return style;
@@ -248,7 +243,19 @@ public class ExcelExporter {
         Font font = workbook.createFont();
         font.setBold(true);  // Жирный шрифт
         font.setFontName("Arial");
-        font.setFontHeightInPoints((short) 10);
+        font.setFontHeightInPoints((short) 9);
+        style.setFont(font);
+        style.setAlignment(HorizontalAlignment.LEFT);
+        return style;
+    }
+
+    // Стиль для информации о клиенте
+    private static CellStyle infoSheff(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);  // Жирный шрифт
+        font.setFontName("Arial");
+        font.setFontHeightInPoints((short) 7);
         style.setFont(font);
         style.setAlignment(HorizontalAlignment.LEFT);
         return style;
@@ -447,7 +454,7 @@ public class ExcelExporter {
 
         // Заголовки таблицы
         Row headerRow = sheet.createRow(0);
-        String[] headers = {"Номер заказа", "Клиент", "Сумма заказа", "Оплата", "Долг", "Примечание"};
+        String[] headers = {"№", "Клиент", "Сумма заказа", "Оплата", "Долг", "Подпись"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
@@ -506,7 +513,7 @@ public class ExcelExporter {
         }
     }
 
-    private static void createItemRow(Row row, OrderItemResponseDto item, CellStyle style) {
+    private static void createItemRow(Row row, OrderItemResponseDto item, CellStyle style, CellStyle cell1Product) {
         // Создаем ячейки и устанавливаем значения
         Cell cell0 = row.createCell(0);
         cell0.setCellValue(item.getCode());
@@ -514,7 +521,7 @@ public class ExcelExporter {
 
         Cell cell1 = row.createCell(1);
         cell1.setCellValue(item.getName() + " " + item.getVolume() + "L" + "x" + item.getQuantity());
-        cell1.setCellStyle(style);
+        cell1.setCellStyle(cell1Product);
 
         Cell cell3 = row.createCell(2);
         cell3.setCellValue(item.getAmount());
@@ -529,10 +536,6 @@ public class ExcelExporter {
         cell5.setCellStyle(style);
 
     }
-
-
-
-
     private static CellStyle createHeaderStyle(Workbook workbook) {
         CellStyle style = workbook.createCellStyle();
         Font font = workbook.createFont();
@@ -559,9 +562,20 @@ public class ExcelExporter {
         style.setBorderTop(BorderStyle.THIN);
         style.setBorderLeft(BorderStyle.THIN);
         style.setBorderRight(BorderStyle.THIN);
-
         // Выравнивание по центру
         style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        return style;
+    }
+    private static CellStyle styleNameProduct(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        // Устанавливаем границы для всех сторон
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderTop(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        // Выравнивание по центру
+        style.setAlignment(HorizontalAlignment.LEFT);
         style.setVerticalAlignment(VerticalAlignment.CENTER);
         return style;
     }
