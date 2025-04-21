@@ -84,6 +84,28 @@
                     </div>
                 </div>
 
+                <!-- Поле "День недели" -->
+                <div class="form-group">
+                    <label for="dayOfWeek" class="form-label">День недели</label>
+                    <div class="input-group">
+                    <span class="input-group-text">
+                         <i class="bi bi-calendar-week"></i>
+                    </span>
+                        <select class="form-select" id="dayOfWeek" th:field="*{dayOfWeek}" required>
+                            <option value="" selected>Выберите день недели</option>
+                            <option value="MONDAY">Понедельник</option>
+                            <option value="TUESDAY">Вторник</option>
+                            <option value="WEDNESDAY">Среда</option>
+                            <option value="THURSDAY">Четверг</option>
+                            <option value="FRIDAY">Пятница</option>
+                            <option value="SATURDAY">Суббота</option>
+                        </select>
+                    </div>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('dayOfWeek')}" th:errors="*{dayOfWeek}">
+                        Пожалуйста, выберите день недели
+                    </div>
+                </div>
+
                 <!-- Поле "Телефон" -->
                 <div class="form-group">
                     <label for="phone" class="form-label">Телефон</label>

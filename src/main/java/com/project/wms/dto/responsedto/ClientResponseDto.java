@@ -2,6 +2,8 @@ package com.project.wms.dto.responsedto;
 
 import lombok.Data;
 
+import java.time.DayOfWeek;
+
 @Data
 public class ClientResponseDto {
 
@@ -11,4 +13,5 @@ public class ClientResponseDto {
     private String address;
     private String fio;
     private String phone;
+    private DayOfWeek dayOfWeek;
 }

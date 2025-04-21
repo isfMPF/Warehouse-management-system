@@ -1,8 +1,11 @@
 package com.project.wms.dto.requestdto;
 
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
+
+import java.time.DayOfWeek;
 
 @Data
 public class ClientRequestDto {
@@ -19,4 +22,6 @@ public class ClientRequestDto {
     @NotEmpty(message = "Введите номер телефона")
     @Pattern(regexp = "\\d+", message = "Только цифры")
     private String phone;
+    @NotNull(message = "День недели обязателен")
+    private DayOfWeek dayOfWeek;
 }

@@ -39,6 +39,7 @@ public class ClientController {
                     .map(clientMapper::toResponseDto)
                     .collect(Collectors.toList());
 
+
             model.addAttribute("allClients", clientDtos);
             return "client/viewClients";
 

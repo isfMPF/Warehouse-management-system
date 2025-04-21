@@ -54,6 +54,7 @@
             <th width="10%">Код</th>
             <th width="20%">Клиент</th>
             <th width="20%">Адрес</th>
+            <th width="20%">День посещения</th>
             <th width="20%">ФИО</th>
             <th width="15%">Телефон</th>
             <th width="15%">Действия</th>
@@ -64,6 +65,12 @@
             <td th:text="${client.codeClient}" class="fw-bold text-primary"></td>
             <td th:text="${client.name}"></td>
             <td th:text="${client.address}"></td>
+            <td th:text="${client.dayOfWeek.toString().replace('MONDAY','Понедельник')
+                              .replace('TUESDAY','Вторник')
+                              .replace('WEDNESDAY','Среда')
+                              .replace('THURSDAY','Четверг')
+                              .replace('FRIDAY','Пятница')
+                              .replace('SATURDAY','Суббота')}"></td>
             <td th:text="${client.fio}"></td>
             <td>
               <a th:href="'tel:' + ${client.phone}" class="text-decoration-none">

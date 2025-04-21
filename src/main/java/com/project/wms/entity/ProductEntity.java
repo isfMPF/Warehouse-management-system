@@ -16,6 +16,7 @@ public class ProductEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(unique = true)
     private String code;  //код товара
     private String name;
     private String volume; //объём

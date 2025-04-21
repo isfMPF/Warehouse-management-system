@@ -119,6 +119,8 @@ public class OrderController {
 
             List<ClientResponseDto> clientsToSelect = StreamSupport.stream(clientService.getAllClients().spliterator(), false)
                     .map(clientMapper::toResponseDto)
+                    .filter(dayOfWeek -> dayOfWeek.getDayOfWeek().equals(LocalDate.now().getDayOfWeek()))
+                    .sorted(Comparator.comparing(ClientResponseDto::getName))
                     .toList();
 
             model.addAttribute("clients",clientsToSelect);
@@ -249,8 +251,11 @@ public class OrderController {
                 }
 
                 model.addAttribute("cart", cart);
+
                 List<ClientResponseDto> clientsToSelect = StreamSupport.stream(clientService.getAllClients().spliterator(), false)
                         .map(clientMapper::toResponseDto)
+                        .filter(dayOfWeek -> dayOfWeek.getDayOfWeek().equals(LocalDate.now().getDayOfWeek()))
+                        .sorted(Comparator.comparing(ClientResponseDto::getName))
                         .toList();
 
                 model.addAttribute("clients",clientsToSelect);
