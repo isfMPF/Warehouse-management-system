@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.DayOfWeek;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -49,6 +50,18 @@ public class ClientController {
             return "error/error";
         }
     }
+    // Вспомогательный метод
+    private String getRussianDayName(DayOfWeek day) {
+        switch (day) {
+            case MONDAY:    return "понедельник";
+            case TUESDAY:   return "вторник";
+            case WEDNESDAY: return "среда";
+            case THURSDAY:  return "четверг";
+            case FRIDAY:   return "пятница";
+            case SATURDAY:  return "суббота";
+            default:        return "";
+        }
+    }
 
     @GetMapping("/search")
     public String showClientByName(@RequestParam String query,Model model){
@@ -62,6 +75,8 @@ public class ClientController {
             List<ClientResponseDto> clients = StreamSupport.stream(clientService.getAllClients().spliterator(), false)
                     .filter(client ->
                             (client.getName() != null && client.getName().toLowerCase().contains(query.toLowerCase())) ||
+                                    (client.getDayOfWeek() != null &&
+                                            getRussianDayName(client.getDayOfWeek()).toLowerCase().contains(query.toLowerCase())) ||
                                     (client.getCodeClient() != null && String.valueOf(client.getCodeClient()).contains(query)) ||
                                     (client.getAddress() != null && client.getAddress().toLowerCase().contains(query.toLowerCase()))
                     )
