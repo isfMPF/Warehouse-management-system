@@ -65,12 +65,7 @@
             <td th:text="${client.codeClient}" class="fw-bold text-primary"></td>
             <td th:text="${client.name}"></td>
             <td th:text="${client.address}"></td>
-            <td th:text="${client.dayOfWeek.toString().replace('MONDAY','Понедельник')
-                              .replace('TUESDAY','Вторник')
-                              .replace('WEDNESDAY','Среда')
-                              .replace('THURSDAY','Четверг')
-                              .replace('FRIDAY','Пятница')
-                              .replace('SATURDAY','Суббота')}"></td>
+            <td th:text="#{'day.' + ${client.dayOfWeek}}"></td>
             <td th:text="${client.fio}"></td>
             <td>
               <a th:href="'tel:' + ${client.phone}" class="text-decoration-none">

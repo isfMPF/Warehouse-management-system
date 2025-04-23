@@ -150,6 +150,14 @@
                 <div th:if="${promo == null or promo.isEmpty()}">
                     <p class="text-muted">Нет доступных промоакций</p>
                 </div>
+
+                <!-- Кнопка назад -->
+                <div class="text-end mt-4">
+                    <button onclick="history.back();" class="btn btn-outline-secondary back-btn">
+                        <i class="bi bi-arrow-left me-1"></i> Назад
+                    </button>
+                </div>
+
             </div>
         </div>
     </div>
