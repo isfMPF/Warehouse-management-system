@@ -79,7 +79,7 @@
                                 </a>
 
                                 <a th:href="@{/orders/promo/{id}(id=${order.id})}"
-                                   class="btn btn-sm btn-outline-info" title="Промо-код">
+                                   class="btn btn-sm btn-outline-info" title="Промо">
                                     <i class="bi bi-percent"></i>
                                 </a>
 
@@ -118,8 +118,61 @@
     </div>
 </main>
 
+<!-- Модальное окно промо -->
+<div class="modal fade" id="promoModal" tabindex="-1" aria-labelledby="promoModalLabel" aria-hidden="true"
+     th:if="${currentOrderId != null}">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Промоакции для заказа #<span th:text="${currentOrderId}"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <div th:if="${promo != null and !promo.isEmpty()}">
+                    <ul class="list-group">
+                        <li class="list-group-item" th:each="p : ${promo}">
+                            <div class="d-flex justify-content-between align-items-start flex-column flex-md-row">
+                                <div class="mb-2 mb-md-0">
+                                    <input name="promoId" type="hidden" th:value="p.id">
+                                    <strong th:text="${p.name}"></strong><br/>
+                                    <small th:text="'Период: ' + ${#temporals.format(p.startDate, 'dd.MM.yyyy')} + ' - ' + ${#temporals.format(p.endDate, 'dd.MM.yyyy')}"></small><br/>
+                                    <small th:text="'Условие: купить ' + ${p.requiredQuantity} + ' × ' + ${p.requiredProduct.name}"></small><br/>
+                                    <small th:text="'Бонус: ' + ${p.freeQuantity} + ' × ' + ${p.freeProduct.name}"></small>
+                                </div>
+                                <a th:href="@{/orders/promo/submit/{id}(id=${currentOrderId}, promoId=${p.id})}"
+                                   class="btn btn-success btn-sm">
+                                    Применить
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div th:if="${promo == null or promo.isEmpty()}">
+                    <p class="text-muted">Нет доступных промоакций</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 <!-- Подключение Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Автоматическое открытие модалки -->
+<script>
+    window.addEventListener('DOMContentLoaded', function () {
+        const modalElement = document.getElementById('promoModal');
+        if (modalElement) {
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+        }
+    });
+</script>
 
 
 <!-- Подтверждение удаления -->
@@ -132,6 +185,9 @@
         });
     });
 </script>
+
+
+
 
 </body>
 </html>

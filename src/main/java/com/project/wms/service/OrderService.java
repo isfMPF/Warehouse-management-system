@@ -146,7 +146,9 @@ public class OrderService {
         orderRepository.delete(order);
     }
 
-    public Map<String, Object> calculatePromo(Long orderId) {
+    @Transactional
+    public Map<String, Object> calculatePromo(Long orderId, int promoId) {
+
         Map<String, Object> result = new HashMap<>();
         List<String> messages = new ArrayList<>();
         boolean promoApplied = false;
@@ -154,32 +156,32 @@ public class OrderService {
         OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
         OrderResponseDto order = orderMapper.toResponseDto(orderEntity);
         List<OrderItemResponseDto> orderItems = order.getItem();
-        List<PromotionResponseDTO> activePromo = promotionService.getActivePromotions();
+        Optional<PromotionResponseDTO> activePromo = promotionService.getActivePromoById(promoId);
+
         List<OrderItemEntity> freeItemsToAdd = new ArrayList<>();
         List<ProductEntity> productsToUpdate = new ArrayList<>();
 
-        if (!activePromo.isEmpty()) {
-            for (PromotionResponseDTO promo : activePromo) {
-                // Преобразуем коды товаров акции в Long
-                Set<Long> promoIncludedCodes = promo.getIncludedProducts().stream()
-                        .map(p -> Long.valueOf(p.getProductResponseDto().getCode()))
-                        .collect(Collectors.toSet());
+        if (activePromo.isPresent()) {
+            PromotionResponseDTO promo = activePromo.get();
 
-                // Проверка обязательного товара
-                boolean hasRequiredProduct = orderItems.stream()
-                        .anyMatch(item -> item.getCode().toString().equals(promo.getRequiredProduct().getCode()));
+            // Преобразуем коды товаров акции в Long
+            Set<Long> promoIncludedCodes = promo.getIncludedProducts().stream()
+                    .map(p -> Long.valueOf(p.getProductResponseDto().getCode()))
+                    .collect(Collectors.toSet());
 
-                if (!hasRequiredProduct) {
-                    messages.add(String.format(
-                            "Акция '%s' не применена: отсутствует обязательный товар %s %sл (%s)",
-                            promo.getName(),
-                            promo.getRequiredProduct().getName(),
-                            promo.getRequiredProduct().getVolume(),
-                            promo.getRequiredProduct().getCode()
-                    ));
-                    continue;
-                }
+            // Проверка обязательного товара
+            boolean hasRequiredProduct = orderItems.stream()
+                    .anyMatch(item -> item.getCode().toString().equals(promo.getRequiredProduct().getCode()));
 
+            if (!hasRequiredProduct) {
+                messages.add(String.format(
+                        "Акция '%s' не применена: отсутствует обязательный товар %s %sл (%s)",
+                        promo.getName(),
+                        promo.getRequiredProduct().getName(),
+                        promo.getRequiredProduct().getVolume(),
+                        promo.getRequiredProduct().getCode()
+                ));
+            } else {
                 // Подсчет товаров акции
                 int totalIncludedProducts = orderItems.stream()
                         .filter(item -> promoIncludedCodes.contains(item.getCode()))
@@ -205,7 +207,6 @@ public class OrderService {
                                     "Акция '%s' не применена: недостаточно бесплатного товара на складе",
                                     promo.getName()
                             ));
-                            continue;
                         }
 
                         // Создаем бесплатный товар
@@ -237,7 +238,7 @@ public class OrderService {
                 }
             }
         } else {
-            messages.add("Нет доступных акций");
+            messages.add("Акция с ID " + promoId + " не найдена");
         }
 
         // Сохраняем изменения

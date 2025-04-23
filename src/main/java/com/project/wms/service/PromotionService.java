@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -98,6 +99,15 @@ public class PromotionService {
         return promotionRepository.findActivePromotions().stream()
                 .map(promotionMapper::toResponseDto)
                 .collect(Collectors.toList());
+    }
+
+    public Optional<PromotionResponseDTO> getActivePromoById(int id) {
+        LocalDate today = LocalDate.now();
+
+        return promotionRepository.findById((long) id)
+                .filter(promo -> !promo.getStartDate().isAfter(today)) // дата начала не позже сегодня
+                .filter(promo -> !promo.getEndDate().isBefore(today))  // дата окончания не раньше сегодня
+                .map(promotionMapper::toResponseDto);
     }
 
 

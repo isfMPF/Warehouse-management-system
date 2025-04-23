@@ -50,6 +50,7 @@ public class ClientController {
             return "error/error";
         }
     }
+
     // Вспомогательный метод
     private String getRussianDayName(DayOfWeek day) {
         switch (day) {

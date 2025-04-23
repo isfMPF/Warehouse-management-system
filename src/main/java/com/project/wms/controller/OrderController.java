@@ -263,12 +263,10 @@ public class OrderController {
                 return "order/viewItemsOrder";
             }
 
-
             orderService.createOrder(orderRequestDto);
-
             session.removeAttribute("cart");
-
             return "redirect:/orders";
+
         } catch (IllegalArgumentException e) {
             logger.error(e.getMessage(), e);
             model.addAttribute("errorMessage", e.getMessage());
@@ -484,9 +482,29 @@ public class OrderController {
     }
 
     @GetMapping("/promo/{id}")
-    public String promo(@PathVariable(value = "id") Long id, Model model) {
+    public String getActivePromo(@PathVariable(value = "id") Long id, Model model){
         try {
-            Map<String, Object> promoResult = orderService.calculatePromo(id);
+            List<PromotionResponseDTO> activePromo = promotionService.getActivePromotions();
+            OrderResponseDto orders = orderMapper.toResponseDto(orderService.getOrderById(id));
+            model.addAttribute("orders", orders);
+            model.addAttribute("promo", activePromo);
+            model.addAttribute("currentOrderId", id);
+            System.out.println("promo" + activePromo);
+            System.out.println("currentOrderId" + id);
+            return  "order/viewOrders";
+        }catch (Exception e) {
+            logger.error("Ошибка при загрузки промо", e);
+            model.addAttribute("errorMessage", "Ошибка при загрузки промо: ");
+            return "error/error";
+        }
+    }
+
+    @GetMapping("/promo/submit/{id}")
+    public String promo(@PathVariable(value = "id") Long id,
+                        @RequestParam(value = "promoId") int promoId,
+                        Model model) {
+        try {
+            Map<String, Object> promoResult = orderService.calculatePromo(id, promoId);
             OrderResponseDto order = orderMapper.toResponseDto(orderService.getOrderById(id));
 
             model.addAttribute("orders", order);
