@@ -13,43 +13,35 @@
 
         <div class="card-body">
             <!-- Поиск и фильтрация -->
+            <!-- Поиск и фильтрация -->
             <section class="mb-4">
-                <form th:action="@{/orders/search}" method="get" class="row g-3 align-items-center">
-                    <!-- Кнопка создания нового заказа -->
-                    <div class="col-md-2 col-12">
-                        <a th:href="@{/orders/create}" class="btn btn-primary w-100">
-                            <i class="bi bi-plus-circle me-2"></i>Новый заказ
-                        </a>
-                    </div>
+                <form th:action="@{/orders/search}" method="get">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center">
+                        <!-- Левая группа - кнопки -->
+                        <div class="d-flex flex-wrap gap-2 mb-2 mb-md-0">
+                            <a th:href="@{/orders/create}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-2"></i>Новый заказ
+                            </a>
+                            <a th:href="@{/orders}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-counterclockwise me-2"></i>Показать всё
+                            </a>
+                        </div>
 
-                    <!-- Кнопка сброса фильтров -->
-                    <div class="col-md-2 col-12">
-                        <a th:href="@{/orders}" class="btn btn-outline-secondary w-100">
-                            <i class="bi bi-arrow-counterclockwise me-2"></i>Показать всё
-                        </a>
-                    </div>
-
-                    <!-- Фильтр по дате -->
-                    <div class="col-md-6 col-12">
-                        <div class="row g-2 align-items-center">
-                            <div class="col-md-4 col-12">
-                                <label for="start" class="form-label">От:</label>
+                        <!-- Правая группа - фильтры -->
+                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                            <div class="d-flex align-items-center gap-2">
+                                <label for="start" class="form-label mb-0">От:</label>
                                 <input type="date" name="start" id="start" class="form-control">
                             </div>
-                            <div class="col-md-4 col-12">
-                                <label for="end" class="form-label">До:</label>
+                            <div class="d-flex align-items-center gap-2">
+                                <label for="end" class="form-label mb-0">До:</label>
                                 <input type="date" name="end" id="end" class="form-control">
                             </div>
-                            <div class="col-md-4 col-12 d-grid">
-                                <button type="submit" class="btn btn-success mt-md-4">
-                                    <i class="bi bi-search me-2"></i>Поиск
-                                </button>
-                            </div>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-search me-2"></i>Поиск
+                            </button>
                         </div>
                     </div>
-
-                    <!-- Дополнительное пространство для выравнивания -->
-                    <div class="col-md-4"></div>
                 </form>
             </section>
 
@@ -114,7 +106,6 @@
                 </div>
             </section>
         </div>
-
     </div>
 </main>
 
@@ -163,14 +154,9 @@
     </div>
 </div>
 
-
-
 <!-- Подключение Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 <!-- Автоматическое открытие модалки -->
 <script>
     window.addEventListener('DOMContentLoaded', function () {
@@ -181,8 +167,6 @@
         }
     });
 </script>
-
-
 <!-- Подтверждение удаления -->
 <script>
     document.querySelectorAll('.delete-form').forEach(form => {
@@ -193,9 +177,5 @@
         });
     });
 </script>
-
-
-
-
 </body>
 </html>

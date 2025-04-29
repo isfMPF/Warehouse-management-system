@@ -489,8 +489,6 @@ public class OrderController {
             model.addAttribute("orders", orders);
             model.addAttribute("promo", activePromo);
             model.addAttribute("currentOrderId", id);
-            System.out.println("promo" + activePromo);
-            System.out.println("currentOrderId" + id);
             return  "order/viewOrders";
         }catch (Exception e) {
             logger.error("Ошибка при загрузки промо", e);
