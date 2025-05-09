@@ -91,6 +91,7 @@ public class LogisticController {
     public String processSelectedOrders(
             @RequestParam(name = "selectedOrderIds", required = false) List<Long> selectedOrderIds,
             @RequestParam(name = "transportId") Long transportId,
+            @RequestParam(name = "checkCapacity",  required = false) boolean capacityCheck,
             @RequestParam(name = "forwarderId") Long forwarderId, Model model) {
 
         try{
@@ -99,11 +100,21 @@ public class LogisticController {
                 return "logistic/logistic";
             }
 
+            double totalWeight = 0.0;
             List<OrderResponseDto> orders = new ArrayList<>();
             for (Long selectedOrderId : selectedOrderIds) {
                 OrderResponseDto order = orderMapper.toResponseDto(orderService.getOrderById(selectedOrderId));
                 orders.add(order);
+                totalWeight += orderService.calculateWeightOrderById(selectedOrderId);
+            }
 
+            double transportCapacity = transportservice.findById(transportId)
+                    .map(TransportResponseDto::getCapacity)
+                    .orElse(0.0);
+
+            if (capacityCheck && totalWeight > transportCapacity){
+                model.addAttribute("errorMessage", "Вес заказов превышает грузоподъёмность транспорта");
+                return "error/error";
             }
 
             // Сортируем товары внутри каждого заказа по объему (от большего к меньшему)
@@ -129,7 +140,7 @@ public class LogisticController {
 
     }
 
-    // Вспомогательный метод для парсинга объема (удаляет " л" и преобразует в число)
+    // Вспомогательный метод для парсинга объема (удаляет "л" и преобразует в число)
     private double parseVolume(String volume) {
         try {
             return Double.parseDouble(volume.replace(" л", "").replace(",", ".").trim());

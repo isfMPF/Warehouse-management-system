@@ -67,7 +67,7 @@
             <th width="10%">Кол-во в уп.</th>
             <th width="10%">Цена</th>
             <th width="12%">На складе</th>
-            <th width="8%">Вес</th>
+            <th width="8%">Вес (1 уп.)</th>
             <th width="18%">Действия</th>
           </tr>
           </thead>
@@ -81,7 +81,7 @@
             <td th:text="${product.price}"></td>
             <td>
                                 <span th:class="${product.amount > 0} ? 'badge bg-success' : 'badge bg-danger'"
-                                      th:text="${product.amount} + ' шт.'"></span>
+                                      th:text="${product.amount} + ' уп.'"></span>
             </td>
             <td th:text="${product.weight} + ' кг'"></td>
             <td>

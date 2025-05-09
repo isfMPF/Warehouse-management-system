@@ -259,4 +259,17 @@ public class OrderService {
     public void returnOrder(Long id){
         deleteOrderWithItems(id);
     }
+
+    public double calculateWeightOrderById(Long orderId){
+
+        OrderResponseDto order = orderMapper.toResponseDto(orderRepository.findOrderById(orderId));
+
+        if (order == null || order.getItem() == null) {
+            return 0.0;
+        }
+
+        return  order.getItem().stream()
+                .mapToDouble(item -> item.getWeight() * item.getAmount())
+                .sum();
+    }
 }

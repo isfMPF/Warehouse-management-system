@@ -73,7 +73,7 @@
               <option value="" selected disabled>Выберите транспорт</option>
               <option th:each="transport : ${transports}"
                       th:value="${transport.id}"
-                      th:text="${transport.name + ' (' + transport.number + ')'}">
+                      th:text="${transport.name + ' (' + transport.number + ')' +' --> ' + 'Грузоподъёмность: ' + transport.capacity + 'кг'}">
               </option>
             </select>
             <div class="invalid-feedback">Пожалуйста, выберите транспорт</div>
@@ -89,6 +89,16 @@
               </option>
             </select>
             <div class="invalid-feedback">Пожалуйста, выберите экспедитора</div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Список заказов для логистики</h5>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="capacityCheck" name="checkCapacity" checked>
+            <label class="form-check-label" for="capacityCheck">
+              <i class="fas fa-weight-hanging me-1"></i> Учитывать грузоподъёмность транспорта
+            </label>
           </div>
         </div>
 
